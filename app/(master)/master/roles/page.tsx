@@ -11,39 +11,39 @@ export default async function RolesPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-900">Roles</h2>
-      <p className="mt-1 text-gray-600">
+      <h2 className="text-2xl font-semibold text-white">Roles</h2>
+      <p className="mt-1 text-gray-400">
         System roles (Master, Admin, Normal) and custom roles for access control.
       </p>
       <RolesForm />
-      <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+      <div className="mt-8 overflow-hidden rounded-lg border border-[#334155] bg-[#1e293b] shadow">
+        <table className="min-w-full divide-y divide-[#334155]">
+          <thead>
+            <tr className="bg-[#1a202c]">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
                 Name
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
                 Slug
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
                 Type
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-[#334155]">
             {(roles ?? []).map((r) => (
               <tr key={r.id}>
-                <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-white">
                   {r.name}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-300">
                   {r.slug}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-300">
                   {r.is_system ? "System" : "Custom"}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-sm">
