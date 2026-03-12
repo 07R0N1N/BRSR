@@ -60,11 +60,15 @@ export function PanelSectionB({ values, onChange }: Props) {
     }, [])
     .sort((a, b) => rowOrder(a.rowKey) - rowOrder(b.rowKey));
 
+  /** Rows 1a–6 (before 7 & 8), then 9–11 (after 7 & 8) to match reference order */
+  const mainRowsBefore7And8 = mainRows.filter((r) => rowOrder(r.rowKey) < 70);
+  const mainRowsAfter7And8 = mainRows.filter((r) => rowOrder(r.rowKey) >= 70);
+
   return (
     <section>
-      <h1 className="text-xl font-semibold text-gray-900">Section B: Management and Process Disclosures</h1>
-      <p className="mt-1 text-sm text-gray-500">Structures, policies and processes towards NGRBC Principles (Annexure II)</p>
-      <p className="mt-2 text-xs font-semibold text-gray-700">Disclosure questions – indicate Yes/No or provide details for each principle (P1–P9)</p>
+      <h1 className="text-2xl font-bold text-gray-900">Section B: Management and Process Disclosures</h1>
+      <p className="mt-1 text-xs text-slate-400">Structures, policies and processes towards NGRBC Principles (Annexure II)</p>
+      <p className="mt-2 text-xs font-semibold text-slate-400">Disclosure questions – indicate Yes/No or provide details for each principle (P1–P9)</p>
 
       {/* Table 1: Disclosures 1(a)–11 */}
       <div className="mt-6 overflow-x-auto">
@@ -78,7 +82,7 @@ export function PanelSectionB({ values, onChange }: Props) {
             </tr>
           </thead>
           <tbody>
-            {mainRows.map(({ rowKey, cells }) => (
+            {mainRowsBefore7And8.map(({ rowKey, cells }) => (
               <tr key={rowKey}>
                 <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
                   {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
@@ -127,6 +131,31 @@ export function PanelSectionB({ values, onChange }: Props) {
                 />
               </td>
             </tr>
+            {mainRowsAfter7And8.map(({ rowKey, cells }) => (
+              <tr key={rowKey}>
+                <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
+                  {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
+                </td>
+                {PRINCIPLES.map((p) => {
+                  const cell = cells.find((c) => c.principle === p);
+                  return (
+                    <td key={p} className="border border-gray-200 px-2 py-1">
+                      {cell ? (
+                        <input
+                          type="text"
+                          value={v(cell.code)}
+                          onChange={(e) => onChange(cell.code, e.target.value)}
+                          placeholder="Y/N"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -176,7 +205,7 @@ export function PanelSectionB({ values, onChange }: Props) {
         </table>
       </div>
 
-      <p className="mt-4 text-xs text-gray-500">Data is saved automatically.</p>
+      <p className="mt-4 text-xs text-slate-400">Data is saved automatically.</p>
     </section>
   );
 }

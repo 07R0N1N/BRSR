@@ -12,6 +12,13 @@ const v = (values: AnswersState, code: string) => values[code] ?? "";
 const d = (calcDisplay: Record<string, string>, code: string) => calcDisplay[code] ?? "";
 
 const ANNEXURE_II_URL = "https://www.sebi.gov.in/sebi_data/commondocs/jul-2023/Annexure_II-Updated-BRSR_p.PDF";
+const MAX_TABLE_ROWS = 20;
+
+function rowCount(values: AnswersState, code: string): number {
+  const n = parseInt(values[code] || "1", 10);
+  if (Number.isNaN(n) || n < 1) return 1;
+  return Math.min(n, MAX_TABLE_ROWS);
+}
 
 export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
   const val = (code: string) => v(values, code);
@@ -19,8 +26,8 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
   return (
     <section>
-      <h1 className="text-xl font-semibold text-gray-900">Section A: General Disclosures</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-2xl font-bold text-gray-900">Section A: General Disclosures</h1>
+      <p className="mt-1 text-xs text-slate-400">
         As per SEBI{" "}
         <a href={ANNEXURE_II_URL} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
           Annexure II – BRSR Format
@@ -29,7 +36,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
       {/* I. Details of the listed entity */}
       <div className="mt-6">
-        <h3 className="text-sm font-medium text-indigo-600">I. Details of the listed entity</h3>
+        <h3 className="text-sm font-semibold text-teal-400">I. Details of the listed entity</h3>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label className="block text-xs text-gray-500">1. Corporate Identity Number (CIN)</label>
@@ -113,7 +120,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
       {/* II. Products / Services */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">II. Products / Services</h3>
+        <h3 className="text-sm font-semibold text-teal-400">II. Products / Services</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">16. Details of business activities (accounting for 90% of turnover)</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -126,7 +133,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {Array.from({ length: rowCount(values, "gen_16_row_count") }, (_, i) => i + 1).map((i) => (
                 <tr key={i}>
                   <td className="border border-gray-200 px-2 py-1.5">{i}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_16_${i}_main`)} onChange={(e) => onChange(`gen_16_${i}_main`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" placeholder={i === 1 ? "Main activity" : ""} /></td>
@@ -136,6 +143,16 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-2 flex justify-start">
+          <button
+            type="button"
+            onClick={() => onChange("gen_16_row_count", String(rowCount(values, "gen_16_row_count") + 1))}
+            disabled={rowCount(values, "gen_16_row_count") >= MAX_TABLE_ROWS}
+            className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add row
+          </button>
         </div>
         <p className="mt-3 text-xs font-semibold text-gray-700">17. Products/Services sold (accounting for 90% of turnover)</p>
         <div className="mt-2 overflow-x-auto">
@@ -149,7 +166,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {Array.from({ length: rowCount(values, "gen_17_row_count") }, (_, i) => i + 1).map((i) => (
                 <tr key={i}>
                   <td className="border border-gray-200 px-2 py-1.5">{i}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_17_${i}_product`)} onChange={(e) => onChange(`gen_17_${i}_product`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" placeholder={i === 1 ? "Product/Service" : ""} /></td>
@@ -160,11 +177,21 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
             </tbody>
           </table>
         </div>
+        <div className="mt-2 flex justify-start">
+          <button
+            type="button"
+            onClick={() => onChange("gen_17_row_count", String(rowCount(values, "gen_17_row_count") + 1))}
+            disabled={rowCount(values, "gen_17_row_count") >= MAX_TABLE_ROWS}
+            className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add row
+          </button>
+        </div>
       </div>
 
       {/* III. Operations */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">III. Operations</h3>
+        <h3 className="text-sm font-semibold text-teal-400">III. Operations</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">18. Number of locations (plants / operations / offices)</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full max-w-xl border-collapse border border-gray-200 text-sm">
@@ -181,13 +208,13 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
                 <td className="border border-gray-200 px-2 py-1.5">National</td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_18_nat_plants")} onChange={(e) => onChange("gen_18_nat_plants", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" placeholder="No." /></td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_18_nat_offices")} onChange={(e) => onChange("gen_18_nat_offices", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" placeholder="No." /></td>
-                <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono text-gray-700">{disp("gen_18_nat_sum") || "—"}</td>
+                <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{disp("gen_18_nat_sum") || "—"}</td>
               </tr>
               <tr>
                 <td className="border border-gray-200 px-2 py-1.5">International</td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_18_int_plants")} onChange={(e) => onChange("gen_18_int_plants", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_18_int_offices")} onChange={(e) => onChange("gen_18_int_offices", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono text-gray-700">{disp("gen_18_int_sum") || "—"}</td>
+                <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{disp("gen_18_int_sum") || "—"}</td>
               </tr>
             </tbody>
           </table>
@@ -225,7 +252,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
       {/* IV. Employees */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">IV. Employees</h3>
+        <h3 className="text-sm font-semibold text-teal-400">IV. Employees</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">20(a). Employees and workers (including differently abled) – as at end of FY</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -251,9 +278,9 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
                   <td className="border border-gray-200 px-2 py-1.5">{row}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(total)} onChange={(e) => onChange(total, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(m)} onChange={(e) => onChange(m, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                  <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{noPct ? "—" : (mPct && disp(mPct) ? `${disp(mPct)}%` : "—")}</td>
+                  <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{noPct ? "—" : (mPct && disp(mPct) ? `${disp(mPct)}%` : "—")}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(f)} onChange={(e) => onChange(f, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                  <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{noPct ? "—" : (fPct && disp(fPct) ? `${disp(fPct)}%` : "—")}</td>
+                  <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{noPct ? "—" : (fPct && disp(fPct) ? `${disp(fPct)}%` : "—")}</td>
                 </tr>
               ))}
             </tbody>
@@ -285,9 +312,9 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
                   <td className="border border-gray-200 px-2 py-1.5">{r.label}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(r.total)} onChange={(e) => onChange(r.total, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
                   <td className="border border-gray-200 px-2 py-1">{r.m ? <input type="text" value={val(r.m)} onChange={(e) => onChange(r.m, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /> : "—"}</td>
-                  <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{r.mPct ? (disp(r.mPct) ? `${disp(r.mPct)}%` : "—") : "—"}</td>
+                  <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{r.mPct ? (disp(r.mPct) ? `${disp(r.mPct)}%` : "—") : "—"}</td>
                   <td className="border border-gray-200 px-2 py-1">{r.f ? <input type="text" value={val(r.f)} onChange={(e) => onChange(r.f, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /> : "—"}</td>
-                  <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{r.fPct ? (disp(r.fPct) ? `${disp(r.fPct)}%` : "—") : "—"}</td>
+                  <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{r.fPct ? (disp(r.fPct) ? `${disp(r.fPct)}%` : "—") : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -309,13 +336,13 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
                 <td className="border border-gray-200 px-2 py-1.5">Board of Directors</td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_21_bod_total")} onChange={(e) => onChange("gen_21_bod_total", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_21_bod_f")} onChange={(e) => onChange("gen_21_bod_f", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{disp("gen_21_bod_pct") ? `${disp("gen_21_bod_pct")}%` : "—"}</td>
+                <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{disp("gen_21_bod_pct") ? `${disp("gen_21_bod_pct")}%` : "—"}</td>
               </tr>
               <tr>
                 <td className="border border-gray-200 px-2 py-1.5">Key Management Personnel</td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_21_kmp_total")} onChange={(e) => onChange("gen_21_kmp_total", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
                 <td className="border border-gray-200 px-2 py-1"><input type="text" value={val("gen_21_kmp_f")} onChange={(e) => onChange("gen_21_kmp_f", e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                <td className="border border-gray-200 px-2 py-1.5 bg-gray-50 font-mono">{disp("gen_21_kmp_pct") ? `${disp("gen_21_kmp_pct")}%` : "—"}</td>
+                <td className="border border-gray-200 px-2 py-1.5 font-mono calc-cell" role="status" aria-readonly="true">{disp("gen_21_kmp_pct") ? `${disp("gen_21_kmp_pct")}%` : "—"}</td>
               </tr>
             </tbody>
           </table>
@@ -363,7 +390,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
       {/* V. Holding, Subsidiary, Associate, Joint Ventures */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">V. Holding, Subsidiary, Associate, Joint Ventures</h3>
+        <h3 className="text-sm font-semibold text-teal-400">V. Holding, Subsidiary, Associate, Joint Ventures</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">23(a). Names of holding / subsidiary / associate / JVs</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -377,7 +404,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {Array.from({ length: rowCount(values, "gen_23_row_count") }, (_, i) => i + 1).map((i) => (
                 <tr key={i}>
                   <td className="border border-gray-200 px-2 py-1.5">{i}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_23_${i}_name`)} onChange={(e) => onChange(`gen_23_${i}_name`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
@@ -389,11 +416,21 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
             </tbody>
           </table>
         </div>
+        <div className="mt-2 flex justify-start">
+          <button
+            type="button"
+            onClick={() => onChange("gen_23_row_count", String(rowCount(values, "gen_23_row_count") + 1))}
+            disabled={rowCount(values, "gen_23_row_count") >= MAX_TABLE_ROWS}
+            className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add row
+          </button>
+        </div>
       </div>
 
       {/* VI. CSR Details */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">VI. CSR Details</h3>
+        <h3 className="text-sm font-semibold text-teal-400">VI. CSR Details</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">24.</p>
         <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
@@ -417,7 +454,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
 
       {/* VII. Transparency and Disclosures – Complaints/Grievances */}
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-indigo-600">VII. Transparency and Disclosures – Complaints/Grievances (Principles 1–9)</h3>
+        <h3 className="text-sm font-semibold text-teal-400">VII. Transparency and Disclosures – Complaints/Grievances (Principles 1–9)</h3>
         <p className="mt-2 text-xs font-semibold text-gray-700">25. Complaints/Grievances by stakeholder group</p>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[800px] border-collapse border border-gray-200 text-sm">
@@ -471,7 +508,7 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {Array.from({ length: rowCount(values, "gen_26_row_count") }, (_, i) => i + 1).map((i) => (
                 <tr key={i}>
                   <td className="border border-gray-200 px-2 py-1.5">{i}</td>
                   <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_26_${i}_issue`)} onChange={(e) => onChange(`gen_26_${i}_issue`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
@@ -484,9 +521,19 @@ export function PanelGeneral({ values, calcDisplay, onChange }: Props) {
             </tbody>
           </table>
         </div>
+        <div className="mt-2 flex justify-start">
+          <button
+            type="button"
+            onClick={() => onChange("gen_26_row_count", String(rowCount(values, "gen_26_row_count") + 1))}
+            disabled={rowCount(values, "gen_26_row_count") >= MAX_TABLE_ROWS}
+            className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add row
+          </button>
+        </div>
       </div>
 
-      <p className="mt-6 text-xs text-gray-500">Data is saved automatically.</p>
+      <p className="mt-6 text-xs text-slate-400">Data is saved automatically.</p>
     </section>
   );
 }
