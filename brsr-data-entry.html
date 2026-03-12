@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRSR Data Entry | SEBI Business Responsibility & Sustainability Reporting</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --text-muted: #8b9cb3;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1rem 0;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 0 1rem 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: block;
+      width: 100%;
+      padding: 0.6rem 1rem;
+      text-align: left;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-btn:hover { background: var(--surface2); }
+    .nav-btn.active {
+      background: var(--surface2);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .main {
+      flex: 1;
+      overflow: auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+    .panel {
+      display: none;
+      max-width: 900px;
+    }
+    .panel.active { display: block; }
+    .panel h1 {
+      font-size: 1.35rem;
+      margin: 0 0 0.25rem;
+      color: var(--text);
+    }
+    .panel .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .meta-row label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .meta-row input, .meta-row select {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .section-block {
+      margin-bottom: 1.75rem;
+    }
+    .section-block h3 {
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin: 0 0 0.75rem;
+      padding-bottom: 0.35rem;
+    }
+    .field {
+      margin-bottom: 1rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-muted);
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .field textarea { min-height: 80px; resize: vertical; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    table.data-table th, table.data-table td {
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    table.data-table th {
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    table.data-table td input, table.data-table td textarea {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    table.data-table td textarea { min-height: 48px; resize: vertical; }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: white;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { background: var(--surface2); }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+    .btn-row { margin-top: 0.5rem; }
+    .save-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+    .save-hint.saved { color: var(--success); }
+    .brsr-section { font-size: 0.85rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); }
+    table.brsr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; }
+    table.brsr-table th, table.brsr-table td { border: 1px solid var(--border); padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; }
+    table.brsr-table th { background: var(--surface2); color: var(--text-muted); font-weight: 600; }
+    table.brsr-table td input, table.brsr-table td select, table.brsr-table td textarea { width: 100%; min-width: 0; padding: 0.35rem 0.45rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 0.8rem; }
+    table.brsr-table td textarea { min-height: 36px; resize: vertical; }
+    .panel .max-w { max-width: 900px; }
+    /* Section C: principle sub-navigation (Essential / Leadership) */
+    .principle-subnav { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .principle-subnav .subnav-btn { padding: 0.5rem 1rem; border-radius: var(--radius); font-size: 0.9rem; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); transition: background 0.15s; }
+    .principle-subnav .subnav-btn:hover { background: var(--border); }
+    .principle-subnav .subnav-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .principle-content-block { display: none; }
+    .principle-content-block.active { display: block; }
+    /* Calculated / read-only columns */
+    .calc-display { background: var(--surface); color: var(--text-muted); font-size: 0.85rem; padding: 0.35rem 0.45rem; border-radius: 4px; min-height: 1.8rem; }
+    table.brsr-table td input.calc-input { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar">
+      <h2>Section A</h2>
+      <button type="button" class="nav-btn active" data-panel="general">General Disclosures</button>
+      <h2>Section B</h2>
+      <button type="button" class="nav-btn" data-panel="sectionb">Management & Process</button>
+      <h2>Section C – Principles</h2>
+      <button type="button" class="nav-btn" data-panel="p1">Principle 1</button>
+      <button type="button" class="nav-btn" data-panel="p2">Principle 2</button>
+      <button type="button" class="nav-btn" data-panel="p3">Principle 3</button>
+      <button type="button" class="nav-btn" data-panel="p4">Principle 4</button>
+      <button type="button" class="nav-btn" data-panel="p5">Principle 5</button>
+      <button type="button" class="nav-btn" data-panel="p6">Principle 6</button>
+      <button type="button" class="nav-btn" data-panel="p7">Principle 7</button>
+      <button type="button" class="nav-btn" data-panel="p8">Principle 8</button>
+      <button type="button" class="nav-btn" data-panel="p9">Principle 9</button>
+    </nav>
+
+    <main class="main">
+      <!-- General Disclosures - Section A (Annexure II) -->
+      <section id="panel-general" class="panel active">
+        <h1>Section A: General Disclosures</h1>
+        <p class="subtitle">As per SEBI <a href="https://www.sebi.gov.in/sebi_data/commondocs/jul-2023/Annexure_II-Updated-BRSR_p.PDF" target="_blank" rel="noopener">Annexure II – BRSR Format</a></p>
+
+        <div class="section-block">
+          <h3>I. Details of the listed entity</h3>
+          <div class="meta-row">
+            <div><label>1. Corporate Identity Number (CIN)</label><input type="text" id="gen_1_cin" placeholder="CIN"></div>
+            <div><label>2. Name of the Listed Entity</label><input type="text" id="gen_2_name" placeholder="Name"></div>
+            <div><label>3. Year of incorporation</label><input type="text" id="gen_3_year_inc" placeholder="Year"></div>
+          </div>
+          <div class="field"><label>4. Registered office address</label><input type="text" id="gen_4_registered_addr" placeholder="Address"></div>
+          <div class="field"><label>5. Corporate address</label><input type="text" id="gen_5_corporate_addr" placeholder="Address"></div>
+          <div class="meta-row">
+            <div><label>6. E-mail</label><input type="email" id="gen_6_email" placeholder="Email"></div>
+            <div><label>7. Telephone</label><input type="text" id="gen_7_telephone" placeholder="Telephone"></div>
+            <div><label>8. Website</label><input type="text" id="gen_8_website" placeholder="Website"></div>
+          </div>
+          <div class="meta-row">
+            <div><label>9. Financial year for which reporting is being done</label><input type="text" id="gen_9_fy" placeholder="e.g. FY 2024-25"></div>
+            <div><label>10. Name of the Stock Exchange(s) where shares are listed</label><input type="text" id="gen_10_stock_exchange" placeholder="Stock exchange(s)"></div>
+          </div>
+          <div class="meta-row">
+            <div><label>11. Paid-up Capital (Rs.)</label><input type="text" id="gen_11_paidup_capital" placeholder="Amount"></div>
+            <div><label>12. Name and contact (telephone, email) for BRSR queries</label><input type="text" id="gen_12_contact" placeholder="Contact details"></div>
+          </div>
+          <div class="meta-row">
+            <div><label>13. Reporting boundary</label><select id="gen_13_boundary"><option value="">—</option><option value="Standalone">Standalone</option><option value="Consolidated">Consolidated</option></select></div>
+            <div><label>14. Name of assurance provider</label><input type="text" id="gen_14_assurance_provider" placeholder="Name"></div>
+            <div><label>15. Type of assurance obtained</label><select id="gen_15_assurance_type"><option value="">—</option><option value="Limited">Limited</option><option value="Reasonable">Reasonable</option><option value="None">None</option></select></div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h3>II. Products / Services</h3>
+          <p class="brsr-section">16. Details of business activities (accounting for 90% of turnover)</p>
+          <table class="brsr-table">
+            <thead><tr><th>S. No.</th><th>Description of Main Activity</th><th>Description of Business Activity</th><th>% of Turnover</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input type="text" id="gen_16_1_main" placeholder="Main activity"></td><td><input type="text" id="gen_16_1_activity" placeholder="Business activity"></td><td><input type="text" id="gen_16_1_pct" placeholder="%"></td></tr>
+              <tr><td>2</td><td><input type="text" id="gen_16_2_main"></td><td><input type="text" id="gen_16_2_activity"></td><td><input type="text" id="gen_16_2_pct"></td></tr>
+              <tr><td>3</td><td><input type="text" id="gen_16_3_main"></td><td><input type="text" id="gen_16_3_activity"></td><td><input type="text" id="gen_16_3_pct"></td></tr>
+              <tr><td>4</td><td><input type="text" id="gen_16_4_main"></td><td><input type="text" id="gen_16_4_activity"></td><td><input type="text" id="gen_16_4_pct"></td></tr>
+              <tr><td>5</td><td><input type="text" id="gen_16_5_main"></td><td><input type="text" id="gen_16_5_activity"></td><td><input type="text" id="gen_16_5_pct"></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">17. Products/Services sold (accounting for 90% of turnover)</p>
+          <table class="brsr-table">
+            <thead><tr><th>S. No.</th><th>Product/Service</th><th>NIC Code</th><th>% of total Turnover</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input type="text" id="gen_17_1_product" placeholder="Product/Service"></td><td><input type="text" id="gen_17_1_nic" placeholder="NIC"></td><td><input type="text" id="gen_17_1_pct" placeholder="%"></td></tr>
+              <tr><td>2</td><td><input type="text" id="gen_17_2_product"></td><td><input type="text" id="gen_17_2_nic"></td><td><input type="text" id="gen_17_2_pct"></td></tr>
+              <tr><td>3</td><td><input type="text" id="gen_17_3_product"></td><td><input type="text" id="gen_17_3_nic"></td><td><input type="text" id="gen_17_3_pct"></td></tr>
+              <tr><td>4</td><td><input type="text" id="gen_17_4_product"></td><td><input type="text" id="gen_17_4_nic"></td><td><input type="text" id="gen_17_4_pct"></td></tr>
+              <tr><td>5</td><td><input type="text" id="gen_17_5_product"></td><td><input type="text" id="gen_17_5_nic"></td><td><input type="text" id="gen_17_5_pct"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-block">
+          <h3>III. Operations</h3>
+          <p class="brsr-section">18. Number of locations (plants / operations / offices)</p>
+          <table class="brsr-table">
+            <thead><tr><th>Location</th><th>Number of plants</th><th>Number of offices</th><th>Total (calc)</th></tr></thead>
+            <tbody>
+              <tr><td>National</td><td><input type="text" id="gen_18_nat_plants" class="calc-input" placeholder="No."></td><td><input type="text" id="gen_18_nat_offices" class="calc-input" placeholder="No."></td><td><span class="calc-display calc-sum" data-sum="gen_18_nat_plants,gen_18_nat_offices" data-decimals="0"></span></td></tr>
+              <tr><td>International</td><td><input type="text" id="gen_18_int_plants" class="calc-input"></td><td><input type="text" id="gen_18_int_offices" class="calc-input"></td><td><span class="calc-display calc-sum" data-sum="gen_18_int_plants,gen_18_int_offices" data-decimals="0"></span></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">19. Markets served</p>
+          <table class="brsr-table">
+            <thead><tr><th>Locations</th><th>Number</th></tr></thead>
+            <tbody>
+              <tr><td>National (No. of States)</td><td><input type="text" id="gen_19_nat_states" placeholder="No."></td></tr>
+              <tr><td>International (No. of Countries)</td><td><input type="text" id="gen_19_int_countries" placeholder="No."></td></tr>
+            </tbody>
+          </table>
+          <div class="field"><label>19(b). Contribution of exports as % of total turnover</label><input type="text" id="gen_19b_export_pct" placeholder="%"></div>
+          <div class="field"><label>19(c). Brief on types of customers</label><textarea id="gen_19c_customers" placeholder="Types of customers" style="min-height:60px"></textarea></div>
+        </div>
+
+        <div class="section-block">
+          <h3>IV. Employees</h3>
+          <p class="brsr-section">20(a). Employees and workers (including differently abled) – as at end of FY</p>
+          <table class="brsr-table">
+            <thead><tr><th>Particulars</th><th>Total (A)</th><th>Male No.</th><th>Male % (calc)</th><th>Female No.</th><th>Female % (calc)</th></tr></thead>
+            <tbody>
+              <tr><td>EMPLOYEES – Permanent (D)</td><td><input type="text" id="gen_20a_emp_perm_total" class="calc-input"></td><td><input type="text" id="gen_20a_emp_perm_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_emp_perm_m" data-denom="gen_20a_emp_perm_total"></span></td><td><input type="text" id="gen_20a_emp_perm_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_emp_perm_f" data-denom="gen_20a_emp_perm_total"></span></td></tr>
+              <tr><td>Other than Permanent (E)</td><td><input type="text" id="gen_20a_emp_other_total" class="calc-input"></td><td><input type="text" id="gen_20a_emp_other_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_emp_other_m" data-denom="gen_20a_emp_other_total"></span></td><td><input type="text" id="gen_20a_emp_other_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_emp_other_f" data-denom="gen_20a_emp_other_total"></span></td></tr>
+              <tr><td>Total employees (D+E)</td><td><input type="text" id="gen_20a_emp_total" class="calc-input"></td><td colspan="2"><input type="text" id="gen_20a_emp_total_m"></td><td colspan="2"><input type="text" id="gen_20a_emp_total_f"></td></tr>
+              <tr><td>WORKERS – Permanent (F)</td><td><input type="text" id="gen_20a_wrk_perm_total" class="calc-input"></td><td><input type="text" id="gen_20a_wrk_perm_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_wrk_perm_m" data-denom="gen_20a_wrk_perm_total"></span></td><td><input type="text" id="gen_20a_wrk_perm_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_wrk_perm_f" data-denom="gen_20a_wrk_perm_total"></span></td></tr>
+              <tr><td>Other than Permanent (G)</td><td><input type="text" id="gen_20a_wrk_other_total" class="calc-input"></td><td><input type="text" id="gen_20a_wrk_other_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_wrk_other_m" data-denom="gen_20a_wrk_other_total"></span></td><td><input type="text" id="gen_20a_wrk_other_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20a_wrk_other_f" data-denom="gen_20a_wrk_other_total"></span></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">20(b). Differently abled – Employees and workers</p>
+          <table class="brsr-table">
+            <thead><tr><th>Particulars</th><th>Total (A)</th><th>Male No.</th><th>Male % (calc)</th><th>Female No.</th><th>Female % (calc)</th></tr></thead>
+            <tbody>
+              <tr><td>Differently abled employees – Permanent</td><td><input type="text" id="gen_20b_emp_perm_total" class="calc-input"></td><td><input type="text" id="gen_20b_emp_perm_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_emp_perm_m" data-denom="gen_20b_emp_perm_total"></span></td><td><input type="text" id="gen_20b_emp_perm_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_emp_perm_f" data-denom="gen_20b_emp_perm_total"></span></td></tr>
+              <tr><td>Other than Permanent</td><td><input type="text" id="gen_20b_emp_other_total" class="calc-input"></td><td><input type="text" id="gen_20b_emp_other_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_emp_other_m" data-denom="gen_20b_emp_other_total"></span></td><td><input type="text" id="gen_20b_emp_other_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_emp_other_f" data-denom="gen_20b_emp_other_total"></span></td></tr>
+              <tr><td>Total differently abled employees</td><td><input type="text" id="gen_20b_emp_total" class="calc-input"></td><td colspan="2"></td><td colspan="2"></td></tr>
+              <tr><td>Differently abled workers – Permanent</td><td><input type="text" id="gen_20b_wrk_perm_total" class="calc-input"></td><td><input type="text" id="gen_20b_wrk_perm_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_wrk_perm_m" data-denom="gen_20b_wrk_perm_total"></span></td><td><input type="text" id="gen_20b_wrk_perm_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_wrk_perm_f" data-denom="gen_20b_wrk_perm_total"></span></td></tr>
+              <tr><td>Other than permanent</td><td><input type="text" id="gen_20b_wrk_other_total" class="calc-input"></td><td><input type="text" id="gen_20b_wrk_other_m" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_wrk_other_m" data-denom="gen_20b_wrk_other_total"></span></td><td><input type="text" id="gen_20b_wrk_other_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_20b_wrk_other_f" data-denom="gen_20b_wrk_other_total"></span></td></tr>
+              <tr><td>Total differently abled workers</td><td><input type="text" id="gen_20b_wrk_total" class="calc-input"></td><td colspan="2"></td><td colspan="2"></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">21. Participation/Inclusion of women</p>
+          <table class="brsr-table">
+            <thead><tr><th></th><th>Total (A)</th><th>No. of Females (B)</th><th>% (B/A) (calc)</th></tr></thead>
+            <tbody>
+              <tr><td>Board of Directors</td><td><input type="text" id="gen_21_bod_total" class="calc-input"></td><td><input type="text" id="gen_21_bod_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_21_bod_f" data-denom="gen_21_bod_total"></span></td></tr>
+              <tr><td>Key Management Personnel</td><td><input type="text" id="gen_21_kmp_total" class="calc-input"></td><td><input type="text" id="gen_21_kmp_f" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="gen_21_kmp_f" data-denom="gen_21_kmp_total"></span></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">22. Turnover rate for permanent employees and workers (past 3 years)</p>
+          <table class="brsr-table">
+            <thead><tr><th></th><th colspan="3">Current FY</th><th colspan="3">Previous FY</th><th colspan="3">Year prior</th></tr>
+            <tr><th></th><th>Male</th><th>Female</th><th>Total</th><th>Male</th><th>Female</th><th>Total</th><th>Male</th><th>Female</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr><td>Permanent Employees</td><td><input type="text" id="gen_22_emp_cy_m"></td><td><input type="text" id="gen_22_emp_cy_f"></td><td><input type="text" id="gen_22_emp_cy_t"></td><td><input type="text" id="gen_22_emp_py_m"></td><td><input type="text" id="gen_22_emp_py_f"></td><td><input type="text" id="gen_22_emp_py_t"></td><td><input type="text" id="gen_22_emp_pp_m"></td><td><input type="text" id="gen_22_emp_pp_f"></td><td><input type="text" id="gen_22_emp_pp_t"></td></tr>
+              <tr><td>Permanent Workers</td><td><input type="text" id="gen_22_wrk_cy_m"></td><td><input type="text" id="gen_22_wrk_cy_f"></td><td><input type="text" id="gen_22_wrk_cy_t"></td><td><input type="text" id="gen_22_wrk_py_m"></td><td><input type="text" id="gen_22_wrk_py_f"></td><td><input type="text" id="gen_22_wrk_py_t"></td><td><input type="text" id="gen_22_wrk_pp_m"></td><td><input type="text" id="gen_22_wrk_pp_f"></td><td><input type="text" id="gen_22_wrk_pp_t"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-block">
+          <h3>V. Holding, Subsidiary, Associate, Joint Ventures</h3>
+          <p class="brsr-section">23(a). Names of holding / subsidiary / associate / JVs</p>
+          <table class="brsr-table">
+            <thead><tr><th>S. No.</th><th>Name (A)</th><th>Holding/Subsidiary/Associate/JV</th><th>% shares held by listed entity</th><th>Participates in BR initiatives? (Y/N)</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input type="text" id="gen_23_1_name"></td><td><input type="text" id="gen_23_1_type" placeholder="e.g. Subsidiary"></td><td><input type="text" id="gen_23_1_pct"></td><td><input type="text" id="gen_23_1_br"></td></tr>
+              <tr><td>2</td><td><input type="text" id="gen_23_2_name"></td><td><input type="text" id="gen_23_2_type"></td><td><input type="text" id="gen_23_2_pct"></td><td><input type="text" id="gen_23_2_br"></td></tr>
+              <tr><td>3</td><td><input type="text" id="gen_23_3_name"></td><td><input type="text" id="gen_23_3_type"></td><td><input type="text" id="gen_23_3_pct"></td><td><input type="text" id="gen_23_3_br"></td></tr>
+              <tr><td>4</td><td><input type="text" id="gen_23_4_name"></td><td><input type="text" id="gen_23_4_type"></td><td><input type="text" id="gen_23_4_pct"></td><td><input type="text" id="gen_23_4_br"></td></tr>
+              <tr><td>5</td><td><input type="text" id="gen_23_5_name"></td><td><input type="text" id="gen_23_5_type"></td><td><input type="text" id="gen_23_5_pct"></td><td><input type="text" id="gen_23_5_br"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-block">
+          <h3>VI. CSR Details</h3>
+          <p class="brsr-section">24.</p>
+          <div class="meta-row">
+            <div><label>(i) CSR applicable u/s 135 Companies Act 2013?</label><select id="gen_24_csr_applicable"><option value="">—</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+            <div><label>(ii) Turnover (Rs.)</label><input type="text" id="gen_24_turnover" placeholder="Amount"></div>
+            <div><label>(iii) Net worth (Rs.)</label><input type="text" id="gen_24_networth" placeholder="Amount"></div>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h3>VII. Transparency and Disclosures – Complaints/Grievances (Principles 1–9)</h3>
+          <p class="brsr-section">25. Complaints/Grievances by stakeholder group</p>
+          <table class="brsr-table">
+            <thead><tr><th>Stakeholder group</th><th>Grievance mechanism (Y/N). If Yes, weblink</th><th>Current FY – Filed</th><th>Current FY – Pending</th><th>Remarks</th><th>Previous FY – Filed</th><th>Previous FY – Pending</th><th>Remarks</th></tr></thead>
+            <tbody>
+              <tr><td>Communities</td><td><input type="text" id="gen_25_comm_mech"></td><td><input type="text" id="gen_25_comm_cy_f"></td><td><input type="text" id="gen_25_comm_cy_p"></td><td><input type="text" id="gen_25_comm_cy_rem"></td><td><input type="text" id="gen_25_comm_py_f"></td><td><input type="text" id="gen_25_comm_py_p"></td><td><input type="text" id="gen_25_comm_py_rem"></td></tr>
+              <tr><td>Investors (other than shareholders)</td><td><input type="text" id="gen_25_inv_mech"></td><td><input type="text" id="gen_25_inv_cy_f"></td><td><input type="text" id="gen_25_inv_cy_p"></td><td><input type="text" id="gen_25_inv_cy_rem"></td><td><input type="text" id="gen_25_inv_py_f"></td><td><input type="text" id="gen_25_inv_py_p"></td><td><input type="text" id="gen_25_inv_py_rem"></td></tr>
+              <tr><td>Shareholders</td><td><input type="text" id="gen_25_sha_mech"></td><td><input type="text" id="gen_25_sha_cy_f"></td><td><input type="text" id="gen_25_sha_cy_p"></td><td><input type="text" id="gen_25_sha_cy_rem"></td><td><input type="text" id="gen_25_sha_py_f"></td><td><input type="text" id="gen_25_sha_py_p"></td><td><input type="text" id="gen_25_sha_py_rem"></td></tr>
+              <tr><td>Employees and workers</td><td><input type="text" id="gen_25_emp_mech"></td><td><input type="text" id="gen_25_emp_cy_f"></td><td><input type="text" id="gen_25_emp_cy_p"></td><td><input type="text" id="gen_25_emp_cy_rem"></td><td><input type="text" id="gen_25_emp_py_f"></td><td><input type="text" id="gen_25_emp_py_p"></td><td><input type="text" id="gen_25_emp_py_rem"></td></tr>
+              <tr><td>Customers</td><td><input type="text" id="gen_25_cust_mech"></td><td><input type="text" id="gen_25_cust_cy_f"></td><td><input type="text" id="gen_25_cust_cy_p"></td><td><input type="text" id="gen_25_cust_cy_rem"></td><td><input type="text" id="gen_25_cust_py_f"></td><td><input type="text" id="gen_25_cust_py_p"></td><td><input type="text" id="gen_25_cust_py_rem"></td></tr>
+              <tr><td>Value Chain Partners</td><td><input type="text" id="gen_25_vc_mech"></td><td><input type="text" id="gen_25_vc_cy_f"></td><td><input type="text" id="gen_25_vc_cy_p"></td><td><input type="text" id="gen_25_vc_cy_rem"></td><td><input type="text" id="gen_25_vc_py_f"></td><td><input type="text" id="gen_25_vc_py_p"></td><td><input type="text" id="gen_25_vc_py_rem"></td></tr>
+              <tr><td>Other (specify)</td><td><input type="text" id="gen_25_oth_mech"></td><td><input type="text" id="gen_25_oth_cy_f"></td><td><input type="text" id="gen_25_oth_cy_p"></td><td><input type="text" id="gen_25_oth_cy_rem"></td><td><input type="text" id="gen_25_oth_py_f"></td><td><input type="text" id="gen_25_oth_py_p"></td><td><input type="text" id="gen_25_oth_py_rem"></td></tr>
+            </tbody>
+          </table>
+          <p class="brsr-section">26. Material responsible business conduct issues (environmental &amp; social)</p>
+          <table class="brsr-table">
+            <thead><tr><th>S. No.</th><th>Material issue</th><th>Risk or Opportunity (R/O)</th><th>Rationale</th><th>Approach to adapt/mitigate</th><th>Financial implications (+/-)</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input type="text" id="gen_26_1_issue"></td><td><input type="text" id="gen_26_1_ro" placeholder="R/O"></td><td><input type="text" id="gen_26_1_rationale"></td><td><input type="text" id="gen_26_1_approach"></td><td><input type="text" id="gen_26_1_fin"></td></tr>
+              <tr><td>2</td><td><input type="text" id="gen_26_2_issue"></td><td><input type="text" id="gen_26_2_ro"></td><td><input type="text" id="gen_26_2_rationale"></td><td><input type="text" id="gen_26_2_approach"></td><td><input type="text" id="gen_26_2_fin"></td></tr>
+              <tr><td>3</td><td><input type="text" id="gen_26_3_issue"></td><td><input type="text" id="gen_26_3_ro"></td><td><input type="text" id="gen_26_3_rationale"></td><td><input type="text" id="gen_26_3_approach"></td><td><input type="text" id="gen_26_3_fin"></td></tr>
+              <tr><td>4</td><td><input type="text" id="gen_26_4_issue"></td><td><input type="text" id="gen_26_4_ro"></td><td><input type="text" id="gen_26_4_rationale"></td><td><input type="text" id="gen_26_4_approach"></td><td><input type="text" id="gen_26_4_fin"></td></tr>
+              <tr><td>5</td><td><input type="text" id="gen_26_5_issue"></td><td><input type="text" id="gen_26_5_ro"></td><td><input type="text" id="gen_26_5_rationale"></td><td><input type="text" id="gen_26_5_approach"></td><td><input type="text" id="gen_26_5_fin"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="save-hint" id="hint-general">Data is saved automatically in your browser.</p>
+      </section>
+
+      <!-- Section B: Management and Process Disclosures -->
+      <section id="panel-sectionb" class="panel">
+        <h1>Section B: Management and Process Disclosures</h1>
+        <p class="subtitle">Structures, policies and processes towards NGRBC Principles (Annexure II)</p>
+        <p class="brsr-section">Disclosure questions – indicate Yes/No or provide details for each principle (P1–P9)</p>
+        <table class="brsr-table">
+          <thead><tr><th>Disclosure</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>P9</th></tr></thead>
+          <tbody>
+            <tr><td>1(a). Policy/policies cover each principle and core elements (Y/N)</td><td><input type="text" id="sb_1a_p1" placeholder="Y/N"></td><td><input type="text" id="sb_1a_p2"></td><td><input type="text" id="sb_1a_p3"></td><td><input type="text" id="sb_1a_p4"></td><td><input type="text" id="sb_1a_p5"></td><td><input type="text" id="sb_1a_p6"></td><td><input type="text" id="sb_1a_p7"></td><td><input type="text" id="sb_1a_p8"></td><td><input type="text" id="sb_1a_p9"></td></tr>
+            <tr><td>1(b). Policy approved by Board? (Y/N)</td><td><input type="text" id="sb_1b_p1"></td><td><input type="text" id="sb_1b_p2"></td><td><input type="text" id="sb_1b_p3"></td><td><input type="text" id="sb_1b_p4"></td><td><input type="text" id="sb_1b_p5"></td><td><input type="text" id="sb_1b_p6"></td><td><input type="text" id="sb_1b_p7"></td><td><input type="text" id="sb_1b_p8"></td><td><input type="text" id="sb_1b_p9"></td></tr>
+            <tr><td>1(c). Web link of policies</td><td><input type="text" id="sb_1c_p1"></td><td><input type="text" id="sb_1c_p2"></td><td><input type="text" id="sb_1c_p3"></td><td><input type="text" id="sb_1c_p4"></td><td><input type="text" id="sb_1c_p5"></td><td><input type="text" id="sb_1c_p6"></td><td><input type="text" id="sb_1c_p7"></td><td><input type="text" id="sb_1c_p8"></td><td><input type="text" id="sb_1c_p9"></td></tr>
+            <tr><td>2. Policy translated into procedures? (Y/N)</td><td><input type="text" id="sb_2_p1"></td><td><input type="text" id="sb_2_p2"></td><td><input type="text" id="sb_2_p3"></td><td><input type="text" id="sb_2_p4"></td><td><input type="text" id="sb_2_p5"></td><td><input type="text" id="sb_2_p6"></td><td><input type="text" id="sb_2_p7"></td><td><input type="text" id="sb_2_p8"></td><td><input type="text" id="sb_2_p9"></td></tr>
+            <tr><td>3. Policies extend to value chain partners? (Y/N)</td><td><input type="text" id="sb_3_p1"></td><td><input type="text" id="sb_3_p2"></td><td><input type="text" id="sb_3_p3"></td><td><input type="text" id="sb_3_p4"></td><td><input type="text" id="sb_3_p5"></td><td><input type="text" id="sb_3_p6"></td><td><input type="text" id="sb_3_p7"></td><td><input type="text" id="sb_3_p8"></td><td><input type="text" id="sb_3_p9"></td></tr>
+            <tr><td>4. National/international codes/certifications/labels/standards adopted (mapped to each principle)</td><td><input type="text" id="sb_4_p1"></td><td><input type="text" id="sb_4_p2"></td><td><input type="text" id="sb_4_p3"></td><td><input type="text" id="sb_4_p4"></td><td><input type="text" id="sb_4_p5"></td><td><input type="text" id="sb_4_p6"></td><td><input type="text" id="sb_4_p7"></td><td><input type="text" id="sb_4_p8"></td><td><input type="text" id="sb_4_p9"></td></tr>
+            <tr><td>5. Specific commitments, goals, targets with timelines</td><td><input type="text" id="sb_5_p1"></td><td><input type="text" id="sb_5_p2"></td><td><input type="text" id="sb_5_p3"></td><td><input type="text" id="sb_5_p4"></td><td><input type="text" id="sb_5_p5"></td><td><input type="text" id="sb_5_p6"></td><td><input type="text" id="sb_5_p7"></td><td><input type="text" id="sb_5_p8"></td><td><input type="text" id="sb_5_p9"></td></tr>
+            <tr><td>6. Performance against commitments/goals/targets; reasons if not met</td><td><input type="text" id="sb_6_p1"></td><td><input type="text" id="sb_6_p2"></td><td><input type="text" id="sb_6_p3"></td><td><input type="text" id="sb_6_p4"></td><td><input type="text" id="sb_6_p5"></td><td><input type="text" id="sb_6_p6"></td><td><input type="text" id="sb_6_p7"></td><td><input type="text" id="sb_6_p8"></td><td><input type="text" id="sb_6_p9"></td></tr>
+            <tr><td>7. Statement by director on ESG challenges, targets, achievements</td><td colspan="9"><input type="text" id="sb_7_statement" placeholder="Details / weblink"></td></tr>
+            <tr><td>8. Highest authority for implementation & oversight of BR policy</td><td colspan="9"><input type="text" id="sb_8_authority" placeholder="Details"></td></tr>
+            <tr><td>9. Committee of Board/Director for sustainability issues? (Y/N). If yes, details</td><td><input type="text" id="sb_9_p1"></td><td><input type="text" id="sb_9_p2"></td><td><input type="text" id="sb_9_p3"></td><td><input type="text" id="sb_9_p4"></td><td><input type="text" id="sb_9_p5"></td><td><input type="text" id="sb_9_p6"></td><td><input type="text" id="sb_9_p7"></td><td><input type="text" id="sb_9_p8"></td><td><input type="text" id="sb_9_p9"></td></tr>
+            <tr><td>10. Review of NGRBCs – Performance vs policies (Director/Committee; Frequency)</td><td><input type="text" id="sb_10a_p1"></td><td><input type="text" id="sb_10a_p2"></td><td><input type="text" id="sb_10a_p3"></td><td><input type="text" id="sb_10a_p4"></td><td><input type="text" id="sb_10a_p5"></td><td><input type="text" id="sb_10a_p6"></td><td><input type="text" id="sb_10a_p7"></td><td><input type="text" id="sb_10a_p8"></td><td><input type="text" id="sb_10a_p9"></td></tr>
+            <tr><td>10. Compliance with statutory requirements; rectification of non-compliances</td><td><input type="text" id="sb_10b_p1"></td><td><input type="text" id="sb_10b_p2"></td><td><input type="text" id="sb_10b_p3"></td><td><input type="text" id="sb_10b_p4"></td><td><input type="text" id="sb_10b_p5"></td><td><input type="text" id="sb_10b_p6"></td><td><input type="text" id="sb_10b_p7"></td><td><input type="text" id="sb_10b_p8"></td><td><input type="text" id="sb_10b_p9"></td></tr>
+            <tr><td>11. Independent assessment by external agency? (Y/N). If yes, name of agency</td><td><input type="text" id="sb_11_p1"></td><td><input type="text" id="sb_11_p2"></td><td><input type="text" id="sb_11_p3"></td><td><input type="text" id="sb_11_p4"></td><td><input type="text" id="sb_11_p5"></td><td><input type="text" id="sb_11_p6"></td><td><input type="text" id="sb_11_p7"></td><td><input type="text" id="sb_11_p8"></td><td><input type="text" id="sb_11_p9"></td></tr>
+          </tbody>
+        </table>
+        <p class="brsr-section">12. If not all Principles covered by policy – reasons</p>
+        <table class="brsr-table">
+          <thead><tr><th>Reason</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>P9</th></tr></thead>
+          <tbody>
+            <tr><td>Principles not material to business (Y/N)</td><td><input type="text" id="sb_12a_p1"></td><td><input type="text" id="sb_12a_p2"></td><td><input type="text" id="sb_12a_p3"></td><td><input type="text" id="sb_12a_p4"></td><td><input type="text" id="sb_12a_p5"></td><td><input type="text" id="sb_12a_p6"></td><td><input type="text" id="sb_12a_p7"></td><td><input type="text" id="sb_12a_p8"></td><td><input type="text" id="sb_12a_p9"></td></tr>
+            <tr><td>Not in position to formulate/implement (Y/N)</td><td><input type="text" id="sb_12b_p1"></td><td><input type="text" id="sb_12b_p2"></td><td><input type="text" id="sb_12b_p3"></td><td><input type="text" id="sb_12b_p4"></td><td><input type="text" id="sb_12b_p5"></td><td><input type="text" id="sb_12b_p6"></td><td><input type="text" id="sb_12b_p7"></td><td><input type="text" id="sb_12b_p8"></td><td><input type="text" id="sb_12b_p9"></td></tr>
+            <tr><td>Lack of financial/human/technical resources (Y/N)</td><td><input type="text" id="sb_12c_p1"></td><td><input type="text" id="sb_12c_p2"></td><td><input type="text" id="sb_12c_p3"></td><td><input type="text" id="sb_12c_p4"></td><td><input type="text" id="sb_12c_p5"></td><td><input type="text" id="sb_12c_p6"></td><td><input type="text" id="sb_12c_p7"></td><td><input type="text" id="sb_12c_p8"></td><td><input type="text" id="sb_12c_p9"></td></tr>
+            <tr><td>Planned in next FY (Y/N)</td><td><input type="text" id="sb_12d_p1"></td><td><input type="text" id="sb_12d_p2"></td><td><input type="text" id="sb_12d_p3"></td><td><input type="text" id="sb_12d_p4"></td><td><input type="text" id="sb_12d_p5"></td><td><input type="text" id="sb_12d_p6"></td><td><input type="text" id="sb_12d_p7"></td><td><input type="text" id="sb_12d_p8"></td><td><input type="text" id="sb_12d_p9"></td></tr>
+            <tr><td>Any other reason (specify)</td><td colspan="9"><input type="text" id="sb_12e_other" placeholder="Specify"></td></tr>
+          </tbody>
+        </table>
+        <p class="save-hint">Data is saved automatically in your browser.</p>
+      </section>
+
+      <!-- Principle panels (1–9): Section C – Essential / Leadership with sub-nav -->
+      <template id="principle-panel-tpl">
+        <section class="panel principle-panel">
+          <h1>Principle <span class="p-num"></span></h1>
+          <p class="subtitle principle-title"></p>
+          <div class="meta-row">
+            <div><label>Reporting period</label><input type="text" class="p-reporting-period" placeholder="e.g. FY 2024-25"></div>
+            <div><label>Entity name</label><input type="text" class="p-entity-name" placeholder="Company name"></div>
+          </div>
+          <nav class="principle-subnav" aria-label="Section C sub-navigation">
+            <button type="button" class="subnav-btn active" data-block="essential">Essential indicators</button>
+            <button type="button" class="subnav-btn" data-block="leadership">Leadership indicators</button>
+          </nav>
+          <div class="principle-content-block active" data-block="essential"></div>
+          <div class="principle-content-block" data-block="leadership"></div>
+          <div class="section-block principle-notes-block">
+            <h3>Notes (narrative)</h3>
+            <div class="field"><textarea class="p-notes" placeholder="Additional notes or explanatory text"></textarea></div>
+          </div>
+          <div class="section-block">
+            <h3>Assurance</h3>
+            <div class="meta-row">
+              <div><label>Type</label><select class="p-assurance-type"><option value="">—</option><option value="Limited">Limited</option><option value="Reasonable">Reasonable</option><option value="None">None</option></select></div>
+              <div><label>Assurer name</label><input type="text" class="p-assurer-name" placeholder="Assurer name"></div>
+            </div>
+            <div class="field"><label>Remarks</label><textarea class="p-assurance-remarks" placeholder="Assurance remarks" style="min-height:50px"></textarea></div>
+          </div>
+          <p class="save-hint save-hint-panel">Data is saved automatically in your browser.</p>
+        </section>
+      </template>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'brsr_data_entry';
+    const PRINCIPLES = [
+      'Businesses should conduct and govern themselves with integrity and in a manner that is ethical, transparent and accountable.',
+      'Businesses should provide goods and services in a manner that is sustainable and safe.',
+      'Businesses should respect and promote the well-being of all employees, including those in their value chains.',
+      'Businesses should respect the interests of and be responsive to all its stakeholders.',
+      'Businesses should respect and promote human rights.',
+      'Businesses should respect and make efforts to protect and restore the environment.',
+      'Businesses, when engaging in influencing public and regulatory policy, should do so in a manner that is responsible and transparent.',
+      'Businesses should promote inclusive growth and equitable development.',
+      'Businesses should engage with and provide value to their consumers in a responsible manner.'
+    ];
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (_) { return {}; }
+    }
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const hint = document.querySelector('.panel.active .save-hint, .panel.active .save-hint-panel');
+      if (hint) {
+        hint.classList.add('saved');
+        hint.textContent = 'Saved.';
+        setTimeout(() => { hint.classList.remove('saved'); hint.textContent = 'Data is saved automatically in your browser.'; }, 1500);
+      }
+    }
+
+    // Calculated columns: .calc-pct (num/denom*100), .calc-sum (sum of ids), .calc-formula (e.g. "id1*365/id2")
+    function runCalculations() {
+      document.querySelectorAll('.calc-pct').forEach(el => {
+        const numId = el.dataset.num, denomId = el.dataset.denom;
+        const num = parseFloat(document.getElementById(numId)?.value) || 0;
+        const denom = parseFloat(document.getElementById(denomId)?.value) || 0;
+        el.textContent = denom ? (num / denom * 100).toFixed(2) + '%' : '—';
+      });
+      document.querySelectorAll('.calc-sum').forEach(el => {
+        const ids = (el.dataset.sum || '').split(',').map(s => s.trim()).filter(Boolean);
+        let sum = 0;
+        ids.forEach(id => { sum += parseFloat(document.getElementById(id)?.value) || 0; });
+        const dec = parseInt(el.dataset.decimals, 10);
+        el.textContent = dec === 0 ? (Math.round(sum).toString()) : sum.toFixed(dec || 2);
+      });
+      document.querySelectorAll('.calc-formula').forEach(el => {
+        const formula = el.dataset.formula; // e.g. "p1_e8_ap_cy*365/p1_e8_cost_cy"
+        if (!formula) return;
+        // Replace only tokens that look like element ids (contain a letter), leave numbers (e.g. 365)
+        const parts = formula.replace(/([a-z][a-z0-9_]*)/gi, (m) => {
+          const v = document.getElementById(m)?.value;
+          return (v !== undefined && v !== '') ? parseFloat(v) : 'NaN';
+        });
+        try {
+          const val = eval(parts);
+          el.textContent = (typeof val === 'number' && !isNaN(val)) ? val.toFixed(2) : '—';
+        } catch (_) { el.textContent = '—'; }
+      });
+    }
+
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const panelId = btn.dataset.panel;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const panel = document.getElementById('panel-' + panelId);
+        if (panel) {
+          panel.classList.add('active');
+          runCalculations();
+        }
+      });
+    });
+
+    // Section A (General): save/load all inputs by id
+    function persistGeneral() {
+      const d = loadData();
+      d.general = d.general || {};
+      const panel = document.getElementById('panel-general');
+      if (panel) {
+        panel.querySelectorAll('input, select, textarea').forEach(el => {
+          if (el.id) d.general[el.id] = el.value;
+        });
+        saveData(d);
+      }
+    }
+    function loadGeneral() {
+      const d = loadData();
+      if (!d.general) return;
+      const panel = document.getElementById('panel-general');
+      if (panel) {
+        panel.querySelectorAll('input, select, textarea').forEach(el => {
+          if (el.id && d.general[el.id] !== undefined) el.value = d.general[el.id];
+        });
+      }
+    }
+    // Section B: save/load all inputs by id
+    function persistSectionB() {
+      const d = loadData();
+      d.sectionb = d.sectionb || {};
+      const panel = document.getElementById('panel-sectionb');
+      if (panel) {
+        panel.querySelectorAll('input, select, textarea').forEach(el => {
+          if (el.id) d.sectionb[el.id] = el.value;
+        });
+        saveData(d);
+      }
+    }
+    function loadSectionB() {
+      const d = loadData();
+      if (!d.sectionb) return;
+      const panel = document.getElementById('panel-sectionb');
+      if (panel) {
+        panel.querySelectorAll('input, select, textarea').forEach(el => {
+          if (el.id && d.sectionb[el.id] !== undefined) el.value = d.sectionb[el.id];
+        });
+      }
+    }
+    const data = loadData();
+    loadGeneral();
+    loadSectionB();
+    document.getElementById('panel-general')?.addEventListener('input', () => { persistGeneral(); runCalculations(); });
+    document.getElementById('panel-general')?.addEventListener('change', () => { persistGeneral(); runCalculations(); });
+    document.getElementById('panel-sectionb')?.addEventListener('input', persistSectionB);
+    document.getElementById('panel-sectionb')?.addEventListener('change', persistSectionB);
+    setTimeout(runCalculations, 100);
+
+    // Section C: build Essential & Leadership content per principle (Annexure II tables)
+    function getPrincipleContent(num) {
+      const p = 'p' + num + '_';
+      const essential = document.createElement('div');
+      const leadership = document.createElement('div');
+      // Principle 1: full Annexure II tables
+      if (num === 1) {
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Percentage coverage by training and awareness programmes</p>
+            <table class="brsr-table"><thead><tr><th>Segment</th><th>No. of programmes</th><th>Topics/principles &amp; impact</th><th>Total in category (A)</th><th>Covered (B)</th><th>% (B/A) calc</th></tr></thead><tbody>
+              <tr><td>Board of Directors</td><td><input type="text" id="${p}e1_bod_prog" class="calc-input"></td><td><input type="text" id="${p}e1_bod_topics"></td><td><input type="text" id="${p}e1_bod_total" class="calc-input"></td><td><input type="text" id="${p}e1_bod_covered" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_bod_covered" data-denom="${p}e1_bod_total"></span></td></tr>
+              <tr><td>Key Managerial Personnel</td><td><input type="text" id="${p}e1_kmp_prog" class="calc-input"></td><td><input type="text" id="${p}e1_kmp_topics"></td><td><input type="text" id="${p}e1_kmp_total" class="calc-input"></td><td><input type="text" id="${p}e1_kmp_covered" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_kmp_covered" data-denom="${p}e1_kmp_total"></span></td></tr>
+              <tr><td>Employees (other than BoD/KMP)</td><td><input type="text" id="${p}e1_emp_prog" class="calc-input"></td><td><input type="text" id="${p}e1_emp_topics"></td><td><input type="text" id="${p}e1_emp_total" class="calc-input"></td><td><input type="text" id="${p}e1_emp_covered" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_emp_covered" data-denom="${p}e1_emp_total"></span></td></tr>
+              <tr><td>Workers</td><td><input type="text" id="${p}e1_wrk_prog" class="calc-input"></td><td><input type="text" id="${p}e1_wrk_topics"></td><td><input type="text" id="${p}e1_wrk_total" class="calc-input"></td><td><input type="text" id="${p}e1_wrk_covered" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_wrk_covered" data-denom="${p}e1_wrk_total"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Fines/penalties/punishment/award/compounding/settlement (monetary)</p>
+            <table class="brsr-table"><thead><tr><th>Type</th><th>NGRBC Principle</th><th>Regulator/agency</th><th>Amount (INR)</th><th>Brief of case</th><th>Appeal preferred? (Y/N)</th></tr></thead><tbody>
+              <tr><td>Penalty/Fine</td><td><input type="text" id="${p}e2_pf_principle"></td><td><input type="text" id="${p}e2_pf_agency"></td><td><input type="text" id="${p}e2_pf_amt"></td><td><input type="text" id="${p}e2_pf_brief"></td><td><input type="text" id="${p}e2_pf_appeal"></td></tr>
+              <tr><td>Settlement</td><td><input type="text" id="${p}e2_set_principle"></td><td><input type="text" id="${p}e2_set_agency"></td><td><input type="text" id="${p}e2_set_amt"></td><td><input type="text" id="${p}e2_set_brief"></td><td><input type="text" id="${p}e2_set_appeal"></td></tr>
+              <tr><td>Compounding fee</td><td><input type="text" id="${p}e2_cmp_principle"></td><td><input type="text" id="${p}e2_cmp_agency"></td><td><input type="text" id="${p}e2_cmp_amt"></td><td><input type="text" id="${p}e2_cmp_brief"></td><td><input type="text" id="${p}e2_cmp_appeal"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Appeal/Revision details (where action appealed)</p>
+            <div class="field"><textarea id="${p}e3_appeal" placeholder="Case details, authority" style="min-height:60px"></textarea></div>
+            <p class="brsr-section">4. Anti-corruption / anti-bribery policy (Y/N). If yes, details and weblink</p>
+            <div class="field"><input type="text" id="${p}e4_anticorr" placeholder="Y/N and weblink"></div>
+            <p class="brsr-section">5. Disciplinary action (law enforcement) – bribery/corruption</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Directors</td><td><input type="text" id="${p}e5_dir_cy"></td><td><input type="text" id="${p}e5_dir_py"></td></tr>
+              <tr><td>KMPs</td><td><input type="text" id="${p}e5_kmp_cy"></td><td><input type="text" id="${p}e5_kmp_py"></td></tr>
+              <tr><td>Employees</td><td><input type="text" id="${p}e5_emp_cy"></td><td><input type="text" id="${p}e5_emp_py"></td></tr>
+              <tr><td>Workers</td><td><input type="text" id="${p}e5_wrk_cy"></td><td><input type="text" id="${p}e5_wrk_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">6. Complaints – conflict of interest (Directors / KMPs)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – No.</th><th>Current FY – Remarks</th><th>Previous FY – No.</th><th>Previous FY – Remarks</th></tr></thead><tbody>
+              <tr><td>Directors</td><td><input type="text" id="${p}e6_dir_cy"></td><td><input type="text" id="${p}e6_dir_cy_rem"></td><td><input type="text" id="${p}e6_dir_py"></td><td><input type="text" id="${p}e6_dir_py_rem"></td></tr>
+              <tr><td>KMPs</td><td><input type="text" id="${p}e6_kmp_cy"></td><td><input type="text" id="${p}e6_kmp_cy_rem"></td><td><input type="text" id="${p}e6_kmp_py"></td><td><input type="text" id="${p}e6_kmp_py_rem"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">7. Corrective action on fines/penalties/corruption/conflict of interest</p>
+            <div class="field"><textarea id="${p}e7_corrective" style="min-height:60px"></textarea></div>
+            <p class="brsr-section">8. Days of accounts payables (AP × 365 / Cost of goods procured)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Accounts payables (Rs.)</td><td><input type="text" id="${p}e8_ap_cy" class="calc-input"></td><td><input type="text" id="${p}e8_ap_py" class="calc-input"></td></tr>
+              <tr><td>Cost of goods/services procured (Rs.)</td><td><input type="text" id="${p}e8_cost_cy" class="calc-input"></td><td><input type="text" id="${p}e8_cost_py" class="calc-input"></td></tr>
+              <tr><td>Days (calc)</td><td><span class="calc-display calc-formula" data-formula="${p}e8_ap_cy*365/${p}e8_cost_cy"></span></td><td><span class="calc-display calc-formula" data-formula="${p}e8_ap_py*365/${p}e8_cost_py"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">9. Open-ness – concentration of purchases/sales, RPTs</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Purchases from trading houses as % of total purchases</td><td><input type="text" id="${p}e9_purch_cy"></td><td><input type="text" id="${p}e9_purch_py"></td></tr>
+              <tr><td>Sales to dealers/distributors as % of total sales</td><td><input type="text" id="${p}e9_sales_cy"></td><td><input type="text" id="${p}e9_sales_py"></td></tr>
+              <tr><td>Related party – Purchases %</td><td><input type="text" id="${p}e9_rpt_purch_cy"></td><td><input type="text" id="${p}e9_rpt_purch_py"></td></tr>
+              <tr><td>Related party – Sales %</td><td><input type="text" id="${p}e9_rpt_sales_cy"></td><td><input type="text" id="${p}e9_rpt_sales_py"></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Awareness programmes for value chain partners</p>
+            <table class="brsr-table"><thead><tr><th>No. of programmes</th><th>Topics/principles covered</th><th>Value chain partners – total business (Rs.)</th><th>Partners covered (Rs.)</th><th>% covered (calc)</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l1_prog" class="calc-input"></td><td><input type="text" id="${p}l1_topics"></td><td><input type="text" id="${p}l1_total_val" class="calc-input"></td><td><input type="text" id="${p}l1_covered_val" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}l1_covered_val" data-denom="${p}l1_total_val"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Processes to avoid/manage conflict of interests (Board)? (Y/N). If yes, details</p>
+            <div class="field"><input type="text" id="${p}l2_conflict" placeholder="Y/N and details"></div>
+          </div>`;
+      } else if (num === 2) {
+        // Principle 2: Sustainable and safe goods/services
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. R&amp;D and capex % for environmental and social impacts</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY %</th><th>Previous FY %</th><th>Details of improvements</th></tr></thead><tbody>
+              <tr><td>R&amp;D – Total investment (Rs.)</td><td><input type="text" id="${p}e1_rd_cy" class="calc-input"></td><td><input type="text" id="${p}e1_rd_py" class="calc-input"></td><td><input type="text" id="${p}e1_rd_details"></td></tr>
+              <tr><td>R&amp;D – Env/social (Rs.)</td><td><input type="text" id="${p}e1_rd_env_cy" class="calc-input"></td><td><input type="text" id="${p}e1_rd_env_py" class="calc-input"></td><td rowspan="2"></td></tr>
+              <tr><td>R&amp;D % (calc)</td><td><span class="calc-display calc-pct" data-num="${p}e1_rd_env_cy" data-denom="${p}e1_rd_cy"></span></td><td><span class="calc-display calc-pct" data-num="${p}e1_rd_env_py" data-denom="${p}e1_rd_py"></span></td></tr>
+              <tr><td>Capex – Total (Rs.)</td><td><input type="text" id="${p}e1_capex_cy" class="calc-input"></td><td><input type="text" id="${p}e1_capex_py" class="calc-input"></td><td><input type="text" id="${p}e1_capex_details"></td></tr>
+              <tr><td>Capex – Env/social (Rs.)</td><td><input type="text" id="${p}e1_capex_env_cy" class="calc-input"></td><td><input type="text" id="${p}e1_capex_env_py" class="calc-input"></td><td></td></tr>
+              <tr><td>Capex % (calc)</td><td><span class="calc-display calc-pct" data-num="${p}e1_capex_env_cy" data-denom="${p}e1_capex_cy"></span></td><td><span class="calc-display calc-pct" data-num="${p}e1_capex_env_py" data-denom="${p}e1_capex_py"></span></td><td></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Sustainable sourcing</p>
+            <table class="brsr-table"><thead><tr><th>Procedures in place (Y/N)</th><th>Total inputs (by value) (Rs.)</th><th>Inputs sourced sustainably (Rs.)</th><th>% sourced sustainably (calc)</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e2_yn" placeholder="Y/N"></td><td><input type="text" id="${p}e2_total" class="calc-input"></td><td><input type="text" id="${p}e2_sustainable" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_sustainable" data-denom="${p}e2_total"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Processes to reclaim products (reuse, recycle, dispose)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Process / details</th></tr></thead><tbody>
+              <tr><td>(a) Plastics (incl. packaging)</td><td><input type="text" id="${p}e3_plastics"></td></tr>
+              <tr><td>(b) E-waste</td><td><input type="text" id="${p}e3_ewaste"></td></tr>
+              <tr><td>(c) Hazardous waste</td><td><input type="text" id="${p}e3_hazardous"></td></tr>
+              <tr><td>(d) Other waste</td><td><input type="text" id="${p}e3_other"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. EPR applicable (Y/N). Waste collection plan in line with EPR? Steps if not.</p>
+            <div class="field"><input type="text" id="${p}e4_epr" placeholder="Y/N"></div>
+            <div class="field"><label>If not in line, steps taken</label><textarea id="${p}e4_steps" style="min-height:50px"></textarea></div>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Life Cycle Perspective / Assessments (LCA)</p>
+            <table class="brsr-table"><thead><tr><th>NIC Code</th><th>Product/Service</th><th>% of turnover</th><th>Boundary (LCA)</th><th>Independent agency (Y/N)</th><th>Public domain (Y/N)</th><th>Weblink</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l1_nic"></td><td><input type="text" id="${p}l1_product"></td><td><input type="text" id="${p}l1_pct"></td><td><input type="text" id="${p}l1_boundary"></td><td><input type="text" id="${p}l1_ext"></td><td><input type="text" id="${p}l1_public"></td><td><input type="text" id="${p}l1_link"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Significant social/environmental concerns from production/disposal – action taken</p>
+            <table class="brsr-table"><thead><tr><th>Product/Service</th><th>Risk/concern</th><th>Action taken</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l2_product"></td><td><input type="text" id="${p}l2_risk"></td><td><input type="text" id="${p}l2_action"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Recycled or reused input material as % of total material (by value)</p>
+            <table class="brsr-table"><thead><tr><th>Input material</th><th>Recycled/reused (Rs.)</th><th>Total material (Rs.)</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l3_material"></td><td><input type="text" id="${p}l3_recycled" class="calc-input"></td><td><input type="text" id="${p}l3_total" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}l3_recycled" data-denom="${p}l3_total"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Products and packaging reclaimed at end of life (metric tonnes)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Re-used</th><th>Recycled</th><th>Safely disposed</th><th>Previous FY – Re-used</th><th>Recycled</th><th>Safely disposed</th></tr></thead><tbody>
+              <tr><td>Plastics (incl. packaging)</td><td><input type="text" id="${p}l4_plast_cy_re" class="calc-input"></td><td><input type="text" id="${p}l4_plast_cy_rc" class="calc-input"></td><td><input type="text" id="${p}l4_plast_cy_d" class="calc-input"></td><td><input type="text" id="${p}l4_plast_py_re"></td><td><input type="text" id="${p}l4_plast_py_rc"></td><td><input type="text" id="${p}l4_plast_py_d"></td></tr>
+              <tr><td>E-waste</td><td><input type="text" id="${p}l4_ew_cy_re"></td><td><input type="text" id="${p}l4_ew_cy_rc"></td><td><input type="text" id="${p}l4_ew_cy_d"></td><td><input type="text" id="${p}l4_ew_py_re"></td><td><input type="text" id="${p}l4_ew_py_rc"></td><td><input type="text" id="${p}l4_ew_py_d"></td></tr>
+              <tr><td>Hazardous waste</td><td><input type="text" id="${p}l4_haz_cy_re"></td><td><input type="text" id="${p}l4_haz_cy_rc"></td><td><input type="text" id="${p}l4_haz_cy_d"></td><td><input type="text" id="${p}l4_haz_py_re"></td><td><input type="text" id="${p}l4_haz_py_rc"></td><td><input type="text" id="${p}l4_haz_py_d"></td></tr>
+              <tr><td>Other waste</td><td><input type="text" id="${p}l4_oth_cy_re"></td><td><input type="text" id="${p}l4_oth_cy_rc"></td><td><input type="text" id="${p}l4_oth_cy_d"></td><td><input type="text" id="${p}l4_oth_py_re"></td><td><input type="text" id="${p}l4_oth_py_rc"></td><td><input type="text" id="${p}l4_oth_py_d"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Reclaimed products and packaging as % of products sold (by category)</p>
+            <table class="brsr-table"><thead><tr><th>Product category</th><th>Reclaimed %</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l5_category"></td><td><input type="text" id="${p}l5_pct"></td></tr>
+            </tbody></table>
+          </div>`;
+      } else if (num === 3) {
+        // Principle 3: Well-being of employees
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1(a). Well-being measures – Employees (% covered)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Total (A)</th><th>Health ins. No.</th><th>% (calc)</th><th>Accident ins. No.</th><th>% (calc)</th><th>Maternity No.</th><th>% (calc)</th><th>Paternity No.</th><th>% (calc)</th><th>Day care No.</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Permanent – Male</td><td><input type="text" id="${p}e1a_perm_m_t" class="calc-input"></td><td><input type="text" id="${p}e1a_perm_m_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_m_hi" data-denom="${p}e1a_perm_m_t"></span></td><td><input type="text" id="${p}e1a_perm_m_ac" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_m_ac" data-denom="${p}e1a_perm_m_t"></span></td><td><input type="text" id="${p}e1a_perm_m_mat" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_m_mat" data-denom="${p}e1a_perm_m_t"></span></td><td><input type="text" id="${p}e1a_perm_m_pat" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_m_pat" data-denom="${p}e1a_perm_m_t"></span></td><td><input type="text" id="${p}e1a_perm_m_dc" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_m_dc" data-denom="${p}e1a_perm_m_t"></span></td></tr>
+              <tr><td>Permanent – Female</td><td><input type="text" id="${p}e1a_perm_f_t" class="calc-input"></td><td><input type="text" id="${p}e1a_perm_f_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_f_hi" data-denom="${p}e1a_perm_f_t"></span></td><td><input type="text" id="${p}e1a_perm_f_ac" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_f_ac" data-denom="${p}e1a_perm_f_t"></span></td><td><input type="text" id="${p}e1a_perm_f_mat" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_f_mat" data-denom="${p}e1a_perm_f_t"></span></td><td><input type="text" id="${p}e1a_perm_f_pat" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_f_pat" data-denom="${p}e1a_perm_f_t"></span></td><td><input type="text" id="${p}e1a_perm_f_dc" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_perm_f_dc" data-denom="${p}e1a_perm_f_t"></span></td></tr>
+              <tr><td>Other than permanent – Male</td><td><input type="text" id="${p}e1a_oth_m_t" class="calc-input"></td><td><input type="text" id="${p}e1a_oth_m_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_oth_m_hi" data-denom="${p}e1a_oth_m_t"></span></td><td colspan="8"></td></tr>
+              <tr><td>Other than permanent – Female</td><td><input type="text" id="${p}e1a_oth_f_t" class="calc-input"></td><td><input type="text" id="${p}e1a_oth_f_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1a_oth_f_hi" data-denom="${p}e1a_oth_f_t"></span></td><td colspan="8"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">1(b). Well-being measures – Workers (% covered)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Total (A)</th><th>Health ins. No.</th><th>% (calc)</th><th>Accident ins. No.</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Permanent – Male</td><td><input type="text" id="${p}e1b_wrk_perm_m_t" class="calc-input"></td><td><input type="text" id="${p}e1b_wrk_perm_m_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1b_wrk_perm_m_hi" data-denom="${p}e1b_wrk_perm_m_t"></span></td><td><input type="text" id="${p}e1b_wrk_perm_m_ac" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1b_wrk_perm_m_ac" data-denom="${p}e1b_wrk_perm_m_t"></span></td></tr>
+              <tr><td>Permanent – Female</td><td><input type="text" id="${p}e1b_wrk_perm_f_t" class="calc-input"></td><td><input type="text" id="${p}e1b_wrk_perm_f_hi" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1b_wrk_perm_f_hi" data-denom="${p}e1b_wrk_perm_f_t"></span></td><td><input type="text" id="${p}e1b_wrk_perm_f_ac" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1b_wrk_perm_f_ac" data-denom="${p}e1b_wrk_perm_f_t"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">1(c). Spending on well-being as % of total revenue</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Spending (Rs.)</th><th>Current FY – Revenue (Rs.)</th><th>% (calc)</th><th>Previous FY – Spending</th><th>Previous FY – Revenue</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Cost on well-being</td><td><input type="text" id="${p}e1c_cy_spend" class="calc-input"></td><td><input type="text" id="${p}e1c_cy_rev" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1c_cy_spend" data-denom="${p}e1c_cy_rev"></span></td><td><input type="text" id="${p}e1c_py_spend" class="calc-input"></td><td><input type="text" id="${p}e1c_py_rev" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1c_py_spend" data-denom="${p}e1c_py_rev"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Retirement benefits (PF, Gratuity, ESI, Others)</p>
+            <table class="brsr-table"><thead><tr><th>Benefit</th><th>Current FY – Employees %</th><th>Current FY – Workers %</th><th>Deducted/deposited (Y/N)</th><th>Previous FY – Employees %</th><th>Previous FY – Workers %</th><th>Deducted/deposited</th></tr></thead><tbody>
+              <tr><td>PF</td><td><input type="text" id="${p}e2_pf_emp_cy"></td><td><input type="text" id="${p}e2_pf_wrk_cy"></td><td><input type="text" id="${p}e2_pf_dep_cy"></td><td><input type="text" id="${p}e2_pf_emp_py"></td><td><input type="text" id="${p}e2_pf_wrk_py"></td><td><input type="text" id="${p}e2_pf_dep_py"></td></tr>
+              <tr><td>Gratuity</td><td><input type="text" id="${p}e2_gr_emp_cy"></td><td><input type="text" id="${p}e2_gr_wrk_cy"></td><td><input type="text" id="${p}e2_gr_dep_cy"></td><td><input type="text" id="${p}e2_gr_emp_py"></td><td><input type="text" id="${p}e2_gr_wrk_py"></td><td><input type="text" id="${p}e2_gr_dep_py"></td></tr>
+              <tr><td>ESI</td><td><input type="text" id="${p}e2_esi_emp_cy"></td><td><input type="text" id="${p}e2_esi_wrk_cy"></td><td><input type="text" id="${p}e2_esi_dep_cy"></td><td><input type="text" id="${p}e2_esi_emp_py"></td><td><input type="text" id="${p}e2_esi_wrk_py"></td><td><input type="text" id="${p}e2_esi_dep_py"></td></tr>
+              <tr><td>Others</td><td><input type="text" id="${p}e2_oth_emp_cy"></td><td><input type="text" id="${p}e2_oth_wrk_cy"></td><td><input type="text" id="${p}e2_oth_dep_cy"></td><td><input type="text" id="${p}e2_oth_emp_py"></td><td><input type="text" id="${p}e2_oth_wrk_py"></td><td><input type="text" id="${p}e2_oth_dep_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Accessibility for differently abled (Rights of Persons with Disabilities Act)</p>
+            <div class="field"><input type="text" id="${p}e3_access" placeholder="Y/N. If not, steps"></div>
+            <p class="brsr-section">4. Equal opportunity policy (Y/N). Weblink</p>
+            <div class="field"><input type="text" id="${p}e4_equal" placeholder="Y/N and weblink"></div>
+            <p class="brsr-section">5. Return to work and retention (parental leave)</p>
+            <table class="brsr-table"><thead><tr><th>Gender</th><th>Permanent employees – Return %</th><th>Permanent employees – Retention %</th><th>Permanent workers – Return %</th><th>Permanent workers – Retention %</th></tr></thead><tbody>
+              <tr><td>Male</td><td><input type="text" id="${p}e5_m_emp_ret"></td><td><input type="text" id="${p}e5_m_emp_retn"></td><td><input type="text" id="${p}e5_m_wrk_ret"></td><td><input type="text" id="${p}e5_m_wrk_retn"></td></tr>
+              <tr><td>Female</td><td><input type="text" id="${p}e5_f_emp_ret"></td><td><input type="text" id="${p}e5_f_emp_retn"></td><td><input type="text" id="${p}e5_f_wrk_ret"></td><td><input type="text" id="${p}e5_f_wrk_retn"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">6. Grievance mechanism (Y/N and details)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Y/N and details</th></tr></thead><tbody>
+              <tr><td>Permanent workers</td><td><input type="text" id="${p}e6_wrk_perm"></td></tr>
+              <tr><td>Other than permanent workers</td><td><input type="text" id="${p}e6_wrk_oth"></td></tr>
+              <tr><td>Permanent employees</td><td><input type="text" id="${p}e6_emp_perm"></td></tr>
+              <tr><td>Other than permanent employees</td><td><input type="text" id="${p}e6_emp_oth"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">7. Membership in associations/unions</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Total (A)</th><th>In union (B)</th><th>% (calc)</th><th>Previous FY – Total</th><th>In union</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Permanent employees – Male</td><td><input type="text" id="${p}e7_emp_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e7_emp_m_u_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_emp_m_u_cy" data-denom="${p}e7_emp_m_t_cy"></span></td><td><input type="text" id="${p}e7_emp_m_t_py" class="calc-input"></td><td><input type="text" id="${p}e7_emp_m_u_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_emp_m_u_py" data-denom="${p}e7_emp_m_t_py"></span></td></tr>
+              <tr><td>Permanent employees – Female</td><td><input type="text" id="${p}e7_emp_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e7_emp_f_u_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_emp_f_u_cy" data-denom="${p}e7_emp_f_t_cy"></span></td><td><input type="text" id="${p}e7_emp_f_t_py" class="calc-input"></td><td><input type="text" id="${p}e7_emp_f_u_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_emp_f_u_py" data-denom="${p}e7_emp_f_t_py"></span></td></tr>
+              <tr><td>Permanent workers – Male</td><td><input type="text" id="${p}e7_wrk_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e7_wrk_m_u_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_wrk_m_u_cy" data-denom="${p}e7_wrk_m_t_cy"></span></td><td colspan="3"></td></tr>
+              <tr><td>Permanent workers – Female</td><td><input type="text" id="${p}e7_wrk_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e7_wrk_f_u_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e7_wrk_f_u_cy" data-denom="${p}e7_wrk_f_t_cy"></span></td><td colspan="3"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">8. Training (health &amp; safety, skill upgradation)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Total (A)</th><th>Health &amp; safety No.</th><th>% (calc)</th><th>Skill upgradation No.</th><th>% (calc)</th><th>Previous FY – Total</th><th>Health &amp; safety No.</th><th>% (calc)</th><th>Skill No.</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Employees – Male</td><td><input type="text" id="${p}e8_emp_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e8_emp_m_hs_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_m_hs_cy" data-denom="${p}e8_emp_m_t_cy"></span></td><td><input type="text" id="${p}e8_emp_m_sk_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_m_sk_cy" data-denom="${p}e8_emp_m_t_cy"></span></td><td><input type="text" id="${p}e8_emp_m_t_py" class="calc-input"></td><td><input type="text" id="${p}e8_emp_m_hs_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_m_hs_py" data-denom="${p}e8_emp_m_t_py"></span></td><td><input type="text" id="${p}e8_emp_m_sk_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_m_sk_py" data-denom="${p}e8_emp_m_t_py"></span></td></tr>
+              <tr><td>Employees – Female</td><td><input type="text" id="${p}e8_emp_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e8_emp_f_hs_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_f_hs_cy" data-denom="${p}e8_emp_f_t_cy"></span></td><td><input type="text" id="${p}e8_emp_f_sk_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_emp_f_sk_cy" data-denom="${p}e8_emp_f_t_cy"></span></td><td colspan="5"></td></tr>
+              <tr><td>Workers – Male</td><td><input type="text" id="${p}e8_wrk_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e8_wrk_m_hs_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_wrk_m_hs_cy" data-denom="${p}e8_wrk_m_t_cy"></span></td><td><input type="text" id="${p}e8_wrk_m_sk_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_wrk_m_sk_cy" data-denom="${p}e8_wrk_m_t_cy"></span></td><td colspan="5"></td></tr>
+              <tr><td>Workers – Female</td><td><input type="text" id="${p}e8_wrk_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e8_wrk_f_hs_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_wrk_f_hs_cy" data-denom="${p}e8_wrk_f_t_cy"></span></td><td><input type="text" id="${p}e8_wrk_f_sk_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e8_wrk_f_sk_cy" data-denom="${p}e8_wrk_f_t_cy"></span></td><td colspan="5"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">9. Performance and career development reviews</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Total (A)</th><th>Reviewed (B)</th><th>% (calc)</th><th>Previous FY – Total</th><th>Reviewed</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Employees – Male</td><td><input type="text" id="${p}e9_emp_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e9_emp_m_r_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e9_emp_m_r_cy" data-denom="${p}e9_emp_m_t_cy"></span></td><td><input type="text" id="${p}e9_emp_m_t_py" class="calc-input"></td><td><input type="text" id="${p}e9_emp_m_r_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e9_emp_m_r_py" data-denom="${p}e9_emp_m_t_py"></span></td></tr>
+              <tr><td>Employees – Female</td><td><input type="text" id="${p}e9_emp_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e9_emp_f_r_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e9_emp_f_r_cy" data-denom="${p}e9_emp_f_t_cy"></span></td><td colspan="4"></td></tr>
+              <tr><td>Workers – Male</td><td><input type="text" id="${p}e9_wrk_m_t_cy" class="calc-input"></td><td><input type="text" id="${p}e9_wrk_m_r_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e9_wrk_m_r_cy" data-denom="${p}e9_wrk_m_t_cy"></span></td><td colspan="4"></td></tr>
+              <tr><td>Workers – Female</td><td><input type="text" id="${p}e9_wrk_f_t_cy" class="calc-input"></td><td><input type="text" id="${p}e9_wrk_f_r_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e9_wrk_f_r_cy" data-denom="${p}e9_wrk_f_t_cy"></span></td><td colspan="4"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">10. Health and safety management system (Y/N). Coverage. Processes for hazards. Worker reporting. Non-occupational medical access.</p>
+            <div class="field"><textarea id="${p}e10_hs" style="min-height:60px"></textarea></div>
+            <p class="brsr-section">11. Safety-related incidents (LTIFR, recordable injuries, fatalities, high consequence)</p>
+            <table class="brsr-table"><thead><tr><th>Incident type</th><th>Category</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>LTIFR (per million person-hours)</td><td>Employees</td><td><input type="text" id="${p}e11_ltifr_emp_cy"></td><td><input type="text" id="${p}e11_ltifr_emp_py"></td></tr>
+              <tr><td></td><td>Workers</td><td><input type="text" id="${p}e11_ltifr_wrk_cy"></td><td><input type="text" id="${p}e11_ltifr_wrk_py"></td></tr>
+              <tr><td>Total recordable work-related injuries</td><td>Employees</td><td><input type="text" id="${p}e11_rec_emp_cy"></td><td><input type="text" id="${p}e11_rec_emp_py"></td></tr>
+              <tr><td></td><td>Workers</td><td><input type="text" id="${p}e11_rec_wrk_cy"></td><td><input type="text" id="${p}e11_rec_wrk_py"></td></tr>
+              <tr><td>No. of fatalities</td><td>Employees</td><td><input type="text" id="${p}e11_fat_emp_cy"></td><td><input type="text" id="${p}e11_fat_emp_py"></td></tr>
+              <tr><td></td><td>Workers</td><td><input type="text" id="${p}e11_fat_wrk_cy"></td><td><input type="text" id="${p}e11_fat_wrk_py"></td></tr>
+              <tr><td>High consequence (excl. fatalities)</td><td>Employees</td><td><input type="text" id="${p}e11_hc_emp_cy"></td><td><input type="text" id="${p}e11_hc_emp_py"></td></tr>
+              <tr><td></td><td>Workers</td><td><input type="text" id="${p}e11_hc_wrk_cy"></td><td><input type="text" id="${p}e11_hc_wrk_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">12. Measures for safe and healthy workplace</p>
+            <div class="field"><textarea id="${p}e12_measures" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">13. Complaints (working conditions, health &amp; safety)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Filed</th><th>Pending</th><th>Remarks</th><th>Previous FY – Filed</th><th>Pending</th><th>Remarks</th></tr></thead><tbody>
+              <tr><td>Working conditions</td><td><input type="text" id="${p}e13_wc_cy_f"></td><td><input type="text" id="${p}e13_wc_cy_p"></td><td><input type="text" id="${p}e13_wc_cy_r"></td><td><input type="text" id="${p}e13_wc_py_f"></td><td><input type="text" id="${p}e13_wc_py_p"></td><td><input type="text" id="${p}e13_wc_py_r"></td></tr>
+              <tr><td>Health &amp; safety</td><td><input type="text" id="${p}e13_hs_cy_f"></td><td><input type="text" id="${p}e13_hs_cy_p"></td><td><input type="text" id="${p}e13_hs_cy_r"></td><td><input type="text" id="${p}e13_hs_py_f"></td><td><input type="text" id="${p}e13_hs_py_p"></td><td><input type="text" id="${p}e13_hs_py_r"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">14. Assessments (% plants/offices assessed)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>% assessed</th></tr></thead><tbody>
+              <tr><td>Health and safety practices</td><td><input type="text" id="${p}e14_hs"></td></tr>
+              <tr><td>Working conditions</td><td><input type="text" id="${p}e14_wc"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">15. Corrective action (safety incidents, assessments)</p>
+            <div class="field"><textarea id="${p}e15_corrective" style="min-height:50px"></textarea></div>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Life insurance / compensatory package (death) – Employees (Y/N), Workers (Y/N)</p>
+            <div class="field"><input type="text" id="${p}l1_emp" placeholder="Employees Y/N"> <input type="text" id="${p}l1_wrk" placeholder="Workers Y/N"></div>
+            <p class="brsr-section">2. Statutory dues deducted and deposited by value chain partners</p>
+            <div class="field"><textarea id="${p}l2_statutory" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">3. Rehabilitation (affected employees/workers or family placed)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Total affected</th><th>Previous FY – Total affected</th><th>Current FY – Rehabilitated/placed</th><th>Previous FY – Rehabilitated/placed</th></tr></thead><tbody>
+              <tr><td>Employees</td><td><input type="text" id="${p}l3_emp_cy_t"></td><td><input type="text" id="${p}l3_emp_py_t"></td><td><input type="text" id="${p}l3_emp_cy_r"></td><td><input type="text" id="${p}l3_emp_py_r"></td></tr>
+              <tr><td>Workers</td><td><input type="text" id="${p}l3_wrk_cy_t"></td><td><input type="text" id="${p}l3_wrk_py_t"></td><td><input type="text" id="${p}l3_wrk_cy_r"></td><td><input type="text" id="${p}l3_wrk_py_r"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Transition assistance (retirement/termination) (Y/N)</p>
+            <div class="field"><input type="text" id="${p}l4_transition" placeholder="Y/N"></div>
+            <p class="brsr-section">5. Value chain partners assessed (%) – Health &amp; safety, Working conditions</p>
+            <table class="brsr-table"><thead><tr><th></th><th>% of value chain partners (by value)</th></tr></thead><tbody>
+              <tr><td>Health and safety practices</td><td><input type="text" id="${p}l5_hs"></td></tr>
+              <tr><td>Working conditions</td><td><input type="text" id="${p}l5_wc"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">6. Corrective actions (value chain assessments)</p>
+            <div class="field"><textarea id="${p}l6_corrective" style="min-height:50px"></textarea></div>
+          </div>`;
+      } else if (num === 4) {
+        // Principle 4: Stakeholders
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Processes for identifying key stakeholder groups</p>
+            <div class="field"><textarea id="${p}e1_process" style="min-height:60px"></textarea></div>
+            <p class="brsr-section">2. Stakeholder groups – engagement</p>
+            <table class="brsr-table"><thead><tr><th>Stakeholder group</th><th>Vulnerable &amp; marginalized (Y/N)</th><th>Channels of communication</th><th>Frequency of engagement</th><th>Purpose and scope / key topics</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e2_s1_name"></td><td><input type="text" id="${p}e2_s1_vuln"></td><td><input type="text" id="${p}e2_s1_chan"></td><td><input type="text" id="${p}e2_s1_freq"></td><td><input type="text" id="${p}e2_s1_purpose"></td></tr>
+              <tr><td><input type="text" id="${p}e2_s2_name"></td><td><input type="text" id="${p}e2_s2_vuln"></td><td><input type="text" id="${p}e2_s2_chan"></td><td><input type="text" id="${p}e2_s2_freq"></td><td><input type="text" id="${p}e2_s2_purpose"></td></tr>
+              <tr><td><input type="text" id="${p}e2_s3_name"></td><td><input type="text" id="${p}e2_s3_vuln"></td><td><input type="text" id="${p}e2_s3_chan"></td><td><input type="text" id="${p}e2_s3_freq"></td><td><input type="text" id="${p}e2_s3_purpose"></td></tr>
+              <tr><td><input type="text" id="${p}e2_s4_name"></td><td><input type="text" id="${p}e2_s4_vuln"></td><td><input type="text" id="${p}e2_s4_chan"></td><td><input type="text" id="${p}e2_s4_freq"></td><td><input type="text" id="${p}e2_s4_purpose"></td></tr>
+              <tr><td><input type="text" id="${p}e2_s5_name"></td><td><input type="text" id="${p}e2_s5_vuln"></td><td><input type="text" id="${p}e2_s5_chan"></td><td><input type="text" id="${p}e2_s5_freq"></td><td><input type="text" id="${p}e2_s5_purpose"></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Consultation between stakeholders and Board on economic, environmental, social topics (or how feedback to Board)</p>
+            <div class="field"><textarea id="${p}l1_consult" style="min-height:60px"></textarea></div>
+            <p class="brsr-section">2. Stakeholder consultation for environmental/social topics (Y/N). Instances of inputs incorporated</p>
+            <div class="field"><input type="text" id="${p}l2_yn" placeholder="Y/N"></div>
+            <div class="field"><textarea id="${p}l2_instances" placeholder="Instances" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">3. Engagement with vulnerable/marginalized groups – actions taken</p>
+            <div class="field"><textarea id="${p}l3_engagement" style="min-height:60px"></textarea></div>
+          </div>`;
+      } else if (num === 5) {
+        // Principle 5: Human rights
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Training on human rights</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Total (A)</th><th>Covered (B)</th><th>% (calc)</th><th>Previous FY – Total</th><th>Covered</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Employees – Permanent</td><td><input type="text" id="${p}e1_emp_perm_t_cy" class="calc-input"></td><td><input type="text" id="${p}e1_emp_perm_c_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_emp_perm_c_cy" data-denom="${p}e1_emp_perm_t_cy"></span></td><td><input type="text" id="${p}e1_emp_perm_t_py" class="calc-input"></td><td><input type="text" id="${p}e1_emp_perm_c_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_emp_perm_c_py" data-denom="${p}e1_emp_perm_t_py"></span></td></tr>
+              <tr><td>Employees – Other than permanent</td><td><input type="text" id="${p}e1_emp_oth_t_cy" class="calc-input"></td><td><input type="text" id="${p}e1_emp_oth_c_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_emp_oth_c_cy" data-denom="${p}e1_emp_oth_t_cy"></span></td><td><input type="text" id="${p}e1_emp_oth_t_py" class="calc-input"></td><td><input type="text" id="${p}e1_emp_oth_c_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_emp_oth_c_py" data-denom="${p}e1_emp_oth_t_py"></span></td></tr>
+              <tr><td>Workers – Permanent</td><td><input type="text" id="${p}e1_wrk_perm_t_cy" class="calc-input"></td><td><input type="text" id="${p}e1_wrk_perm_c_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_wrk_perm_c_cy" data-denom="${p}e1_wrk_perm_t_cy"></span></td><td colspan="4"></td></tr>
+              <tr><td>Workers – Other than permanent</td><td><input type="text" id="${p}e1_wrk_oth_t_cy" class="calc-input"></td><td><input type="text" id="${p}e1_wrk_oth_c_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e1_wrk_oth_c_cy" data-denom="${p}e1_wrk_oth_t_cy"></span></td><td colspan="4"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Minimum wages (Equal to / More than minimum)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY – Total (A)</th><th>Equal to min No.</th><th>% (calc)</th><th>More than min No.</th><th>% (calc)</th><th>Previous FY – Total</th><th>Equal No.</th><th>% (calc)</th><th>More No.</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Employees – Permanent Male</td><td><input type="text" id="${p}e2_emp_pm_t_cy" class="calc-input"></td><td><input type="text" id="${p}e2_emp_pm_eq_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pm_eq_cy" data-denom="${p}e2_emp_pm_t_cy"></span></td><td><input type="text" id="${p}e2_emp_pm_more_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pm_more_cy" data-denom="${p}e2_emp_pm_t_cy"></span></td><td><input type="text" id="${p}e2_emp_pm_t_py" class="calc-input"></td><td><input type="text" id="${p}e2_emp_pm_eq_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pm_eq_py" data-denom="${p}e2_emp_pm_t_py"></span></td><td><input type="text" id="${p}e2_emp_pm_more_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pm_more_py" data-denom="${p}e2_emp_pm_t_py"></span></td></tr>
+              <tr><td>Employees – Permanent Female</td><td><input type="text" id="${p}e2_emp_pf_t_cy" class="calc-input"></td><td><input type="text" id="${p}e2_emp_pf_eq_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pf_eq_cy" data-denom="${p}e2_emp_pf_t_cy"></span></td><td><input type="text" id="${p}e2_emp_pf_more_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_emp_pf_more_cy" data-denom="${p}e2_emp_pf_t_cy"></span></td><td colspan="5"></td></tr>
+              <tr><td>Workers – Permanent Male</td><td><input type="text" id="${p}e2_wrk_pm_t_cy" class="calc-input"></td><td><input type="text" id="${p}e2_wrk_pm_eq_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_wrk_pm_eq_cy" data-denom="${p}e2_wrk_pm_t_cy"></span></td><td><input type="text" id="${p}e2_wrk_pm_more_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_wrk_pm_more_cy" data-denom="${p}e2_wrk_pm_t_cy"></span></td><td colspan="5"></td></tr>
+              <tr><td>Workers – Permanent Female</td><td><input type="text" id="${p}e2_wrk_pf_t_cy" class="calc-input"></td><td><input type="text" id="${p}e2_wrk_pf_eq_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_wrk_pf_eq_cy" data-denom="${p}e2_wrk_pf_t_cy"></span></td><td><input type="text" id="${p}e2_wrk_pf_more_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e2_wrk_pf_more_cy" data-denom="${p}e2_wrk_pf_t_cy"></span></td><td colspan="5"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3(a). Median remuneration (BoD, KMP, Employees, Workers – Male/Female)</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Male – No.</th><th>Male – Median (Rs.)</th><th>Female – No.</th><th>Female – Median (Rs.)</th></tr></thead><tbody>
+              <tr><td>Board of Directors</td><td><input type="text" id="${p}e3a_bod_m_n"></td><td><input type="text" id="${p}e3a_bod_m_med"></td><td><input type="text" id="${p}e3a_bod_f_n"></td><td><input type="text" id="${p}e3a_bod_f_med"></td></tr>
+              <tr><td>KMP</td><td><input type="text" id="${p}e3a_kmp_m_n"></td><td><input type="text" id="${p}e3a_kmp_m_med"></td><td><input type="text" id="${p}e3a_kmp_f_n"></td><td><input type="text" id="${p}e3a_kmp_f_med"></td></tr>
+              <tr><td>Employees (other than BoD/KMP)</td><td><input type="text" id="${p}e3a_emp_m_n"></td><td><input type="text" id="${p}e3a_emp_m_med"></td><td><input type="text" id="${p}e3a_emp_f_n"></td><td><input type="text" id="${p}e3a_emp_f_med"></td></tr>
+              <tr><td>Workers</td><td><input type="text" id="${p}e3a_wrk_m_n"></td><td><input type="text" id="${p}e3a_wrk_m_med"></td><td><input type="text" id="${p}e3a_wrk_f_n"></td><td><input type="text" id="${p}e3a_wrk_f_med"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3(b). Gross wages to females as % of total wages</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Female wages (Rs.)</th><th>Current FY – Total wages (Rs.)</th><th>% (calc)</th><th>Previous FY – Female</th><th>Previous FY – Total</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Gross wages</td><td><input type="text" id="${p}e3b_cy_f" class="calc-input"></td><td><input type="text" id="${p}e3b_cy_t" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e3b_cy_f" data-denom="${p}e3b_cy_t"></span></td><td><input type="text" id="${p}e3b_py_f" class="calc-input"></td><td><input type="text" id="${p}e3b_py_t" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e3b_py_f" data-denom="${p}e3b_py_t"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Focal point for human rights (Y/N)</p>
+            <div class="field"><input type="text" id="${p}e4_focal" placeholder="Y/N"></div>
+            <p class="brsr-section">5. Internal mechanisms for human rights grievances</p>
+            <div class="field"><textarea id="${p}e5_mech" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">6. Complaints (sexual harassment, discrimination, child labour, forced labour, wages, other)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Filed</th><th>Pending</th><th>Remarks</th><th>Previous FY – Filed</th><th>Pending</th><th>Remarks</th></tr></thead><tbody>
+              <tr><td>Sexual harassment</td><td><input type="text" id="${p}e6_sh_cy_f"></td><td><input type="text" id="${p}e6_sh_cy_p"></td><td><input type="text" id="${p}e6_sh_cy_r"></td><td><input type="text" id="${p}e6_sh_py_f"></td><td><input type="text" id="${p}e6_sh_py_p"></td><td><input type="text" id="${p}e6_sh_py_r"></td></tr>
+              <tr><td>Discrimination</td><td><input type="text" id="${p}e6_disc_cy_f"></td><td><input type="text" id="${p}e6_disc_cy_p"></td><td><input type="text" id="${p}e6_disc_cy_r"></td><td><input type="text" id="${p}e6_disc_py_f"></td><td><input type="text" id="${p}e6_disc_py_p"></td><td><input type="text" id="${p}e6_disc_py_r"></td></tr>
+              <tr><td>Child labour</td><td><input type="text" id="${p}e6_cl_cy_f"></td><td><input type="text" id="${p}e6_cl_cy_p"></td><td><input type="text" id="${p}e6_cl_cy_r"></td><td><input type="text" id="${p}e6_cl_py_f"></td><td><input type="text" id="${p}e6_cl_py_p"></td><td><input type="text" id="${p}e6_cl_py_r"></td></tr>
+              <tr><td>Forced/Involuntary labour</td><td><input type="text" id="${p}e6_fl_cy_f"></td><td><input type="text" id="${p}e6_fl_cy_p"></td><td><input type="text" id="${p}e6_fl_cy_r"></td><td><input type="text" id="${p}e6_fl_py_f"></td><td><input type="text" id="${p}e6_fl_py_p"></td><td><input type="text" id="${p}e6_fl_py_r"></td></tr>
+              <tr><td>Wages</td><td><input type="text" id="${p}e6_wg_cy_f"></td><td><input type="text" id="${p}e6_wg_cy_p"></td><td><input type="text" id="${p}e6_wg_cy_r"></td><td><input type="text" id="${p}e6_wg_py_f"></td><td><input type="text" id="${p}e6_wg_py_p"></td><td><input type="text" id="${p}e6_wg_py_r"></td></tr>
+              <tr><td>Other</td><td><input type="text" id="${p}e6_oth_cy_f"></td><td><input type="text" id="${p}e6_oth_cy_p"></td><td><input type="text" id="${p}e6_oth_cy_r"></td><td><input type="text" id="${p}e6_oth_py_f"></td><td><input type="text" id="${p}e6_oth_py_p"></td><td><input type="text" id="${p}e6_oth_py_r"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">7. POSH – Total complaints, % of female employees/workers, Complaints upheld</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Total POSH complaints</td><td><input type="text" id="${p}e7_tot_cy"></td><td><input type="text" id="${p}e7_tot_py"></td></tr>
+              <tr><td>Female employees/workers (total)</td><td><input type="text" id="${p}e7_f_cy" class="calc-input"></td><td><input type="text" id="${p}e7_f_py" class="calc-input"></td></tr>
+              <tr><td>POSH as % of female (calc)</td><td><span class="calc-display calc-pct" data-num="${p}e7_tot_cy" data-denom="${p}e7_f_cy"></span></td><td><span class="calc-display calc-pct" data-num="${p}e7_tot_py" data-denom="${p}e7_f_py"></span></td></tr>
+              <tr><td>Complaints upheld</td><td><input type="text" id="${p}e7_up_cy"></td><td><input type="text" id="${p}e7_up_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">8. Mechanisms to prevent adverse consequences (discrimination/harassment)</p>
+            <div class="field"><textarea id="${p}e8_mech" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">9. Human rights in business agreements/contracts (Y/N)</p>
+            <div class="field"><input type="text" id="${p}e9_contracts" placeholder="Y/N"></div>
+            <p class="brsr-section">10. Assessments (% plants/offices) – Child labour, Forced labour, Sexual harassment, Discrimination, Wages, Others</p>
+            <table class="brsr-table"><thead><tr><th></th><th>% assessed</th></tr></thead><tbody>
+              <tr><td>Child labour</td><td><input type="text" id="${p}e10_cl"></td></tr>
+              <tr><td>Forced/Involuntary labour</td><td><input type="text" id="${p}e10_fl"></td></tr>
+              <tr><td>Sexual harassment</td><td><input type="text" id="${p}e10_sh"></td></tr>
+              <tr><td>Discrimination</td><td><input type="text" id="${p}e10_disc"></td></tr>
+              <tr><td>Wages</td><td><input type="text" id="${p}e10_wg"></td></tr>
+              <tr><td>Others</td><td><input type="text" id="${p}e10_oth"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">11. Corrective actions</p>
+            <div class="field"><textarea id="${p}e11_corrective" style="min-height:50px"></textarea></div>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Business process modified due to human rights grievances</p>
+            <div class="field"><textarea id="${p}l1_process" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">2. Human rights due diligence – scope and coverage</p>
+            <div class="field"><textarea id="${p}l2_scope" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">3. Premises accessible to differently abled visitors (Y/N)</p>
+            <div class="field"><input type="text" id="${p}l3_access" placeholder="Y/N"></div>
+            <p class="brsr-section">4. Value chain partners assessed (%) – Sexual harassment, Discrimination, Child labour, Forced labour, Wages, Others</p>
+            <table class="brsr-table"><thead><tr><th></th><th>% assessed</th></tr></thead><tbody>
+              <tr><td>Sexual harassment</td><td><input type="text" id="${p}l4_sh"></td></tr>
+              <tr><td>Discrimination</td><td><input type="text" id="${p}l4_disc"></td></tr>
+              <tr><td>Child labour</td><td><input type="text" id="${p}l4_cl"></td></tr>
+              <tr><td>Forced labour</td><td><input type="text" id="${p}l4_fl"></td></tr>
+              <tr><td>Wages</td><td><input type="text" id="${p}l4_wg"></td></tr>
+              <tr><td>Others</td><td><input type="text" id="${p}l4_oth"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Corrective actions (value chain assessments)</p>
+            <div class="field"><textarea id="${p}l5_corrective" style="min-height:50px"></textarea></div>
+          </div>`;
+      } else if (num === 6) {
+        // Principle 6: Environment
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Energy consumption (renewable / non-renewable) and intensity</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Renewable – Electricity</td><td><input type="text" id="${p}e1_re_el_cy" class="calc-input"></td><td><input type="text" id="${p}e1_re_el_py" class="calc-input"></td></tr>
+              <tr><td>Renewable – Fuel</td><td><input type="text" id="${p}e1_re_fuel_cy" class="calc-input"></td><td><input type="text" id="${p}e1_re_fuel_py" class="calc-input"></td></tr>
+              <tr><td>Renewable – Other</td><td><input type="text" id="${p}e1_re_oth_cy" class="calc-input"></td><td><input type="text" id="${p}e1_re_oth_py" class="calc-input"></td></tr>
+              <tr><td>Total renewable (calc)</td><td><span class="calc-display calc-sum" data-sum="${p}e1_re_el_cy,${p}e1_re_fuel_cy,${p}e1_re_oth_cy" data-decimals="2"></span></td><td><span class="calc-display calc-sum" data-sum="${p}e1_re_el_py,${p}e1_re_fuel_py,${p}e1_re_oth_py" data-decimals="2"></span></td></tr>
+              <tr><td>Non-renewable – Electricity</td><td><input type="text" id="${p}e1_nre_el_cy" class="calc-input"></td><td><input type="text" id="${p}e1_nre_el_py" class="calc-input"></td></tr>
+              <tr><td>Non-renewable – Fuel</td><td><input type="text" id="${p}e1_nre_fuel_cy" class="calc-input"></td><td><input type="text" id="${p}e1_nre_fuel_py" class="calc-input"></td></tr>
+              <tr><td>Non-renewable – Other</td><td><input type="text" id="${p}e1_nre_oth_cy" class="calc-input"></td><td><input type="text" id="${p}e1_nre_oth_py" class="calc-input"></td></tr>
+              <tr><td>Total non-renewable (calc)</td><td><span class="calc-display calc-sum" data-sum="${p}e1_nre_el_cy,${p}e1_nre_fuel_cy,${p}e1_nre_oth_cy" data-decimals="2"></span></td><td><span class="calc-display calc-sum" data-sum="${p}e1_nre_el_py,${p}e1_nre_fuel_py,${p}e1_nre_oth_py" data-decimals="2"></span></td></tr>
+              <tr><td>Revenue from operations (Rs.) – Current FY</td><td><input type="text" id="${p}e1_rev_cy" class="calc-input"></td><td></td></tr>
+              <tr><td>Revenue – Previous FY</td><td></td><td><input type="text" id="${p}e1_rev_py" class="calc-input"></td></tr>
+              <tr><td>Energy intensity (energy/rev) – Current FY</td><td><input type="text" id="${p}e1_int_cy" placeholder="Optional formula"></td><td></td></tr>
+              <tr><td>Energy intensity – Previous FY</td><td></td><td><input type="text" id="${p}e1_int_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. PAT scheme – Designated consumer (Y/N). Targets achieved. Remedial action</p>
+            <div class="field"><input type="text" id="${p}e2_pat" placeholder="Y/N"> <input type="text" id="${p}e2_targets" placeholder="Targets achieved"> <input type="text" id="${p}e2_remedial" placeholder="Remedial action"></div>
+            <p class="brsr-section">3. Water – withdrawal by source (kL), consumption, intensity</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Surface water (kL)</td><td><input type="text" id="${p}e3_surf_cy" class="calc-input"></td><td><input type="text" id="${p}e3_surf_py" class="calc-input"></td></tr>
+              <tr><td>Groundwater (kL)</td><td><input type="text" id="${p}e3_grnd_cy" class="calc-input"></td><td><input type="text" id="${p}e3_grnd_py" class="calc-input"></td></tr>
+              <tr><td>Third party (kL)</td><td><input type="text" id="${p}e3_3p_cy" class="calc-input"></td><td><input type="text" id="${p}e3_3p_py" class="calc-input"></td></tr>
+              <tr><td>Others (kL)</td><td><input type="text" id="${p}e3_oth_cy" class="calc-input"></td><td><input type="text" id="${p}e3_oth_py" class="calc-input"></td></tr>
+              <tr><td>Total withdrawal (calc)</td><td><span class="calc-display calc-sum" data-sum="${p}e3_surf_cy,${p}e3_grnd_cy,${p}e3_3p_cy,${p}e3_oth_cy" data-decimals="2"></span></td><td><span class="calc-display calc-sum" data-sum="${p}e3_surf_py,${p}e3_grnd_py,${p}e3_3p_py,${p}e3_oth_py" data-decimals="2"></span></td></tr>
+              <tr><td>Total consumption (kL)</td><td><input type="text" id="${p}e3_cons_cy"></td><td><input type="text" id="${p}e3_cons_py"></td></tr>
+              <tr><td>Water intensity (consumption/revenue)</td><td><input type="text" id="${p}e3_int_cy"></td><td><input type="text" id="${p}e3_int_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Water discharge by destination and treatment level (kL)</p>
+            <table class="brsr-table"><thead><tr><th>Destination</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Surface water – no treatment</td><td><input type="text" id="${p}e4_sw_nt_cy"></td><td><input type="text" id="${p}e4_sw_nt_py"></td></tr>
+              <tr><td>Surface water – with treatment</td><td><input type="text" id="${p}e4_sw_t_cy"></td><td><input type="text" id="${p}e4_sw_t_py"></td></tr>
+              <tr><td>Third party / Others</td><td><input type="text" id="${p}e4_oth_cy"></td><td><input type="text" id="${p}e4_oth_py"></td></tr>
+              <tr><td>Total discharged (kL)</td><td><input type="text" id="${p}e4_tot_cy"></td><td><input type="text" id="${p}e4_tot_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Zero liquid discharge (Y/N). Coverage and implementation</p>
+            <div class="field"><input type="text" id="${p}e5_zld" placeholder="Y/N"> <input type="text" id="${p}e5_zld_detail" placeholder="Coverage/details"></div>
+            <p class="brsr-section">6. Air emissions (other than GHG) – NOx, SOx, PM, VOC, etc. (unit, Current FY, Previous FY)</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Unit</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>NOx</td><td><input type="text" id="${p}e6_nox_unit"></td><td><input type="text" id="${p}e6_nox_cy"></td><td><input type="text" id="${p}e6_nox_py"></td></tr>
+              <tr><td>SOx</td><td><input type="text" id="${p}e6_sox_unit"></td><td><input type="text" id="${p}e6_sox_cy"></td><td><input type="text" id="${p}e6_sox_py"></td></tr>
+              <tr><td>Particulate matter (PM)</td><td><input type="text" id="${p}e6_pm_unit"></td><td><input type="text" id="${p}e6_pm_cy"></td><td><input type="text" id="${p}e6_pm_py"></td></tr>
+              <tr><td>VOC</td><td><input type="text" id="${p}e6_voc_unit"></td><td><input type="text" id="${p}e6_voc_cy"></td><td><input type="text" id="${p}e6_voc_py"></td></tr>
+              <tr><td>Others</td><td><input type="text" id="${p}e6_oth_unit"></td><td><input type="text" id="${p}e6_oth_cy"></td><td><input type="text" id="${p}e6_oth_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">7. GHG – Scope 1 and Scope 2 (tCO2e) and intensity</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Unit</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Scope 1 emissions</td><td>tCO2e</td><td><input type="text" id="${p}e7_s1_cy" class="calc-input"></td><td><input type="text" id="${p}e7_s1_py" class="calc-input"></td></tr>
+              <tr><td>Scope 2 emissions</td><td>tCO2e</td><td><input type="text" id="${p}e7_s2_cy" class="calc-input"></td><td><input type="text" id="${p}e7_s2_py" class="calc-input"></td></tr>
+              <tr><td>Total Scope 1+2 (calc)</td><td>tCO2e</td><td><span class="calc-display calc-sum" data-sum="${p}e7_s1_cy,${p}e7_s2_cy" data-decimals="2"></span></td><td><span class="calc-display calc-sum" data-sum="${p}e7_s1_py,${p}e7_s2_py" data-decimals="2"></span></td></tr>
+              <tr><td>Emission intensity (emissions/revenue)</td><td></td><td><input type="text" id="${p}e7_int_cy"></td><td><input type="text" id="${p}e7_int_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">8. Projects for reducing GHG (Y/N). Details</p>
+            <div class="field"><input type="text" id="${p}e8_ghg_yn" placeholder="Y/N"> <input type="text" id="${p}e8_ghg_detail" placeholder="Details"></div>
+            <p class="brsr-section">9. Waste – generated (metric tonnes) by category</p>
+            <table class="brsr-table"><thead><tr><th>Category</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Plastic waste</td><td><input type="text" id="${p}e9_plast_cy" class="calc-input"></td><td><input type="text" id="${p}e9_plast_py" class="calc-input"></td></tr>
+              <tr><td>E-waste</td><td><input type="text" id="${p}e9_ew_cy" class="calc-input"></td><td><input type="text" id="${p}e9_ew_py" class="calc-input"></td></tr>
+              <tr><td>Bio-medical</td><td><input type="text" id="${p}e9_bio_cy" class="calc-input"></td><td><input type="text" id="${p}e9_bio_py" class="calc-input"></td></tr>
+              <tr><td>Other hazardous</td><td><input type="text" id="${p}e9_haz_cy" class="calc-input"></td><td><input type="text" id="${p}e9_haz_py" class="calc-input"></td></tr>
+              <tr><td>Other non-hazardous</td><td><input type="text" id="${p}e9_nh_cy" class="calc-input"></td><td><input type="text" id="${p}e9_nh_py" class="calc-input"></td></tr>
+              <tr><td>Total (calc)</td><td><span class="calc-display calc-sum" data-sum="${p}e9_plast_cy,${p}e9_ew_cy,${p}e9_bio_cy,${p}e9_haz_cy,${p}e9_nh_cy" data-decimals="2"></span></td><td><span class="calc-display calc-sum" data-sum="${p}e9_plast_py,${p}e9_ew_py,${p}e9_bio_py,${p}e9_haz_py,${p}e9_nh_py" data-decimals="2"></span></td></tr>
+              <tr><td>Waste recovered – Recycled (mt)</td><td><input type="text" id="${p}e9_rec_cy"></td><td><input type="text" id="${p}e9_rec_py"></td></tr>
+              <tr><td>Waste disposed – Landfill/Incineration (mt)</td><td><input type="text" id="${p}e9_disp_cy"></td><td><input type="text" id="${p}e9_disp_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">10. Waste management practices and strategy</p>
+            <div class="field"><textarea id="${p}e10_waste" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">11. Operations in ecologically sensitive areas – Location, Type, Compliance (Y/N), Corrective action</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>Location</th><th>Type of operations</th><th>Conditions complied (Y/N)</th><th>Reasons/corrective action if no</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}e11_1_loc"></td><td><input type="text" id="${p}e11_1_type"></td><td><input type="text" id="${p}e11_1_yn"></td><td><input type="text" id="${p}e11_1_correct"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${p}e11_2_loc"></td><td><input type="text" id="${p}e11_2_type"></td><td><input type="text" id="${p}e11_2_yn"></td><td><input type="text" id="${p}e11_2_correct"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">12. EIA of projects – Name, Notification no., Date, Independent (Y/N), Public domain (Y/N), Weblink</p>
+            <table class="brsr-table"><thead><tr><th>Project name</th><th>EIA notification no.</th><th>Date</th><th>Independent (Y/N)</th><th>Public (Y/N)</th><th>Weblink</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e12_name"></td><td><input type="text" id="${p}e12_notif"></td><td><input type="text" id="${p}e12_date"></td><td><input type="text" id="${p}e12_ind"></td><td><input type="text" id="${p}e12_pub"></td><td><input type="text" id="${p}e12_link"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">13. Environmental compliance (Y/N). Non-compliances – Law, Details, Fines/action, Corrective action</p>
+            <div class="field"><input type="text" id="${p}e13_comp" placeholder="Y/N"></div>
+            <table class="brsr-table"><thead><tr><th>Law/regulation</th><th>Details of non-compliance</th><th>Fines/action</th><th>Corrective action</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e13_law"></td><td><input type="text" id="${p}e13_detail"></td><td><input type="text" id="${p}e13_fines"></td><td><input type="text" id="${p}e13_correct"></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Water in areas of water stress (kL) – withdrawal, consumption, discharge by treatment</p>
+            <table class="brsr-table"><thead><tr><th>Parameter</th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Facility/area name</td><td><input type="text" id="${p}l1_area_cy"></td><td><input type="text" id="${p}l1_area_py"></td></tr>
+              <tr><td>Water withdrawal (kL)</td><td><input type="text" id="${p}l1_with_cy"></td><td><input type="text" id="${p}l1_with_py"></td></tr>
+              <tr><td>Water consumption (kL)</td><td><input type="text" id="${p}l1_cons_cy"></td><td><input type="text" id="${p}l1_cons_py"></td></tr>
+              <tr><td>Water discharge (kL)</td><td><input type="text" id="${p}l1_disp_cy"></td><td><input type="text" id="${p}l1_disp_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Scope 3 emissions (tCO2e) and intensity</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Scope 3 emissions (tCO2e)</td><td><input type="text" id="${p}l2_s3_cy"></td><td><input type="text" id="${p}l2_s3_py"></td></tr>
+              <tr><td>Scope 3 intensity</td><td><input type="text" id="${p}l2_int_cy"></td><td><input type="text" id="${p}l2_int_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Biodiversity impact in ecologically sensitive areas – prevention and remediation</p>
+            <div class="field"><textarea id="${p}l3_bio" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">4. Initiatives / innovative technology – resource efficiency, emissions/effluent/waste – Outcome</p>
+            <table class="brsr-table"><thead><tr><th>Initiative</th><th>Details (weblink/summary)</th><th>Outcome</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l4_init"></td><td><input type="text" id="${p}l4_detail"></td><td><input type="text" id="${p}l4_outcome"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Business continuity and disaster management plan (details/weblink)</p>
+            <div class="field"><textarea id="${p}l5_bcp" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">6. Adverse impact from value chain – mitigation measures</p>
+            <div class="field"><textarea id="${p}l6_value" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">7. % value chain partners assessed for environmental impacts</p>
+            <div class="field"><input type="text" id="${p}l7_pct" placeholder="%"></div>
+          </div>`;
+      } else if (num === 7) {
+        // Principle 7: Public and regulatory policy
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1(a). Number of affiliations with trade and industry chambers/associations</p>
+            <div class="field"><input type="text" id="${p}e1a_count" placeholder="Number"></div>
+            <p class="brsr-section">1(b). Top 10 trade and industry chambers/associations (by membership)</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>Name of chamber/association</th><th>Reach (State/National)</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}e1b_1_name"></td><td><input type="text" id="${p}e1b_1_reach"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${p}e1b_2_name"></td><td><input type="text" id="${p}e1b_2_reach"></td></tr>
+              <tr><td>3</td><td><input type="text" id="${p}e1b_3_name"></td><td><input type="text" id="${p}e1b_3_reach"></td></tr>
+              <tr><td>4</td><td><input type="text" id="${p}e1b_4_name"></td><td><input type="text" id="${p}e1b_4_reach"></td></tr>
+              <tr><td>5</td><td><input type="text" id="${p}e1b_5_name"></td><td><input type="text" id="${p}e1b_5_reach"></td></tr>
+              <tr><td>6</td><td><input type="text" id="${p}e1b_6_name"></td><td><input type="text" id="${p}e1b_6_reach"></td></tr>
+              <tr><td>7</td><td><input type="text" id="${p}e1b_7_name"></td><td><input type="text" id="${p}e1b_7_reach"></td></tr>
+              <tr><td>8</td><td><input type="text" id="${p}e1b_8_name"></td><td><input type="text" id="${p}e1b_8_reach"></td></tr>
+              <tr><td>9</td><td><input type="text" id="${p}e1b_9_name"></td><td><input type="text" id="${p}e1b_9_reach"></td></tr>
+              <tr><td>10</td><td><input type="text" id="${p}e1b_10_name"></td><td><input type="text" id="${p}e1b_10_reach"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Corrective action on anti-competitive conduct (adverse orders)</p>
+            <table class="brsr-table"><thead><tr><th>Name of authority</th><th>Brief of case</th><th>Corrective action taken</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e2_auth"></td><td><input type="text" id="${p}e2_brief"></td><td><input type="text" id="${p}e2_action"></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Public policy positions advocated</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>Public policy advocated</th><th>Method for advocacy</th><th>In public domain (Y/N)</th><th>Frequency of review by Board</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}l1_1_policy"></td><td><input type="text" id="${p}l1_1_method"></td><td><input type="text" id="${p}l1_1_public"></td><td><input type="text" id="${p}l1_1_freq"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${p}l1_2_policy"></td><td><input type="text" id="${p}l1_2_method"></td><td><input type="text" id="${p}l1_2_public"></td><td><input type="text" id="${p}l1_2_freq"></td></tr>
+            </tbody></table>
+          </div>`;
+      } else if (num === 8) {
+        // Principle 8: Inclusive growth and equitable development
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Social Impact Assessments (SIA) of projects</p>
+            <table class="brsr-table"><thead><tr><th>Project name / details</th><th>SIA notification no.</th><th>Date</th><th>Independent agency (Y/N)</th><th>Public domain (Y/N)</th><th>Weblink</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}e1_name"></td><td><input type="text" id="${p}e1_notif"></td><td><input type="text" id="${p}e1_date"></td><td><input type="text" id="${p}e1_ind"></td><td><input type="text" id="${p}e1_pub"></td><td><input type="text" id="${p}e1_link"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. Rehabilitation and Resettlement (R&amp;R) – ongoing projects</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>Project name</th><th>State</th><th>District</th><th>No. of PAFs</th><th>% PAFs covered by R&amp;R</th><th>Amount paid to PAFs in FY (Rs.)</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}e2_1_name"></td><td><input type="text" id="${p}e2_1_state"></td><td><input type="text" id="${p}e2_1_dist"></td><td><input type="text" id="${p}e2_1_paf"></td><td><input type="text" id="${p}e2_1_pct"></td><td><input type="text" id="${p}e2_1_amt"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${p}e2_2_name"></td><td><input type="text" id="${p}e2_2_state"></td><td><input type="text" id="${p}e2_2_dist"></td><td><input type="text" id="${p}e2_2_paf"></td><td><input type="text" id="${p}e2_2_pct"></td><td><input type="text" id="${p}e2_2_amt"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Grievance mechanism for community</p>
+            <div class="field"><textarea id="${p}e3_griev" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">4. % input material sourced from MSMEs/small producers and from within India</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>Directly from MSMEs/small producers (% of total inputs by value)</td><td><input type="text" id="${p}e4_msme_cy"></td><td><input type="text" id="${p}e4_msme_py"></td></tr>
+              <tr><td>Directly from within India (% of total inputs)</td><td><input type="text" id="${p}e4_india_cy"></td><td><input type="text" id="${p}e4_india_py"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Job creation in smaller towns – wages as % of total wage cost (Rural, Semi-urban, Urban, Metropolitan)</p>
+            <table class="brsr-table"><thead><tr><th>Location</th><th>Current FY – Wages (Rs.)</th><th>Current FY – Total wage cost (Rs.)</th><th>% (calc)</th><th>Previous FY – Wages</th><th>Previous FY – Total</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>Rural</td><td><input type="text" id="${p}e5_rural_w_cy" class="calc-input"></td><td><input type="text" id="${p}e5_rural_t_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_rural_w_cy" data-denom="${p}e5_rural_t_cy"></span></td><td><input type="text" id="${p}e5_rural_w_py" class="calc-input"></td><td><input type="text" id="${p}e5_rural_t_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_rural_w_py" data-denom="${p}e5_rural_t_py"></span></td></tr>
+              <tr><td>Semi-urban</td><td><input type="text" id="${p}e5_semi_w_cy" class="calc-input"></td><td><input type="text" id="${p}e5_semi_t_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_semi_w_cy" data-denom="${p}e5_semi_t_cy"></span></td><td><input type="text" id="${p}e5_semi_w_py" class="calc-input"></td><td><input type="text" id="${p}e5_semi_t_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_semi_w_py" data-denom="${p}e5_semi_t_py"></span></td></tr>
+              <tr><td>Urban</td><td><input type="text" id="${p}e5_urb_w_cy" class="calc-input"></td><td><input type="text" id="${p}e5_urb_t_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_urb_w_cy" data-denom="${p}e5_urb_t_cy"></span></td><td><input type="text" id="${p}e5_urb_w_py" class="calc-input"></td><td><input type="text" id="${p}e5_urb_t_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_urb_w_py" data-denom="${p}e5_urb_t_py"></span></td></tr>
+              <tr><td>Metropolitan</td><td><input type="text" id="${p}e5_metro_w_cy" class="calc-input"></td><td><input type="text" id="${p}e5_metro_t_cy" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_metro_w_cy" data-denom="${p}e5_metro_t_cy"></span></td><td><input type="text" id="${p}e5_metro_w_py" class="calc-input"></td><td><input type="text" id="${p}e5_metro_t_py" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}e5_metro_w_py" data-denom="${p}e5_metro_t_py"></span></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Mitigation of negative social impacts (from SIA)</p>
+            <table class="brsr-table"><thead><tr><th>Negative impact identified</th><th>Corrective action taken</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l1_impact"></td><td><input type="text" id="${p}l1_action"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">2. CSR in designated aspirational districts</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>State</th><th>Aspirational district</th><th>Amount spent (Rs.)</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}l2_1_state"></td><td><input type="text" id="${p}l2_1_dist"></td><td><input type="text" id="${p}l2_1_amt"></td></tr>
+              <tr><td>2</td><td><input type="text" id="${p}l2_2_state"></td><td><input type="text" id="${p}l2_2_dist"></td><td><input type="text" id="${p}l2_2_amt"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Preferential procurement from marginalized/vulnerable groups (Y/N). Groups. % of total procurement (calc)</p>
+            <div class="field"><input type="text" id="${p}l3_yn" placeholder="Y/N"> <input type="text" id="${p}l3_groups" placeholder="Groups"></div>
+            <table class="brsr-table"><thead><tr><th>Total procurement (Rs.)</th><th>From preferred groups (Rs.)</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l3_total" class="calc-input"></td><td><input type="text" id="${p}l3_pref" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}l3_pref" data-denom="${p}l3_total"></span></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Benefits from IP based on traditional knowledge – Owned/Acquired, Benefit shared (Y/N), Basis</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>IP (traditional knowledge)</th><th>Owned/Acquired</th><th>Benefit shared (Y/N)</th><th>Basis of benefit share</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}l4_1_ip"></td><td><input type="text" id="${p}l4_1_own"></td><td><input type="text" id="${p}l4_1_ben"></td><td><input type="text" id="${p}l4_1_basis"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Corrective action on IP disputes (adverse orders)</p>
+            <table class="brsr-table"><thead><tr><th>Authority</th><th>Brief of case</th><th>Corrective action</th></tr></thead><tbody>
+              <tr><td><input type="text" id="${p}l5_auth"></td><td><input type="text" id="${p}l5_brief"></td><td><input type="text" id="${p}l5_action"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">6. Beneficiaries of CSR projects – No. benefitted, % from vulnerable/marginalized (calc)</p>
+            <table class="brsr-table"><thead><tr><th>S. No.</th><th>CSR project</th><th>No. benefitted</th><th>Total beneficiaries (A)</th><th>From vulnerable/marginalized (B)</th><th>% (calc)</th></tr></thead><tbody>
+              <tr><td>1</td><td><input type="text" id="${p}l6_1_proj"></td><td><input type="text" id="${p}l6_1_num"></td><td><input type="text" id="${p}l6_1_tot" class="calc-input"></td><td><input type="text" id="${p}l6_1_vuln" class="calc-input"></td><td><span class="calc-display calc-pct" data-num="${p}l6_1_vuln" data-denom="${p}l6_1_tot"></span></td></tr>
+            </tbody></table>
+          </div>`;
+      } else if (num === 9) {
+        // Principle 9: Consumers
+        essential.innerHTML = `
+          <div class="section-block"><h3>Essential indicators</h3>
+            <p class="brsr-section">1. Mechanisms for consumer complaints and feedback</p>
+            <div class="field"><textarea id="${p}e1_mech" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">2. Turnover % with product information (environmental/social, safe usage, recycling/disposal)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>% of total turnover</th></tr></thead><tbody>
+              <tr><td>Environmental and social parameters</td><td><input type="text" id="${p}e2_env"></td></tr>
+              <tr><td>Safe and responsible usage</td><td><input type="text" id="${p}e2_safe"></td></tr>
+              <tr><td>Recycling and/or safe disposal</td><td><input type="text" id="${p}e2_recycle"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">3. Consumer complaints (Data privacy, Advertising, Cybersecurity, Delivery, Restrictive/Unfair trade, Other)</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY – Received</th><th>Current FY – Pending</th><th>Remarks</th><th>Previous FY – Received</th><th>Previous FY – Pending</th><th>Remarks</th></tr></thead><tbody>
+              <tr><td>Data privacy</td><td><input type="text" id="${p}e3_dp_cy_f"></td><td><input type="text" id="${p}e3_dp_cy_p"></td><td><input type="text" id="${p}e3_dp_cy_r"></td><td><input type="text" id="${p}e3_dp_py_f"></td><td><input type="text" id="${p}e3_dp_py_p"></td><td><input type="text" id="${p}e3_dp_py_r"></td></tr>
+              <tr><td>Advertising</td><td><input type="text" id="${p}e3_adv_cy_f"></td><td><input type="text" id="${p}e3_adv_cy_p"></td><td><input type="text" id="${p}e3_adv_cy_r"></td><td><input type="text" id="${p}e3_adv_py_f"></td><td><input type="text" id="${p}e3_adv_py_p"></td><td><input type="text" id="${p}e3_adv_py_r"></td></tr>
+              <tr><td>Cyber-security</td><td><input type="text" id="${p}e3_cs_cy_f"></td><td><input type="text" id="${p}e3_cs_cy_p"></td><td><input type="text" id="${p}e3_cs_cy_r"></td><td><input type="text" id="${p}e3_cs_py_f"></td><td><input type="text" id="${p}e3_cs_py_p"></td><td><input type="text" id="${p}e3_cs_py_r"></td></tr>
+              <tr><td>Delivery of essential services</td><td><input type="text" id="${p}e3_del_cy_f"></td><td><input type="text" id="${p}e3_del_cy_p"></td><td><input type="text" id="${p}e3_del_cy_r"></td><td><input type="text" id="${p}e3_del_py_f"></td><td><input type="text" id="${p}e3_del_py_p"></td><td><input type="text" id="${p}e3_del_py_r"></td></tr>
+              <tr><td>Restrictive trade practices</td><td><input type="text" id="${p}e3_rtp_cy_f"></td><td><input type="text" id="${p}e3_rtp_cy_p"></td><td><input type="text" id="${p}e3_rtp_cy_r"></td><td><input type="text" id="${p}e3_rtp_py_f"></td><td><input type="text" id="${p}e3_rtp_py_p"></td><td><input type="text" id="${p}e3_rtp_py_r"></td></tr>
+              <tr><td>Unfair trade practices</td><td><input type="text" id="${p}e3_utp_cy_f"></td><td><input type="text" id="${p}e3_utp_cy_p"></td><td><input type="text" id="${p}e3_utp_cy_r"></td><td><input type="text" id="${p}e3_utp_py_f"></td><td><input type="text" id="${p}e3_utp_py_p"></td><td><input type="text" id="${p}e3_utp_py_r"></td></tr>
+              <tr><td>Other</td><td><input type="text" id="${p}e3_oth_cy_f"></td><td><input type="text" id="${p}e3_oth_cy_p"></td><td><input type="text" id="${p}e3_oth_cy_r"></td><td><input type="text" id="${p}e3_oth_py_f"></td><td><input type="text" id="${p}e3_oth_py_p"></td><td><input type="text" id="${p}e3_oth_py_r"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">4. Product recalls (safety) – Voluntary / Forced – Number, Reasons</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Number</th><th>Reasons for recall</th></tr></thead><tbody>
+              <tr><td>Voluntary recalls</td><td><input type="text" id="${p}e4_vol_num"></td><td><input type="text" id="${p}e4_vol_reason"></td></tr>
+              <tr><td>Forced recalls</td><td><input type="text" id="${p}e4_for_num"></td><td><input type="text" id="${p}e4_for_reason"></td></tr>
+            </tbody></table>
+            <p class="brsr-section">5. Framework on cybersecurity and data privacy (Y/N). Weblink</p>
+            <div class="field"><input type="text" id="${p}e5_framework" placeholder="Y/N"> <input type="text" id="${p}e5_link" placeholder="Weblink"></div>
+            <p class="brsr-section">6. Corrective actions (advertising, delivery, cybersecurity, data privacy, recalls, regulatory penalty)</p>
+            <div class="field"><textarea id="${p}e6_corrective" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">7. Data breaches – (a) Number (b) % involving PII (c) Impact</p>
+            <table class="brsr-table"><thead><tr><th></th><th>Current FY</th><th>Previous FY</th></tr></thead><tbody>
+              <tr><td>(a) Number of data breaches</td><td><input type="text" id="${p}e7a_cy"></td><td><input type="text" id="${p}e7a_py"></td></tr>
+              <tr><td>(b) Breaches involving PII – Count</td><td><input type="text" id="${p}e7b_cy" class="calc-input"></td><td><input type="text" id="${p}e7b_py" class="calc-input"></td></tr>
+              <tr><td>(b) % involving PII (calc)</td><td><span class="calc-display calc-pct" data-num="${p}e7b_cy" data-denom="${p}e7a_cy"></span></td><td><span class="calc-display calc-pct" data-num="${p}e7b_py" data-denom="${p}e7a_py"></span></td></tr>
+              <tr><td>(c) Impact of data breaches</td><td><input type="text" id="${p}e7c_cy"></td><td><input type="text" id="${p}e7c_py"></td></tr>
+            </tbody></table>
+          </div>`;
+        leadership.innerHTML = `
+          <div class="section-block"><h3>Leadership indicators</h3>
+            <p class="brsr-section">1. Channels/platforms for product information (weblink)</p>
+            <div class="field"><input type="text" id="${p}l1_channels" placeholder="Weblink"></div>
+            <p class="brsr-section">2. Steps to inform and educate on safe and responsible usage</p>
+            <div class="field"><textarea id="${p}l2_steps" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">3. Mechanisms for disruption/discontinuation of essential services</p>
+            <div class="field"><textarea id="${p}l3_mech" style="min-height:50px"></textarea></div>
+            <p class="brsr-section">4. Product information beyond legal requirement (Y/N). Details. Consumer satisfaction survey (Y/N)</p>
+            <div class="field"><input type="text" id="${p}l4_beyond" placeholder="Y/N"> <input type="text" id="${p}l4_detail" placeholder="Details"> <input type="text" id="${p}l4_survey" placeholder="Survey Y/N"></div>
+          </div>`;
+      }
+      return { essential: essential, leadership: leadership };
+    }
+
+    function persistPrinciple(n) {
+      const d = loadData();
+      d['p' + n] = d['p' + n] || {};
+      const panelE = document.getElementById('panel-p' + n);
+      if (!panelE) return;
+      panelE.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.id) d['p' + n][el.id] = el.value;
+      });
+      saveData(d);
+    }
+    function loadPrinciple(n) {
+      const d = loadData();
+      if (!d['p' + n]) return;
+      const panelE = document.getElementById('panel-p' + n);
+      if (!panelE) return;
+      panelE.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.id && d['p' + n][el.id] !== undefined) el.value = d['p' + n][el.id];
+      });
+      runCalculations();
+    }
+
+    // Principle panels: create and fill Section C content
+    const tpl = document.getElementById('principle-panel-tpl');
+    PRINCIPLES.forEach((title, i) => {
+      const num = i + 1;
+      const panel = tpl.content.cloneNode(true);
+      const panelEl = panel.querySelector('section.panel');
+      if (!panelEl) return;
+      panelEl.id = 'panel-p' + num;
+      panelEl.classList.remove('active');
+      panel.querySelector('.p-num').textContent = num;
+      panel.querySelector('.principle-title').textContent = title;
+
+      const blockEssential = panel.querySelector('.principle-content-block[data-block="essential"]');
+      const blockLeadership = panel.querySelector('.principle-content-block[data-block="leadership"]');
+      const content = getPrincipleContent(num);
+      blockEssential.appendChild(content.essential);
+      blockLeadership.appendChild(content.leadership);
+
+      const pid = 'p' + num + '_';
+      const setIds = (sel, id) => { const el = panelEl.querySelector(sel); if (el) el.id = id; };
+      setIds('.p-reporting-period', pid + 'reporting_period');
+      setIds('.p-entity-name', pid + 'entity_name');
+      setIds('.p-notes', pid + 'notes');
+      setIds('.p-assurance-type', pid + 'assurance_type');
+      setIds('.p-assurer-name', pid + 'assurer_name');
+      setIds('.p-assurance-remarks', pid + 'assurance_remarks');
+
+      // Sub-nav: Essential | Leadership
+      panel.querySelectorAll('.subnav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          panelEl.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
+          panelEl.querySelectorAll('.principle-content-block').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const block = panelEl.querySelector('.principle-content-block[data-block="' + btn.dataset.block + '"]');
+          if (block) block.classList.add('active');
+        });
+      });
+
+      // Persist on input/change (delegate after append)
+      panelEl.addEventListener('input', () => { persistPrinciple(num); runCalculations(); });
+      panelEl.addEventListener('change', () => { persistPrinciple(num); runCalculations(); });
+
+      document.querySelector('.main').appendChild(panel);
+      loadPrinciple(num);
+      runCalculations();
+    });
+  </script>
+</body>
+</html>
