@@ -30,7 +30,7 @@ export default async function MasterLayout({
             <span className="text-xl leading-none" aria-hidden>⚙️</span>
             <h1 className="text-lg font-semibold text-white">BRSR Master</h1>
           </div>
-          <AccountDropdown email={user.email} />
+          <AccountDropdown email={user.email} roleSlug={roleSlug} />
         </div>
       </header>
       <div className="flex min-h-[calc(100vh-4rem)]">

@@ -12,11 +12,15 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("org_id")
+    .select("org_id, roles(slug)")
     .eq("id", user.id)
     .single();
 
-  const orgId = (profile as { org_id: string | null } | null)?.org_id ?? null;
+  const profileData = profile as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
+  const orgId = profileData?.org_id ?? null;
+  const roleSlug = Array.isArray(profileData?.roles)
+    ? profileData?.roles[0]?.slug
+    : profileData?.roles?.slug;
 
   let orgName: string | null = null;
   if (orgId) {
@@ -26,6 +30,16 @@ export default async function DashboardPage() {
       .eq("id", orgId)
       .single();
     orgName = (org as { name?: string } | null)?.name ?? null;
+  }
+
+  let allowedQuestionCodes: string[] | null = null;
+  if (orgId && roleSlug !== "admin" && roleSlug !== "master") {
+    const { data: assignedRows } = await supabase
+      .from("user_question_assignments")
+      .select("question_code")
+      .eq("org_id", orgId)
+      .eq("user_id", user.id);
+    allowedQuestionCodes = (assignedRows ?? []).map((row) => row.question_code);
   }
 
   return (
@@ -39,12 +53,16 @@ export default async function DashboardPage() {
             </div>
             <span className="text-xs text-gray-300/70">{orgName ?? "—"}</span>
           </div>
-          <AccountDropdown email={user.email} />
+          <AccountDropdown email={user.email} roleSlug={roleSlug} />
         </div>
       </header>
       <main className="flex min-h-[calc(100vh-4rem)] flex-col">
         {orgId ? (
-          <QuestionnaireShell orgId={orgId} />
+          <QuestionnaireShell
+            orgId={orgId}
+            canViewAll={roleSlug === "admin" || roleSlug === "master"}
+            allowedQuestionCodes={allowedQuestionCodes}
+          />
         ) : (
           <p className="px-6 py-6 text-gray-400">No organization assigned. Contact your administrator.</p>
         )}

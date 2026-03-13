@@ -6,11 +6,14 @@ type Props = {
   values: AnswersState;
   calcDisplay: Record<string, string>;
   onChange: (code: string, value: string) => void;
+  allowedSet?: Set<string> | null;
 };
 
-export function PanelGeneralData({ values, calcDisplay, onChange }: Props) {
+export function PanelGeneralData({ values, calcDisplay, onChange, allowedSet = null }: Props) {
   const v = (code: string) => values[code] ?? "";
   const d = (code: string) => calcDisplay[code] ?? "";
+  const showBlock = (prefixes: string[]) =>
+    allowedSet === null || Array.from(allowedSet).some((code) => prefixes.some((p) => code.startsWith(p)));
 
   const calcCell = (displayValue: string) => (
     <td
@@ -30,7 +33,9 @@ export function PanelGeneralData({ values, calcDisplay, onChange }: Props) {
       </p>
 
       <div className="mt-6">
-        <h3 className="text-sm font-semibold text-teal-400">Turnover & PPP (for intensity calculations)</h3>
+        {showBlock(["gdata_turnover_", "gdata_ppp_"]) && (
+          <>
+            <h3 className="text-sm font-semibold text-teal-400">Turnover & PPP (for intensity calculations)</h3>
         <table className="mt-2 w-full max-w-3xl border-collapse border border-gray-200 text-sm">
           <thead>
             <tr className="bg-gray-50">
@@ -96,9 +101,13 @@ export function PanelGeneralData({ values, calcDisplay, onChange }: Props) {
         <p className="mt-2 text-xs text-slate-400">
           These values auto-fill Principle 6 (Energy, Water, GHG, Waste) revenue and PPP-adjusted revenue fields so all intensity columns are calculated in one shot.
         </p>
+          </>
+        )}
       </div>
 
       <div className="mt-6 border-t border-slate-600 pt-6">
+        {showBlock(["gdata_emp_", "gdata_wrk_"]) && (
+          <>
         <h3 className="text-sm font-semibold text-teal-400">Employee & worker counts (for use across principles)</h3>
         <p className="mt-1 text-xs text-slate-400">
           Total headcount by gender and contract type. Use in Principle 3 and elsewhere.
@@ -168,6 +177,8 @@ export function PanelGeneralData({ values, calcDisplay, onChange }: Props) {
             </tr>
           </tbody>
         </table>
+          </>
+        )}
       </div>
       <p className="mt-5 text-xs text-slate-400">
         Data is saved automatically. Changes here flow to Principle 6.

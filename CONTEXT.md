@@ -38,22 +38,39 @@ This document gives all context needed to understand and work on the codebase: p
 ```
 BRSR/
 ├── app/
-│   ├── (dashboard)/dashboard/     # Dashboard layout, shell, panels
+│   ├── (dashboard)/dashboard/
+│   │   ├── hooks/                # Custom React hooks (useAnswers, useAssignments, useAssignmentStats)
+│   │   ├── panels/               # PanelGeneralData, PanelGeneral, PanelSectionB, PanelPrinciple,
+│   │   │                         #   PanelPrinciple6 (P6 JSX), LegacyPrincipleRenderer (P1-5, P7-9)
+│   │   ├── admin-workspace/      # AdminWorkspaceClient
+│   │   └── QuestionnaireShell.tsx
 │   ├── (master)/master/           # Master layout, nav, orgs/users/roles/visibility
-│   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility)
-│   ├── login/                    # Login page
-│   ├── layout.tsx, page.tsx      # Root layout; / redirects to /dashboard or /login
-│   └── globals.css               # BRSR dark theme (.brsr-dark)
+│   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility, assignments)
+│   ├── login/                     # Login page
+│   ├── layout.tsx, page.tsx       # Root layout; / redirects to /dashboard or /login
+│   └── globals.css                # BRSR dark theme (.brsr-dark)
+├── components/
+│   └── QuestionInput.tsx          # Shared text input bound to a question code
 ├── lib/
-│   ├── supabase/                 # createClient (server), client, admin
-│   └── brsr/                     # types, questionConfig, calcEngine, flowGeneralDataToP6
-├── supabase/migrations/          # SQL migrations (001 → 004)
+│   ├── supabase/                  # createClient (server), client, admin
+│   └── brsr/
+│       ├── constants.ts           # REPORTING_YEARS, SAVE_DEBOUNCE_MS
+│       ├── questionCodes.ts       # All *_CODES arrays, getQuestionCodesForPanel, isQuestionCode
+│       ├── calcRules.ts           # CALC_RULES array (all panels)
+│       ├── panels.ts              # PANELS array
+│       ├── questionConfig.ts      # Re-export barrel (preserves existing import paths)
+│       ├── calcEngine.ts          # runCalculations()
+│       ├── types.ts               # AnswersState, PanelId, CalcRule
+│       ├── assignmentBlocks.ts    # AssignmentBlock metadata for Admin UI
+│       ├── principleTemplates.ts  # Raw HTML templates for P1-5, P7-9
+│       └── flowGeneralDataToP6.ts # General Data → Principle 6 autofill
+├── supabase/migrations/           # SQL migrations (001 → 005)
 ├── scripts/
-│   └── seed-master.ts            # Create first Master user
-├── middleware.ts                 # Auth + role-based redirect
+│   └── seed-master.ts             # Create first Master user
+├── middleware.ts                  # Auth + role-based redirect
 ├── .env.local.example
-├── CONTEXT.md                    # This file
-└── README.md                     # Quick setup
+├── CONTEXT.md                     # This file
+└── README.md                      # Quick setup
 ```
 
 ---
@@ -165,13 +182,14 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 - **Storage**: One row per (org_id, reporting_year, question_code) in `answers`. Values are strings. UI loads via GET `/api/answers`, saves via POST with debounce.
 - **State**: `AnswersState = Record<string, string>` (question_code → value). Panels read from this and call `onChange(questionCode, value)`.
 
-### 8.2 Question config (`lib/brsr/questionConfig.ts`)
+### 8.2 Question config (split across `lib/brsr/`)
 
-- **Panel IDs**: `generaldata` | `general` | `sectionb` | `p1` … `p9` (see `PanelId` in `lib/brsr/types.ts`).
-- **PANELS**: Array of `{ id, label, group }`. Groups: "General Data", "Section A", "Section B", "Section C – Principles".
-- **Question codes**: Constants per panel (e.g. `GDATA_CODES`, `GEN_CODES`, `SB_CODES`, `PRINCIPLE_CODES[n]`). Exported: `getQuestionCodesForPanel(panelId)`, `ALL_QUESTION_CODES`, `isQuestionCode(code)`.
-- **Calculations**: `CALC_RULES` (type `CalcRule[]`): `pct`, `sum`, `formula` rules with `outputId`, decimals. Used for read-only cells.
-- **Principle 6 autofill**: `P6_AUTOFILL_REV_IDS`, `P6_AUTOFILL_REV_PPP_IDS` list question codes that are filled from General Data turnover/PPP.
+`questionConfig.ts` is a re-export barrel. Edit the underlying files directly:
+
+- **`constants.ts`** — `REPORTING_YEARS`, `SAVE_DEBOUNCE_MS`.
+- **`questionCodes.ts`** — All `*_CODES` arrays per panel; `NGRBC_PRINCIPLE_TITLES`; `P6_AUTOFILL_REV_IDS`, `P6_AUTOFILL_REV_PPP_IDS`; `getQuestionCodesForPanel(panelId)`, `ALL_QUESTION_CODES`, `isQuestionCode(code)`.
+- **`calcRules.ts`** — `CALC_RULES` array (`pct`, `sum`, `formula` rules with `outputId` and decimals). Used for read-only calc cells across all panels.
+- **`panels.ts`** — `PANELS` array of `{ id, label, group }`. Groups: "General Data", "Section A", "Section B", "Section C – Principles".
 
 ### 8.3 Calculation engine (`lib/brsr/calcEngine.ts`)
 
@@ -183,8 +201,16 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 
 ### 8.5 Dashboard UI
 
-- **QuestionnaireShell**: Reporting year selector; sidebar with panel list (active state); loads answers on mount, debounced save on change. Renders panel by `activePanel` (generaldata, general, sectionb, p1–p9).
-- **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`. Principle panel uses `principleNum` and NGRBC titles from config.
+- **QuestionnaireShell** (`QuestionnaireShell.tsx`): Reporting year selector; sidebar with panel list (active state); renders panel by `activePanel`. Data loading/saving is delegated to `hooks/useAnswers.ts`.
+- **Custom hooks** (`hooks/`):
+  - `useAnswers` — loads and debounce-saves answers; exposes `answers`, `loading`, `saving`, `onChange`.
+  - `useAssignmentStats` — fetches completion statistics for the Admin Workspace.
+  - `useAssignments` — loads, toggles, and saves per-user question assignments.
+- **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`.
+- **Principle panel** (`PanelPrinciple.tsx`): Orchestrator only (~60 lines). Delegates to:
+  - `PanelPrinciple6.tsx` — P6 Essential and Leadership JSX components.
+  - `LegacyPrincipleRenderer.tsx` — HTML-template renderer for P1-5 and P7-9 (dynamic rows, calc display, input binding).
+- **Shared input** (`components/QuestionInput.tsx`): Reusable `<input>` bound to a question code. Used inside `PanelPrinciple6`.
 - **Theme**: Dark theme via `.brsr-dark` in `globals.css` (inputs, tables, labels, borders). Header/sidebar use `#1a202c`, content `#0a0f12`, borders `#334155`.
 
 ---

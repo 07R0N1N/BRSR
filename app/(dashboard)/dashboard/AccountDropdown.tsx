@@ -1,8 +1,15 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
 
-export function AccountDropdown({ email }: { email: string | undefined }) {
+export function AccountDropdown({
+  email,
+  roleSlug,
+}: {
+  email: string | undefined;
+  roleSlug?: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,6 +43,16 @@ export function AccountDropdown({ email }: { email: string | undefined }) {
           className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-md border border-[#334155] bg-[#1a202c] py-1 shadow-lg"
           role="menu"
         >
+          {roleSlug === "admin" && (
+            <Link
+              href="/dashboard/admin-workspace"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block w-full px-3 py-2 text-left text-xs text-gray-300 transition-colors hover:bg-white/10"
+            >
+              Admin Workspace
+            </Link>
+          )}
           <form action="/api/auth/signout" method="post" className="block">
             <button
               type="submit"

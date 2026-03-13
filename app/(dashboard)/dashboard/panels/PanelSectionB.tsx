@@ -6,6 +6,7 @@ import { getQuestionCodesForPanel } from "@/lib/brsr/questionConfig";
 type Props = {
   values: AnswersState;
   onChange: (code: string, value: string) => void;
+  allowedSet?: Set<string> | null;
 };
 
 /** Full disclosure text from reference (brsr-data-entry 2.html) */
@@ -40,9 +41,10 @@ const rowOrder = (key: string) => {
   return n * 10 + (s === "a" ? 1 : s === "b" ? 2 : s === "c" ? 3 : s === "d" ? 4 : s === "e" ? 5 : 0);
 };
 
-export function PanelSectionB({ values, onChange }: Props) {
+export function PanelSectionB({ values, onChange, allowedSet = null }: Props) {
   const v = (code: string) => values[code] ?? "";
   const codes = getQuestionCodesForPanel("sectionb");
+  const show = (code: string) => allowedSet === null || allowedSet.has(code);
 
   const mainRows = codes
     .filter((c) => !c.includes("statement") && !c.includes("authority") && !c.includes("12"))
@@ -82,7 +84,9 @@ export function PanelSectionB({ values, onChange }: Props) {
             </tr>
           </thead>
           <tbody>
-            {mainRowsBefore7And8.map(({ rowKey, cells }) => (
+            {mainRowsBefore7And8
+              .filter(({ cells }) => cells.some((c) => show(c.code)))
+              .map(({ rowKey, cells }) => (
               <tr key={rowKey}>
                 <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
                   {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
@@ -91,7 +95,7 @@ export function PanelSectionB({ values, onChange }: Props) {
                   const cell = cells.find((c) => c.principle === p);
                   return (
                     <td key={p} className="border border-gray-200 px-2 py-1">
-                      {cell ? (
+                      {cell && show(cell.code) ? (
                         <input
                           type="text"
                           value={v(cell.code)}
@@ -107,6 +111,7 @@ export function PanelSectionB({ values, onChange }: Props) {
                 })}
               </tr>
             ))}
+            {show("sb_7_statement") && (
             <tr>
               <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">7. Statement by director on ESG challenges, targets, achievements</td>
               <td colSpan={9} className="border border-gray-200 px-2 py-1">
@@ -119,6 +124,8 @@ export function PanelSectionB({ values, onChange }: Props) {
                 />
               </td>
             </tr>
+            )}
+            {show("sb_8_authority") && (
             <tr>
               <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">8. Highest authority for implementation & oversight of BR policy</td>
               <td colSpan={9} className="border border-gray-200 px-2 py-1">
@@ -131,7 +138,10 @@ export function PanelSectionB({ values, onChange }: Props) {
                 />
               </td>
             </tr>
-            {mainRowsAfter7And8.map(({ rowKey, cells }) => (
+            )}
+            {mainRowsAfter7And8
+              .filter(({ cells }) => cells.some((c) => show(c.code)))
+              .map(({ rowKey, cells }) => (
               <tr key={rowKey}>
                 <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
                   {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
@@ -140,7 +150,7 @@ export function PanelSectionB({ values, onChange }: Props) {
                   const cell = cells.find((c) => c.principle === p);
                   return (
                     <td key={p} className="border border-gray-200 px-2 py-1">
-                      {cell ? (
+                      {cell && show(cell.code) ? (
                         <input
                           type="text"
                           value={v(cell.code)}
@@ -173,22 +183,29 @@ export function PanelSectionB({ values, onChange }: Props) {
             </tr>
           </thead>
           <tbody>
-            {(["12a", "12b", "12c", "12d"] as const).map((rowKey) => (
+            {(["12a", "12b", "12c", "12d"] as const)
+              .filter((rowKey) => PRINCIPLES.some((p) => show(`sb_${rowKey}_p${p}`)))
+              .map((rowKey) => (
               <tr key={rowKey}>
                 <td className="border border-gray-200 px-2 py-1.5 text-gray-700">{REASON_ROW_LABELS[rowKey]}</td>
                 {PRINCIPLES.map((p) => (
                   <td key={p} className="border border-gray-200 px-2 py-1">
-                    <input
-                      type="text"
-                      value={v(`sb_${rowKey}_p${p}`)}
-                      onChange={(e) => onChange(`sb_${rowKey}_p${p}`, e.target.value)}
-                      placeholder="Y/N"
-                      className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
-                    />
+                    {show(`sb_${rowKey}_p${p}`) ? (
+                      <input
+                        type="text"
+                        value={v(`sb_${rowKey}_p${p}`)}
+                        onChange={(e) => onChange(`sb_${rowKey}_p${p}`, e.target.value)}
+                        placeholder="Y/N"
+                        className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
+                      />
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
                   </td>
                 ))}
               </tr>
             ))}
+            {show("sb_12e_other") && (
             <tr>
               <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">Any other reason (specify)</td>
               <td colSpan={9} className="border border-gray-200 px-2 py-1">
@@ -201,6 +218,7 @@ export function PanelSectionB({ values, onChange }: Props) {
                 />
               </td>
             </tr>
+            )}
           </tbody>
         </table>
       </div>
