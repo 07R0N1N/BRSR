@@ -36,12 +36,14 @@ export default async function AdminWorkspacePage() {
       .order("email"),
     supabase
       .from("organizations")
-      .select("name")
+      .select("name, reporting_year")
       .eq("id", orgId)
       .single(),
   ]);
 
-  const orgName = (org as { name?: string } | null)?.name ?? "Organization";
+  const orgData = org as { name?: string; reporting_year?: string | null } | null;
+  const orgName = orgData?.name ?? "Organization";
+  const reportingYear = orgData?.reporting_year ?? "2024-25";
 
   return (
     <div className="min-h-screen bg-[#0a0f12]">
@@ -61,7 +63,7 @@ export default async function AdminWorkspacePage() {
       </header>
 
       <main className="brsr-dark p-6">
-        <AdminWorkspaceClient users={users ?? []} />
+        <AdminWorkspaceClient users={users ?? []} reportingYear={reportingYear} />
       </main>
     </div>
   );

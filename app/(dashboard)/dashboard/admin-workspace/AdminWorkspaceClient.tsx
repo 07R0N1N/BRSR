@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import type { PanelId } from "@/lib/brsr/types";
 import { PANELS } from "@/lib/brsr/questionConfig";
 import { getAssignmentBlocksForPanel } from "@/lib/brsr/assignmentBlocks";
-import { REPORTING_YEARS } from "@/lib/brsr/constants";
 import { useAssignmentStats } from "../hooks/useAssignmentStats";
 import { useAssignments } from "../hooks/useAssignments";
 
@@ -14,8 +13,7 @@ type UserOption = {
   display_name: string | null;
 };
 
-export function AdminWorkspaceClient({ users }: { users: UserOption[] }) {
-  const [reportingYear, setReportingYear] = useState(REPORTING_YEARS[0]);
+export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOption[]; reportingYear: string }) {
   const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? "");
   const [activePanel, setActivePanel] = useState<PanelId>("generaldata");
 
@@ -55,17 +53,9 @@ export function AdminWorkspaceClient({ users }: { users: UserOption[] }) {
             <h2 className="text-lg font-semibold text-white">Completion statistics</h2>
             <p className="text-sm text-gray-400">Track completion against assigned questions.</p>
           </div>
-          <div>
-            <label className="block text-xs font-medium uppercase text-gray-400">Reporting year</label>
-            <select
-              value={reportingYear}
-              onChange={(e) => setReportingYear(e.target.value)}
-              className="mt-1 rounded border border-[#334155] bg-[#111827] px-3 py-2 text-sm text-white"
-            >
-              {REPORTING_YEARS.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
+          <div className="rounded border border-[#334155] bg-[#111827] px-3 py-2">
+            <p className="text-xs font-medium uppercase text-gray-400">Reporting year</p>
+            <p className="mt-0.5 text-sm font-semibold text-white">{reportingYear}</p>
           </div>
         </div>
 

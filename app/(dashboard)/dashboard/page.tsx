@@ -23,13 +23,16 @@ export default async function DashboardPage() {
     : profileData?.roles?.slug;
 
   let orgName: string | null = null;
+  let orgReportingYear = "2024-25";
   if (orgId) {
     const { data: org } = await supabase
       .from("organizations")
-      .select("name")
+      .select("name, reporting_year")
       .eq("id", orgId)
       .single();
-    orgName = (org as { name?: string } | null)?.name ?? null;
+    const orgData = org as { name?: string; reporting_year?: string | null } | null;
+    orgName = orgData?.name ?? null;
+    orgReportingYear = orgData?.reporting_year ?? "2024-25";
   }
 
   let allowedQuestionCodes: string[] | null = null;
@@ -60,6 +63,7 @@ export default async function DashboardPage() {
         {orgId ? (
           <QuestionnaireShell
             orgId={orgId}
+            reportingYear={orgReportingYear}
             canViewAll={roleSlug === "admin" || roleSlug === "master"}
             allowedQuestionCodes={allowedQuestionCodes}
           />

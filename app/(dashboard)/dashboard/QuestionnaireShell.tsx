@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import type { PanelId } from "@/lib/brsr/types";
 import { PANELS, getQuestionCodesForPanel } from "@/lib/brsr/questionConfig";
 import { runCalculations } from "@/lib/brsr/calcEngine";
-import { REPORTING_YEARS } from "@/lib/brsr/constants";
 import { useAnswers } from "./hooks/useAnswers";
 import { PanelGeneralData } from "./panels/PanelGeneralData";
 import { PanelGeneral } from "./panels/PanelGeneral";
@@ -13,14 +12,15 @@ import { PanelPrinciple } from "./panels/PanelPrinciple";
 
 export function QuestionnaireShell({
   orgId,
+  reportingYear,
   canViewAll,
   allowedQuestionCodes,
 }: {
   orgId: string;
+  reportingYear: string;
   canViewAll?: boolean;
   allowedQuestionCodes?: string[] | null;
 }) {
-  const [reportingYear, setReportingYear] = useState(REPORTING_YEARS[0]);
   const [activePanel, setActivePanel] = useState<PanelId>("generaldata");
 
   const allowedSet = useMemo(
@@ -54,17 +54,9 @@ export function QuestionnaireShell({
   return (
     <div className="flex min-h-full w-full">
       <aside className="w-56 shrink-0 border-r border-[#334155] bg-[#1a202c] p-3">
-        <div className="mb-4">
-          <label className="block text-xs font-medium uppercase text-gray-400">Reporting year</label>
-          <select
-            value={reportingYear}
-            onChange={(e) => setReportingYear(e.target.value)}
-            className="mt-1 w-full rounded border border-[#334155] bg-[#2d3748] px-2 py-1.5 text-sm text-white"
-          >
-            {REPORTING_YEARS.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+        <div className="mb-4 rounded border border-[#334155] bg-[#2d3748] px-2 py-1.5">
+          <p className="text-xs font-medium uppercase text-gray-400">Reporting year</p>
+          <p className="mt-0.5 text-sm font-semibold text-white">{reportingYear}</p>
         </div>
         {["General Data", "Section A", "Section B", "Section C – Principles"].map((group) => (
           <div key={group} className="mb-3">
