@@ -176,10 +176,12 @@ function parsePrincipleTemplateBlocks(principleNum: number, codes: string[]): As
   const assigned = new Set<string>();
   const blocks: AssignmentBlock[] = [];
 
+  const idRegex = new RegExp(`id="p${principleNum}_([^"]+)"`, "g");
   sections.forEach((section, idx) => {
     const chunk = html.slice(section.start, sections[idx + 1]?.start ?? html.length);
     const ids: string[] = [];
-    chunk.replace(/id="\$\{p\}([^"]+)"/g, (_, suffix: string) => {
+    idRegex.lastIndex = 0;
+    chunk.replace(idRegex, (_, suffix: string) => {
       const code = `p${principleNum}_${suffix}`;
       if (allowed.has(code) && !assigned.has(code)) {
         assigned.add(code);

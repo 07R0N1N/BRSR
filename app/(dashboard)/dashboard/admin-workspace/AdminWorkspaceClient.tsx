@@ -3,9 +3,16 @@
 import { useMemo, useState } from "react";
 import type { PanelId } from "@/lib/brsr/types";
 import { PANELS } from "@/lib/brsr/questionConfig";
-import { getAssignmentBlocksForPanel } from "@/lib/brsr/assignmentBlocks";
+import { getAssignmentBlocksForPanel, type AssignmentBlock } from "@/lib/brsr/assignmentBlocks";
 import { useAssignmentStats } from "../hooks/useAssignmentStats";
 import { useAssignments } from "../hooks/useAssignments";
+
+function isEssentialBlock(block: AssignmentBlock): boolean {
+  return block.questionCodes.some((c) => /_e\d/.test(c) || c.endsWith("_notes"));
+}
+function isLeadershipBlock(block: AssignmentBlock): boolean {
+  return block.questionCodes.some((c) => /_l\d/.test(c) || c.endsWith("_notes"));
+}
 
 type UserOption = {
   id: string;
@@ -13,9 +20,12 @@ type UserOption = {
   display_name: string | null;
 };
 
+type AssignmentTab = "essential" | "leadership";
+
 export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOption[]; reportingYear: string }) {
   const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? "");
   const [activePanel, setActivePanel] = useState<PanelId>("generaldata");
+  const [assignmentTab, setAssignmentTab] = useState<AssignmentTab>("essential");
 
   const { stats, loading: loadingStats, error: statsError, reload: reloadStats } =
     useAssignmentStats(reportingYear);
@@ -37,12 +47,20 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
     [activePanel]
   );
 
+  const isPrinciplePanel = /^p[1-9]$/.test(activePanel);
+  const displayedBlocks = useMemo(() => {
+    if (!isPrinciplePanel) return assignmentBlocksForActivePanel;
+    return assignmentBlocksForActivePanel.filter((block) =>
+      assignmentTab === "essential" ? isEssentialBlock(block) : isLeadershipBlock(block)
+    );
+  }, [assignmentBlocksForActivePanel, assignmentTab, isPrinciplePanel]);
+
   const selectedBlockCount = useMemo(
     () =>
-      assignmentBlocksForActivePanel.filter((block) =>
+      displayedBlocks.filter((block) =>
         block.questionCodes.every((code) => selectedCodes.has(code))
       ).length,
-    [assignmentBlocksForActivePanel, selectedCodes]
+    [displayedBlocks, selectedCodes]
   );
 
   return (
@@ -155,11 +173,29 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
               </p>
               <p className="text-xs text-gray-400">Selected blocks: {selectedBlockCount}</p>
             </div>
+            {isPrinciplePanel && (
+              <div className="mb-3 flex gap-2 border-b border-[#334155]">
+                {(["essential", "leadership"] as AssignmentTab[]).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setAssignmentTab(tab)}
+                    className={`border-b-2 px-3 py-2 text-sm font-medium ${
+                      assignmentTab === tab
+                        ? "border-blue-500 text-blue-400"
+                        : "border-transparent text-gray-400 hover:text-gray-300"
+                    }`}
+                  >
+                    {tab === "essential" ? "Essential indicators" : "Leadership indicators"}
+                  </button>
+                ))}
+              </div>
+            )}
             {loadingAssignments ? (
               <p className="text-sm text-gray-400">Loading assignments...</p>
             ) : (
               <div className="grid gap-2 md:grid-cols-2">
-                {assignmentBlocksForActivePanel.map((block) => {
+                {displayedBlocks.map((block) => {
                   const selectedCount = block.questionCodes.reduce(
                     (count, code) => count + (selectedCodes.has(code) ? 1 : 0),
                     0
