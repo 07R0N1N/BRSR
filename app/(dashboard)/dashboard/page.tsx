@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AccountDropdown } from "./AccountDropdown";
+import { ExportButton } from "@/components/ExportButton";
 import { QuestionnaireShell } from "./QuestionnaireShell";
 
 export default async function DashboardPage() {
@@ -61,7 +62,16 @@ export default async function DashboardPage() {
             </div>
             <span className="text-xs text-gray-300/70">{orgName ?? "—"}</span>
           </div>
-          <AccountDropdown email={user.email} roleSlug={roleSlug} />
+          <div className="flex items-center gap-3">
+            {orgId && (
+              <ExportButton
+                orgId={orgId}
+                year={orgReportingYear}
+                orgName={orgName ?? "BRSR"}
+              />
+            )}
+            <AccountDropdown email={user.email} roleSlug={roleSlug} />
+          </div>
         </div>
       </header>
       <main className="flex min-h-[calc(100vh-4rem)] flex-col">

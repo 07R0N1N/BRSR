@@ -8,10 +8,11 @@ export type AssignmentBlock = {
   questionCodes: string[];
 };
 
-const GENERAL_LABELS: Record<string, string> = {
+/** Labels for General Disclosures (Section A) – exported for BRSR export mapper */
+export const GENERAL_LABELS: Record<string, string> = {
   "1": "1. Corporate Identity Number (CIN)",
   "2": "2. Name of the Listed Entity",
-  "3": "3. Year of incorporation",
+  "3": "3. Date of Incorporation",
   "4": "4. Registered office address",
   "5": "5. Corporate address",
   "6": "6. E-mail",
@@ -19,7 +20,7 @@ const GENERAL_LABELS: Record<string, string> = {
   "8": "8. Website",
   "9": "9. Financial year for which reporting is being done",
   "10": "10. Name of the Stock Exchange(s) where shares are listed",
-  "11": "11. Paid-up Capital (Rs.)",
+  "11": "11. Paid-up Capital (in INR)",
   "12": "12. Name and contact (telephone, email) for BRSR queries",
   "13": "13. Reporting boundary",
   "14": "14. Name of assurance provider",
@@ -40,7 +41,8 @@ const GENERAL_LABELS: Record<string, string> = {
   "26": "26. Material responsible business conduct issues (environmental & social)",
 };
 
-const SECTION_B_LABELS: Record<string, string> = {
+/** Labels for Section B – exported for BRSR export mapper */
+export const SECTION_B_LABELS: Record<string, string> = {
   "1a": "1(a). Policy/policies cover each principle and core elements",
   "1b": "1(b). Policy approved by Board",
   "1c": "1(c). Web link of policies",
@@ -62,7 +64,8 @@ const SECTION_B_LABELS: Record<string, string> = {
   "12e": "12(e). Any other reason (specify)",
 };
 
-const P6_PREFIX_LABELS: Record<string, string> = {
+/** Labels for P6 indicators – exported for BRSR export mapper */
+export const P6_PREFIX_LABELS: Record<string, string> = {
   p6_e1: "1. Energy consumption (renewable / non-renewable) and intensity",
   p6_e2: "2. PAT scheme",
   p6_e3: "3. Water – withdrawal, consumption, intensity",
