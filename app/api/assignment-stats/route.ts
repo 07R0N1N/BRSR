@@ -83,7 +83,7 @@ export async function GET(request: Request) {
   const perUser = (users ?? []).map((u) => {
     const assigned = assignmentsByUser.get(u.id) ?? new Set<string>();
     let completedCount = 0;
-    for (const code of assigned) {
+    for (const code of Array.from(assigned)) {
       if (answeredSet.has(code)) completedCount += 1;
     }
     return {

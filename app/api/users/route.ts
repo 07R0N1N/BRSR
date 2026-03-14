@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const body = await request.json();
   const email = (body.email as string)?.trim();
   const password = body.password as string;
-  const org_id = body.org_id as string | null;
+  let org_id = (body.org_id as string | null) || null;
   const role_id = body.role_id as string;
   if (!email || !password || !role_id) {
     return NextResponse.json(
@@ -31,6 +31,19 @@ export async function POST(request: Request) {
     );
   }
   const admin = createAdminClient();
+
+  // Fetch role slug to check if admin
+  const { data: roleRow } = await admin.from("roles").select("slug").eq("id", role_id).single();
+  const roleSlug = (roleRow as { slug?: string } | null)?.slug;
+  if (roleSlug === "admin" && !org_id) {
+    const { data: newOrg, error: orgError } = await admin
+      .from("organizations")
+      .insert({ name: "" })
+      .select("id")
+      .single();
+    if (!orgError && newOrg?.id) org_id = newOrg.id;
+  }
+
   const { data: newUser, error: authError } = await admin.auth.admin.createUser({
     email,
     password,
@@ -45,7 +58,7 @@ export async function POST(request: Request) {
   const { error: profileError } = await admin.from("profiles").insert({
     id: newUser.user.id,
     email,
-    org_id: org_id || null,
+    org_id,
     role_id,
     created_by: currentUser.id,
   });

@@ -22,6 +22,11 @@ export default async function DashboardPage() {
     ? profileData?.roles[0]?.slug
     : profileData?.roles?.slug;
 
+  // Admin with no org: send to root so it can create org and redirect to onboarding
+  if (roleSlug === "admin" && !orgId) {
+    redirect("/");
+  }
+
   let orgName: string | null = null;
   let orgReportingYear = "2024-25";
   if (orgId) {

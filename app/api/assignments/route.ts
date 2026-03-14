@@ -91,8 +91,8 @@ export async function PUT(request: Request) {
     new Set(
       questionCodesRaw
         .filter((v: unknown): v is string => typeof v === "string")
-        .map((v) => v.trim())
-        .filter((code) => code.length > 0 && validCodeSet.has(code))
+        .map((v: string) => v.trim())
+        .filter((code: string) => code.length > 0 && validCodeSet.has(code))
     )
   );
 
