@@ -108,20 +108,36 @@ export function LegacyPrincipleRenderer({
   const containerRef = useRef<HTMLDivElement>(null);
   const template = useMemo(() => getPrincipleTemplate(principleNum), [principleNum]);
   const rawHtml = activeTab === "essential" ? template?.essential ?? "" : template?.leadership ?? "";
-  const html = useMemo(() => expandDynamicRows(rawHtml, values), [rawHtml, values]);
+
+  // Extract dynamic table IDs from the template; only changes when rawHtml changes.
+  const dynamicTableIds = useMemo(
+    () => [...rawHtml.matchAll(/data-dynamic-rows="([^"]+)"/g)].map((m) => m[1]),
+    [rawHtml]
+  );
+
+  // A stable key that only changes when a row count changes — NOT on every keystroke.
+  // expandDynamicRows only reads values[tableId + "_rowcount"], so this is the only
+  // part of values that affects the HTML structure.
+  const rowCountKey = dynamicTableIds.map((id) => values[`${id}_rowcount`] ?? "1").join(",");
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const html = useMemo(() => expandDynamicRows(rawHtml, values), [rawHtml, rowCountKey]);
 
   // Sync input values into the rendered HTML after each re-render
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return;
-    root
-      .querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        "input[id], textarea[id], select[id]"
-      )
-      .forEach((input) => {
-        const next = values[input.id] ?? "";
-        if (input.value !== next) input.value = next;
-      });
+    const inputs = root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+      "input[id], textarea[id], select[id]"
+    );
+    const focused = document.activeElement;
+
+    inputs.forEach((input) => {
+      if (focused === input) return;
+      if (!(input.id in values)) return; // field absent from state — don't wipe DOM value
+      const next = values[input.id] ?? "";
+      if (input.value !== next) input.value = next;
+    });
   }, [html, values]);
 
   // Hide unassigned inputs and rows when restricted.

@@ -454,13 +454,52 @@ const P6_SUBSECTION_PREFIXES = [
   "p6_l1", "p6_l2", "p6_l3", "p6_l4", "p6_l5", "p6_l6", "p6_l7",
 ] as const;
 
+/**
+ * Dynamic table definitions: for each principle, the rowcount key and the list
+ * of field suffixes for each dynamic table. At export time we enumerate all
+ * rows 0..N-1 to ensure dynamic row answers (beyond row0) are included.
+ */
+const DYNAMIC_TABLES: Record<number, Array<{ rowcountKey: string; prefix: string; fields: string[] }>> = {
+  2: [
+    { rowcountKey: "p2_l1_rowcount", prefix: "p2_l1_row", fields: ["nic", "product", "pct", "boundary", "ext", "public", "link"] },
+    { rowcountKey: "p2_l2_rowcount", prefix: "p2_l2_row", fields: ["product", "risk", "action"] },
+    { rowcountKey: "p2_l3_rowcount", prefix: "p2_l3_row", fields: ["material", "recycled", "total"] },
+  ],
+  4: [
+    { rowcountKey: "p4_e2_rowcount", prefix: "p4_e2_row", fields: ["name", "vuln", "chan", "freq", "purpose"] },
+  ],
+};
+
+/**
+ * Enumerates dynamic row codes for a principle based on stored rowcount values.
+ * Returns codes like p2_l1_row1_nic, p2_l1_row2_nic, ... that are not in the
+ * static codes list but may have stored answers.
+ */
+function getDynamicRowCodes(principleNum: number, answers: Record<string, string>): string[] {
+  const tables = DYNAMIC_TABLES[principleNum];
+  if (!tables) return [];
+  const extra: string[] = [];
+  for (const table of tables) {
+    const n = parseInt(answers[table.rowcountKey] || "1", 10);
+    // row0 is in static codes; enumerate row1..n-1
+    for (let i = 1; i < Math.min(n, 20); i++) {
+      for (const field of table.fields) {
+        extra.push(`${table.prefix}${i}_${field}`);
+      }
+    }
+  }
+  return extra;
+}
+
 function mapPrinciple(answers: Record<string, string>, principleNum: number): BRSRPrinciple {
   const get = (code: string) => val(answers[code]);
   const essential: BRSRIndicator[] = [];
   const leadership: BRSRIndicator[] = [];
   let subsections: { label: string; indicators: BRSRIndicator[] }[] | undefined;
   const panelId = `p${principleNum}` as "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7" | "p8" | "p9";
-  const codes = getQuestionCodesForPanel(panelId);
+  const staticCodes = getQuestionCodesForPanel(panelId);
+  const dynamicCodes = getDynamicRowCodes(principleNum, answers);
+  const codes = [...staticCodes, ...dynamicCodes];
 
   if (principleNum === 6) {
     subsections = [];

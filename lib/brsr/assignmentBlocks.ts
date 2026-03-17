@@ -1,6 +1,10 @@
 import type { PanelId } from "./types";
 import { getQuestionCodesForPanel } from "./questionConfig";
 import { getPrincipleTemplate } from "./principleTemplates";
+import { getStaticPrincipleBlocks } from "./principleBlocksConfig";
+
+/** Migrated principles that use principleBlocksConfig instead of HTML template parsing */
+const MIGRATED_PRINCIPLES = new Set([1, 2, 3, 4, 5, 7, 8, 9]);
 
 export type AssignmentBlock = {
   id: string;
@@ -259,6 +263,9 @@ export function getAssignmentBlocksForPanel(panelId: PanelId): AssignmentBlock[]
   if (panelId === "p6") return makeP6Blocks(codes);
   if (/^p[1-9]$/.test(panelId)) {
     const principleNum = Number.parseInt(panelId.slice(1), 10);
+    if (MIGRATED_PRINCIPLES.has(principleNum)) {
+      return getStaticPrincipleBlocks(principleNum, codes);
+    }
     return parsePrincipleTemplateBlocks(principleNum, codes);
   }
   return codes.map((code) => ({
