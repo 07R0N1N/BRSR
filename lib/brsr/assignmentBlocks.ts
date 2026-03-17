@@ -15,30 +15,30 @@ export const GENERAL_LABELS: Record<string, string> = {
   "3": "3. Date of Incorporation",
   "4": "4. Registered office address",
   "5": "5. Corporate address",
-  "6": "6. E-mail",
-  "7": "7. Telephone",
+  "6": "6. E-mail address",
+  "7": "7. Telephone No.",
   "8": "8. Website",
   "9": "9. Financial year for which reporting is being done",
   "10": "10. Name of the Stock Exchange(s) where shares are listed",
   "11": "11. Paid-up Capital (in INR)",
-  "12": "12. Name and contact (telephone, email) for BRSR queries",
+  "12": "12. Name and contact details of the person who may be contacted in case of any queries on the BRSR report",
   "13": "13. Reporting boundary",
-  "14": "14. Name of assurance provider",
+  "14": "14. Details of Assurer(s)",
   "15": "15. Type of assurance obtained",
   "16": "16. Details of business activities (accounting for 90% of turnover)",
   "17": "17. Products/Services sold (accounting for 90% of turnover)",
-  "18": "18. Number of locations (plants / operations / offices)",
-  "19": "19. Markets served",
+  "18": "18. Number of locations where plants and/or operations/offices of the entity are situated",
+  "19": "19. Markets served by the entity",
   "19b": "19(b). Contribution of exports as % of total turnover",
   "19c": "19(c). Brief on types of customers",
-  "20a": "20(a). Employees and workers (including differently abled) – as at end of FY",
-  "20b": "20(b). Differently abled – Employees and workers",
-  "21": "21. Participation/Inclusion of women",
-  "22": "22. Turnover rate for permanent employees and workers (past 3 years)",
-  "23": "23(a). Names of holding / subsidiary / associate / JVs",
+  "20a": "20. Details as at the end of Financial Year – i. Employees, ii. Workers",
+  "20b": "20. Details as at the end of Financial Year – iii. Differently abled Employees, iv. Differently abled Workers",
+  "21": "21. Participation/Inclusion/Representation of women",
+  "22": "22. Turnover rate for permanent employees and workers",
+  "23": "23. Names of holding / subsidiary / associate companies / joint ventures",
   "24": "24. CSR applicability, turnover, and net worth",
-  "25": "25. Complaints/Grievances by stakeholder group",
-  "26": "26. Material responsible business conduct issues (environmental & social)",
+  "25": "25. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct.",
+  "26": "26. Overview of the entity's material responsible business conduct issues",
 };
 
 /** Labels for Section B – exported for BRSR export mapper */
@@ -57,11 +57,6 @@ export const SECTION_B_LABELS: Record<string, string> = {
   "10a": "10(a). Review of NGRBCs – Performance vs policies",
   "10b": "10(b). Compliance with statutory requirements",
   "11": "11. Independent assessment by external agency",
-  "12a": "12(a). Principles not material to business",
-  "12b": "12(b). Not in position to formulate/implement",
-  "12c": "12(c). Lack of financial/human/technical resources",
-  "12d": "12(d). Planned in next FY",
-  "12e": "12(e). Any other reason (specify)",
 };
 
 /** Labels for P6 indicators – exported for BRSR export mapper */
@@ -140,7 +135,6 @@ function makeSectionBBlocks(codes: string[]): AssignmentBlock[] {
   const groups = groupBy(codes, (code) => {
     if (code === "sb_7_statement") return "7";
     if (code === "sb_8_authority") return "8";
-    if (code === "sb_12e_other") return "12e";
     const m = code.match(/^sb_(\d+[a-z]?)/);
     return m ? m[1] : code;
   });

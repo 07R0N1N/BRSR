@@ -38,7 +38,7 @@ function holdingRowsToAoa(rows: BRSRHoldingRow[]): (string | number)[][] {
 
 function materialRowsToAoa(rows: BRSRMaterialRow[]): (string | number)[][] {
   if (rows.length === 0) return [];
-  const cols = ["Issue", "Risk/Opportunity", "Rationale", "Approach", "Financial implications"];
+  const cols = ["Material issue identified", "Indicate whether risk or opportunity", "Rationale for identifying risk/ opportunity", "In case of risk, approach to adapt or mitigate", "Financial implications of the risk or opportunity"];
   const keys = ["issue", "riskOrOpp", "rationale", "approach", "financial"] as const;
   return [cols, ...rows.map((r) => keys.map((k) => r[k]))];
 }
@@ -59,8 +59,8 @@ function complaintsRowsToAoa(rows: BRSRComplaintsRow[]): (string | number)[][] {
 
 function employeeRowsToAoa(rows: BRSREmployeeRow[]): (string | number)[][] {
   if (rows.length === 0) return [];
-  const cols = ["Particulars", "Total (A)", "Male No. (B)", "Male % (B/A)", "Female No. (C)", "Female % (C/A)"];
-  const keys = ["category", "total", "male", "malePct", "female", "femalePct"] as const;
+  const cols = ["Particulars", "Total (A)", "Male No. (B)", "Male % (B/A)", "Female No. (C)", "Female % (C/A)", "Other Gender No. (D)", "Other Gender % (D/A)"];
+  const keys = ["category", "total", "male", "malePct", "female", "femalePct", "other", "otherPct"] as const;
   return [cols, ...rows.map((r) => keys.map((k) => r[k] ?? ""))];
 }
 
@@ -72,8 +72,8 @@ function womenParticipationRowsToAoa(rows: BRSRWomenParticipationRow[]): (string
 
 function turnoverRowsToAoa(rows: BRSRTurnoverRow[]): (string | number)[][] {
   if (rows.length === 0) return [];
-  const cols = ["Year", "Male %", "Female %", "Total %"];
-  const keys = ["year", "male", "female", "total"] as const;
+  const cols = ["Year", "Male %", "Female %", "Other Gender %", "Total %"];
+  const keys = ["year", "male", "female", "other", "total"] as const;
   return [cols, ...rows.map((r) => keys.map((k) => r[k]))];
 }
 

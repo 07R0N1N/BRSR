@@ -60,7 +60,7 @@ export type BRSROpsLocationRow = {
   total: string;
 };
 
-/** Row for Employees/Workers tables (gen_20a, gen_20b) – columns: Particulars, Total (A), Male No. (B), Male % (B/A), Female No. (C), Female % (C/A) */
+/** Row for Employees/Workers tables (gen_20a, gen_20b) – columns: Particulars, Total (A), Male No. (B), Male % (B/A), Female No. (C), Female % (C/A), Other Gender No. (D), Other Gender % (D/A) */
 export type BRSREmployeeRow = {
   category: string;
   total: string;
@@ -68,6 +68,8 @@ export type BRSREmployeeRow = {
   malePct: string;
   female: string;
   femalePct: string;
+  other?: string;
+  otherPct?: string;
 };
 
 /** Row for Women participation table (gen_21) – columns: Total (A), No. of Female (B), % (B/A) of Females */
@@ -83,6 +85,7 @@ export type BRSRTurnoverRow = {
   year: string;
   male: string;
   female: string;
+  other: string;
   total: string;
 };
 
@@ -154,15 +157,13 @@ export type BRSRPoliciesMatrixRow = {
 
 /** Section B – Management & Process */
 export type BRSRSectionB = {
-  /** Policies matrix (sb_1a–12d × P1–P9) */
+  /** Policies matrix (sb_1a–11 × P1–P9) */
   policies: BRSRPoliciesMatrixRow[];
   /** Director statement (sb_7) */
   directorStatement: string;
   /** Highest authority (sb_8) */
   highestAuthority: string;
-  /** Other reason (sb_12e) */
-  otherReason: string;
-  /** Leadership (sb_9 committee) – kept for backward compat if needed */
+  /** Leadership (sb_9 committee) */
   leadership: BRSRIndicator[];
 };
 

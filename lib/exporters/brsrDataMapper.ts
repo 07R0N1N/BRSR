@@ -172,12 +172,12 @@ function mapMaterialIssues(answers: Record<string, string>): BRSRMaterialRow[] {
 
 const STAKEHOLDER_LABELS: Record<string, string> = {
   comm: "Communities",
-  inv: "Investors",
   sha: "Shareholders",
-  emp: "Employees and workers",
+  inv: "Investors",
+  emp: "Employees And Workers",
   cust: "Customers",
   vc: "Value Chain Partners",
-  oth: "Other",
+  oth: "Others",
 };
 
 function pct(num: string, denom: string): string {
@@ -190,50 +190,52 @@ function pct(num: string, denom: string): string {
 
 function mapEmployees(answers: Record<string, string>): BRSREmployeesSection {
   const get = (code: string) => val(answers[code]);
-  const mkEmp = (cat: string, tot: string, m: string, f: string, skipPct?: boolean): BRSREmployeeRow => ({
+  const mkEmp = (cat: string, tot: string, m: string, f: string, o: string, skipPct?: boolean): BRSREmployeeRow => ({
     category: cat,
     total: tot,
     male: m,
     malePct: skipPct ? "" : pct(m, tot),
     female: f,
     femalePct: skipPct ? "" : pct(f, tot),
+    other: o || undefined,
+    otherPct: skipPct ? undefined : (o && tot ? pct(o, tot) : undefined),
   });
   const empRows: BRSREmployeeRow[] = [
-    mkEmp("Permanent (E)", get("gen_20a_emp_perm_total"), get("gen_20a_emp_perm_m"), get("gen_20a_emp_perm_f")),
-    mkEmp("Other than Permanent (F)", get("gen_20a_emp_other_total"), get("gen_20a_emp_other_m"), get("gen_20a_emp_other_f")),
-    mkEmp("Total employees (E+F)", get("gen_20a_emp_total"), get("gen_20a_emp_total_m"), get("gen_20a_emp_total_f"), true),
+    mkEmp("Permanent (E)", get("gen_20a_emp_perm_total"), get("gen_20a_emp_perm_m"), get("gen_20a_emp_perm_f"), get("gen_20a_emp_perm_o")),
+    mkEmp("Other than Permanent (F)", get("gen_20a_emp_other_total"), get("gen_20a_emp_other_m"), get("gen_20a_emp_other_f"), get("gen_20a_emp_other_o")),
+    mkEmp("Total employees (E+F)", get("gen_20a_emp_total"), get("gen_20a_emp_total_m"), get("gen_20a_emp_total_f"), get("gen_20a_emp_total_o"), true),
   ];
   const wrkPermT = get("gen_20a_wrk_perm_total");
   const wrkOthT = get("gen_20a_wrk_other_total");
   const wrkTotal = get("gen_20a_wrk_total") || (wrkPermT && wrkOthT ? String((parseFloat(String(wrkPermT).replace(/,/g, "")) || 0) + (parseFloat(String(wrkOthT).replace(/,/g, "")) || 0)) : "");
   const wrkRows: BRSREmployeeRow[] = [
-    mkEmp("Permanent (E)", wrkPermT, get("gen_20a_wrk_perm_m"), get("gen_20a_wrk_perm_f")),
-    mkEmp("Other than Permanent (F)", wrkOthT, get("gen_20a_wrk_other_m"), get("gen_20a_wrk_other_f")),
-    mkEmp("Total workers (E+F)", wrkTotal, get("gen_20a_wrk_total_m") || "", get("gen_20a_wrk_total_f") || "", true),
+    mkEmp("Permanent (E)", wrkPermT, get("gen_20a_wrk_perm_m"), get("gen_20a_wrk_perm_f"), get("gen_20a_wrk_perm_o")),
+    mkEmp("Other than Permanent (F)", wrkOthT, get("gen_20a_wrk_other_m"), get("gen_20a_wrk_other_f"), get("gen_20a_wrk_other_o")),
+    mkEmp("Total workers (E+F)", wrkTotal, get("gen_20a_wrk_total_m") || "", get("gen_20a_wrk_total_f") || "", get("gen_20a_wrk_total_o") || "", true),
   ];
   const daEmpRows: BRSREmployeeRow[] = [
-    mkEmp("Permanent (E)", get("gen_20b_emp_perm_total"), get("gen_20b_emp_perm_m"), get("gen_20b_emp_perm_f")),
-    mkEmp("Other than Permanent (F)", get("gen_20b_emp_other_total"), get("gen_20b_emp_other_m"), get("gen_20b_emp_other_f")),
-    mkEmp("Total employees (E+F)", get("gen_20b_emp_total"), "", "", true),
+    mkEmp("Permanent (E)", get("gen_20b_emp_perm_total"), get("gen_20b_emp_perm_m"), get("gen_20b_emp_perm_f"), get("gen_20b_emp_perm_o")),
+    mkEmp("Other than Permanent (F)", get("gen_20b_emp_other_total"), get("gen_20b_emp_other_m"), get("gen_20b_emp_other_f"), get("gen_20b_emp_other_o")),
+    mkEmp("Total employees (E+F)", get("gen_20b_emp_total"), get("gen_20b_emp_total_m"), get("gen_20b_emp_total_f"), get("gen_20b_emp_total_o"), true),
   ];
   const daWrkRows: BRSREmployeeRow[] = [
-    mkEmp("Permanent (E)", get("gen_20b_wrk_perm_total"), get("gen_20b_wrk_perm_m"), get("gen_20b_wrk_perm_f")),
-    mkEmp("Other than Permanent (F)", get("gen_20b_wrk_other_total"), get("gen_20b_wrk_other_m"), get("gen_20b_wrk_other_f")),
-    mkEmp("Total workers (E+F)", get("gen_20b_wrk_total"), "", "", true),
+    mkEmp("Permanent (E)", get("gen_20b_wrk_perm_total"), get("gen_20b_wrk_perm_m"), get("gen_20b_wrk_perm_f"), get("gen_20b_wrk_perm_o")),
+    mkEmp("Other than Permanent (F)", get("gen_20b_wrk_other_total"), get("gen_20b_wrk_other_m"), get("gen_20b_wrk_other_f"), get("gen_20b_wrk_other_o")),
+    mkEmp("Total workers (E+F)", get("gen_20b_wrk_total"), get("gen_20b_wrk_total_m"), get("gen_20b_wrk_total_f"), get("gen_20b_wrk_total_o"), true),
   ];
   const womenParticipation: BRSRWomenParticipationRow[] = [
     { category: "Board of Directors", total: get("gen_21_bod_total"), female: get("gen_21_bod_f"), femalePct: pct(get("gen_21_bod_f"), get("gen_21_bod_total")) },
     { category: "Key Management Personnel", total: get("gen_21_kmp_total"), female: get("gen_21_kmp_f"), femalePct: pct(get("gen_21_kmp_f"), get("gen_21_kmp_total")) },
   ];
   const turnoverEmployees: BRSRTurnoverRow[] = [
-    { year: "Current Year", male: get("gen_22_emp_cy_m"), female: get("gen_22_emp_cy_f"), total: get("gen_22_emp_cy_t") },
-    { year: "Previous Year", male: get("gen_22_emp_py_m"), female: get("gen_22_emp_py_f"), total: get("gen_22_emp_py_t") },
-    { year: "Prior to Previous Year", male: get("gen_22_emp_pp_m"), female: get("gen_22_emp_pp_f"), total: get("gen_22_emp_pp_t") },
+    { year: "Current Year", male: get("gen_22_emp_cy_m"), female: get("gen_22_emp_cy_f"), other: get("gen_22_emp_cy_o"), total: get("gen_22_emp_cy_t") },
+    { year: "Previous Year", male: get("gen_22_emp_py_m"), female: get("gen_22_emp_py_f"), other: get("gen_22_emp_py_o"), total: get("gen_22_emp_py_t") },
+    { year: "Prior to Previous Year", male: get("gen_22_emp_pp_m"), female: get("gen_22_emp_pp_f"), other: get("gen_22_emp_pp_o"), total: get("gen_22_emp_pp_t") },
   ];
   const turnoverWorkers: BRSRTurnoverRow[] = [
-    { year: "Current Year", male: get("gen_22_wrk_cy_m"), female: get("gen_22_wrk_cy_f"), total: get("gen_22_wrk_cy_t") },
-    { year: "Previous Year", male: get("gen_22_wrk_py_m"), female: get("gen_22_wrk_py_f"), total: get("gen_22_wrk_py_t") },
-    { year: "Prior to Previous Year", male: get("gen_22_wrk_pp_m"), female: get("gen_22_wrk_pp_f"), total: get("gen_22_wrk_pp_t") },
+    { year: "Current Year", male: get("gen_22_wrk_cy_m"), female: get("gen_22_wrk_cy_f"), other: get("gen_22_wrk_cy_o"), total: get("gen_22_wrk_cy_t") },
+    { year: "Previous Year", male: get("gen_22_wrk_py_m"), female: get("gen_22_wrk_py_f"), other: get("gen_22_wrk_py_o"), total: get("gen_22_wrk_py_t") },
+    { year: "Prior to Previous Year", male: get("gen_22_wrk_pp_m"), female: get("gen_22_wrk_pp_f"), other: get("gen_22_wrk_pp_o"), total: get("gen_22_wrk_pp_t") },
   ];
   return {
     employees: empRows,
@@ -248,12 +250,12 @@ function mapEmployees(answers: Record<string, string>): BRSREmployeesSection {
 
 function mapComplaints(answers: Record<string, string>): BRSRComplaintsRow[] {
   const get = (code: string) => val(answers[code]);
-  const prefixes = ["comm", "inv", "sha", "emp", "cust", "vc", "oth"];
+  const prefixes = ["comm", "sha", "inv", "emp", "cust", "vc", "oth"];
   const rows: BRSRComplaintsRow[] = [];
   for (const prefix of prefixes) {
     const stakeholder = STAKEHOLDER_LABELS[prefix] ?? prefix;
     const mechanism = get(`gen_25_${prefix}_mech`);
-    const webLink = EMPTY; // schema has no separate web link field
+    const webLink = get(`gen_25_${prefix}_weblink`) || EMPTY;
     const cyFiled = get(`gen_25_${prefix}_cy_f`);
     const cyPending = get(`gen_25_${prefix}_cy_p`);
     const cyRemark = get(`gen_25_${prefix}_cy_rem`);
@@ -265,6 +267,38 @@ function mapComplaints(answers: Record<string, string>): BRSRComplaintsRow[] {
   return rows;
 }
 
+function mapStockExchangeTable(answers: Record<string, string>): string {
+  const get = (code: string) => (answers[code] ?? "").trim();
+  const rows: string[] = [];
+  for (let i = 1; i <= 10; i++) {
+    const ex = get(`gen_10_${i}_exchange`);
+    const desc = get(`gen_10_${i}_description`);
+    const country = get(`gen_10_${i}_country`);
+    if (ex || desc || country) {
+      const parts = [ex || EMPTY, desc || EMPTY, country || EMPTY];
+      rows.push(parts.join(" | "));
+    }
+  }
+  return rows.length > 0 ? rows.join("\n") : "";
+}
+
+function mapAssurerTable(answers: Record<string, string>): string {
+  const get = (code: string) => (answers[code] ?? "").trim();
+  const rows: string[] = [];
+  for (let i = 1; i <= 10; i++) {
+    const company = get(`gen_14_${i}_company`);
+    const id = get(`gen_14_${i}_id`);
+    const name = get(`gen_14_${i}_assurer_name`);
+    const designation = get(`gen_14_${i}_designation`);
+    const date = get(`gen_14_${i}_date`);
+    if (company || id || name || designation || date) {
+      const parts = [company || EMPTY, id || EMPTY, name || EMPTY, designation || EMPTY, date || EMPTY];
+      rows.push(parts.join(" | "));
+    }
+  }
+  return rows.length > 0 ? rows.join("\n") : "";
+}
+
 function mapSectionA(answers: Record<string, string>): BRSRSectionA {
   const get = (code: string) => val(answers[code]);
   const details: BRSRIndicator[] = [];
@@ -274,17 +308,29 @@ function mapSectionA(answers: Record<string, string>): BRSRSectionA {
   for (const block of blocks) {
     for (const code of block.questionCodes) {
       if (code.endsWith("_row_count")) continue;
+      if (code.startsWith("gen_10_") && code !== "gen_10_row_count") continue;
+      if (code.startsWith("gen_14_") && code !== "gen_14_row_count") continue;
       const sub = getGenSubsection(code);
       if (sub === "details") details.push({ label: getGenLabel(code), value: get(code) });
       else if (sub === "csr") csr.push({ label: getGenLabel(code), value: get(code) });
     }
   }
+  const stockEx = mapStockExchangeTable(answers);
+  const assurers = mapAssurerTable(answers);
+  const idx11 = details.findIndex((d) => d.label.startsWith("11."));
+  if (stockEx && idx11 >= 0) details.splice(idx11, 0, { label: GENERAL_LABELS["10"], value: val(stockEx) });
+  else if (stockEx) details.push({ label: GENERAL_LABELS["10"], value: val(stockEx) });
+  const idx15 = details.findIndex((d) => d.label.startsWith("15."));
+  if (assurers && idx15 >= 0) details.splice(idx15, 0, { label: GENERAL_LABELS["14"], value: val(assurers) });
+  else if (assurers) details.push({ label: GENERAL_LABELS["14"], value: val(assurers) });
 
+  const calcDisplay = runCalculations(answers);
+  const answersWithCalc = { ...answers, ...Object.fromEntries(Object.entries(calcDisplay).map(([k, v]) => [k, v.replace(/%$/, "")])) };
   return {
     details,
     productsServices: mapProductsServices(answers),
     operations: mapOperations(answers),
-    employees: mapEmployees(answers),
+    employees: mapEmployees(answersWithCalc),
     holdingSubsidiary: mapHoldingSubsidiary(answers),
     csr,
     complaints: mapComplaints(answers),
@@ -302,8 +348,23 @@ function getSbLabel(code: string): string {
 }
 
 const POLICIES_MATRIX_KEYS = [
-  "1a", "1b", "1c", "2", "3", "4", "5", "6", "9", "10a", "10b", "11", "12a", "12b", "12c", "12d",
+  "1a", "1b", "1c", "2", "3", "4", "5", "6", "9", "10a", "10b", "11",
 ] as const;
+
+function format10Cell(review: string, freq: string, desc: string): string {
+  const parts: string[] = [];
+  if (review && review !== "—") parts.push(`Oversight: ${review}`);
+  if (freq && freq !== "—") parts.push(`Freq: ${freq}`);
+  if (desc && desc !== "—") parts.push(desc);
+  return parts.length > 0 ? parts.join(" | ") : "—";
+}
+
+function format11Cell(yn: string, agency: string): string {
+  if (!yn || yn === "—") return "—";
+  if (yn === "No") return "No";
+  if (agency && agency !== "—") return `Yes – ${agency}`;
+  return "Yes";
+}
 
 function mapSectionB(answers: Record<string, string>): BRSRSectionB {
   const get = (code: string) => val(answers[code]);
@@ -311,18 +372,49 @@ function mapSectionB(answers: Record<string, string>): BRSRSectionB {
 
   for (const key of POLICIES_MATRIX_KEYS) {
     const question = SECTION_B_LABELS[key] ?? key;
-    policies.push({
-      question,
-      p1: get(`sb_${key}_p1`),
-      p2: get(`sb_${key}_p2`),
-      p3: get(`sb_${key}_p3`),
-      p4: get(`sb_${key}_p4`),
-      p5: get(`sb_${key}_p5`),
-      p6: get(`sb_${key}_p6`),
-      p7: get(`sb_${key}_p7`),
-      p8: get(`sb_${key}_p8`),
-      p9: get(`sb_${key}_p9`),
-    });
+    let p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string, p8: string, p9: string;
+    if (key === "10a") {
+      p1 = format10Cell(get("sb_10a_p1_review"), get("sb_10a_p1_freq"), get("sb_10a_p1"));
+      p2 = format10Cell(get("sb_10a_p2_review"), get("sb_10a_p2_freq"), get("sb_10a_p2"));
+      p3 = format10Cell(get("sb_10a_p3_review"), get("sb_10a_p3_freq"), get("sb_10a_p3"));
+      p4 = format10Cell(get("sb_10a_p4_review"), get("sb_10a_p4_freq"), get("sb_10a_p4"));
+      p5 = format10Cell(get("sb_10a_p5_review"), get("sb_10a_p5_freq"), get("sb_10a_p5"));
+      p6 = format10Cell(get("sb_10a_p6_review"), get("sb_10a_p6_freq"), get("sb_10a_p6"));
+      p7 = format10Cell(get("sb_10a_p7_review"), get("sb_10a_p7_freq"), get("sb_10a_p7"));
+      p8 = format10Cell(get("sb_10a_p8_review"), get("sb_10a_p8_freq"), get("sb_10a_p8"));
+      p9 = format10Cell(get("sb_10a_p9_review"), get("sb_10a_p9_freq"), get("sb_10a_p9"));
+    } else if (key === "10b") {
+      p1 = format10Cell(get("sb_10b_p1_review"), get("sb_10b_p1_freq"), get("sb_10b_p1"));
+      p2 = format10Cell(get("sb_10b_p2_review"), get("sb_10b_p2_freq"), get("sb_10b_p2"));
+      p3 = format10Cell(get("sb_10b_p3_review"), get("sb_10b_p3_freq"), get("sb_10b_p3"));
+      p4 = format10Cell(get("sb_10b_p4_review"), get("sb_10b_p4_freq"), get("sb_10b_p4"));
+      p5 = format10Cell(get("sb_10b_p5_review"), get("sb_10b_p5_freq"), get("sb_10b_p5"));
+      p6 = format10Cell(get("sb_10b_p6_review"), get("sb_10b_p6_freq"), get("sb_10b_p6"));
+      p7 = format10Cell(get("sb_10b_p7_review"), get("sb_10b_p7_freq"), get("sb_10b_p7"));
+      p8 = format10Cell(get("sb_10b_p8_review"), get("sb_10b_p8_freq"), get("sb_10b_p8"));
+      p9 = format10Cell(get("sb_10b_p9_review"), get("sb_10b_p9_freq"), get("sb_10b_p9"));
+    } else if (key === "11") {
+      p1 = format11Cell(get("sb_11_p1"), get("sb_11_p1_agency"));
+      p2 = format11Cell(get("sb_11_p2"), get("sb_11_p2_agency"));
+      p3 = format11Cell(get("sb_11_p3"), get("sb_11_p3_agency"));
+      p4 = format11Cell(get("sb_11_p4"), get("sb_11_p4_agency"));
+      p5 = format11Cell(get("sb_11_p5"), get("sb_11_p5_agency"));
+      p6 = format11Cell(get("sb_11_p6"), get("sb_11_p6_agency"));
+      p7 = format11Cell(get("sb_11_p7"), get("sb_11_p7_agency"));
+      p8 = format11Cell(get("sb_11_p8"), get("sb_11_p8_agency"));
+      p9 = format11Cell(get("sb_11_p9"), get("sb_11_p9_agency"));
+    } else {
+      p1 = get(`sb_${key}_p1`);
+      p2 = get(`sb_${key}_p2`);
+      p3 = get(`sb_${key}_p3`);
+      p4 = get(`sb_${key}_p4`);
+      p5 = get(`sb_${key}_p5`);
+      p6 = get(`sb_${key}_p6`);
+      p7 = get(`sb_${key}_p7`);
+      p8 = get(`sb_${key}_p8`);
+      p9 = get(`sb_${key}_p9`);
+    }
+    policies.push({ question, p1, p2, p3, p4, p5, p6, p7, p8, p9 });
   }
 
   const leadership: BRSRIndicator[] = [];
@@ -334,7 +426,6 @@ function mapSectionB(answers: Record<string, string>): BRSRSectionB {
     policies,
     directorStatement: get("sb_7_statement"),
     highestAuthority: get("sb_8_authority"),
-    otherReason: get("sb_12e_other"),
     leadership,
   };
 }

@@ -119,8 +119,11 @@ function runOneRule(rule: CalcRule, values: AnswersState): string {
  */
 export function runCalculations(values: AnswersState): Record<string, string> {
   const out: Record<string, string> = {};
+  const merged: AnswersState = { ...values };
   for (const rule of CALC_RULES) {
-    out[rule.outputId] = runOneRule(rule, values);
+    const result = runOneRule(rule, merged);
+    out[rule.outputId] = result;
+    merged[rule.outputId] = result.replace(/%$/, "");
   }
   return out;
 }

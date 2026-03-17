@@ -1,7 +1,6 @@
 "use client";
 
 import type { AnswersState } from "@/lib/brsr/types";
-import { getQuestionCodesForPanel } from "@/lib/brsr/questionConfig";
 
 type Props = {
   values: AnswersState;
@@ -9,221 +8,679 @@ type Props = {
   allowedSet?: Set<string> | null;
 };
 
-/** Full disclosure text from reference (brsr-data-entry 2.html) */
-const DISCLOSURE_ROW_LABELS: Record<string, string> = {
-  "1a": "1(a). Policy/policies cover each principle and core elements (Y/N)",
-  "1b": "1(b). Policy approved by Board? (Y/N)",
-  "1c": "1(c). Web link of policies",
-  "2": "2. Policy translated into procedures? (Y/N)",
-  "3": "3. Policies extend to value chain partners? (Y/N)",
-  "4": "4. National/international codes/certifications/labels/standards adopted (mapped to each principle)",
-  "5": "5. Specific commitments, goals, targets with timelines",
-  "6": "6. Performance against commitments/goals/targets; reasons if not met",
-  "9": "9. Committee of Board/Director for sustainability issues? (Y/N). If yes, details",
-  "10a": "10. Review of NGRBCs – Performance vs policies (Director/Committee; Frequency)",
-  "10b": "10. Compliance with statutory requirements; rectification of non-compliances",
-  "11": "11. Independent assessment by external agency? (Y/N). If yes, name of agency",
-};
-
-/** Q12 reason rows – second table */
-const REASON_ROW_LABELS: Record<string, string> = {
-  "12a": "Principles not material to business (Y/N)",
-  "12b": "Not in position to formulate/implement (Y/N)",
-  "12c": "Lack of financial/human/technical resources (Y/N)",
-  "12d": "Planned in next FY (Y/N)",
-};
-
 const PRINCIPLES = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-const rowOrder = (key: string) => {
-  const n = parseInt(key.replace(/[a-z]/g, ""), 10) || 0;
-  const s = key.replace(/^\d+/, "") || " ";
-  return n * 10 + (s === "a" ? 1 : s === "b" ? 2 : s === "c" ? 3 : s === "d" ? 4 : s === "e" ? 5 : 0);
-};
+/** Yes/No dropdown options */
+const YES_NO_OPTIONS = [
+  { value: "", label: "Choose option" },
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
+
+/** Review Oversight dropdown options (10a, 10b) */
+const REVIEW_OVERSIGHT_OPTIONS = [
+  { value: "", label: "Choose option" },
+  { value: "Director", label: "Director" },
+  { value: "Committee", label: "Committee" },
+  { value: "Board", label: "Board" },
+];
+
+/** Frequency dropdown options (10a, 10b) */
+const FREQUENCY_OPTIONS = [
+  { value: "", label: "Choose option" },
+  { value: "Quarterly", label: "Quarterly" },
+  { value: "Half-yearly", label: "Half-yearly" },
+  { value: "Annually", label: "Annually" },
+];
+
+function YesNoSelect({
+  value,
+  onChange,
+  show,
+  className = "w-full rounded border border-gray-300 px-2 py-1 text-sm",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  show: boolean;
+  className?: string;
+}) {
+  if (!show) return <span className="text-gray-300">—</span>;
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={className}>
+      {YES_NO_OPTIONS.map((o) => (
+        <option key={o.value || "empty"} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function SelectOptions({
+  value,
+  onChange,
+  options,
+  show,
+  className = "w-full rounded border border-gray-300 px-2 py-1 text-sm",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  show: boolean;
+  className?: string;
+}) {
+  if (!show) return <span className="text-gray-300">—</span>;
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={className}>
+      {options.map((o) => (
+        <option key={o.value || "empty"} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export function PanelSectionB({ values, onChange, allowedSet = null }: Props) {
   const v = (code: string) => values[code] ?? "";
-  const codes = getQuestionCodesForPanel("sectionb");
   const show = (code: string) => allowedSet === null || allowedSet.has(code);
-
-  const mainRows = codes
-    .filter((c) => !c.includes("statement") && !c.includes("authority") && !c.includes("12"))
-    .reduce<{ rowKey: string; cells: { code: string; principle: number }[] }[]>((acc, code) => {
-      const match = code.match(/^sb_(\d+[a-z]?)_p(\d+)$/);
-      if (!match) return acc;
-      const [, rowKey, p] = match;
-      let row = acc.find((r) => r.rowKey === rowKey);
-      if (!row) {
-        row = { rowKey, cells: [] };
-        acc.push(row);
-      }
-      row.cells.push({ code, principle: parseInt(p, 10) });
-      return acc;
-    }, [])
-    .sort((a, b) => rowOrder(a.rowKey) - rowOrder(b.rowKey));
-
-  /** Rows 1a–6 (before 7 & 8), then 9–11 (after 7 & 8) to match reference order */
-  const mainRowsBefore7And8 = mainRows.filter((r) => rowOrder(r.rowKey) < 70);
-  const mainRowsAfter7And8 = mainRows.filter((r) => rowOrder(r.rowKey) >= 70);
+  const showBlock = (prefixes: string[]) =>
+    allowedSet === null ||
+    prefixes.some((p) =>
+      Array.from(allowedSet).some((c) => c.startsWith(p) || c === p)
+    );
 
   return (
     <section>
-      <h1 className="text-2xl font-bold text-gray-900">Section B: Management and Process Disclosures</h1>
-      <p className="mt-1 text-xs text-slate-400">Structures, policies and processes towards NGRBC Principles (Annexure II)</p>
-      <p className="mt-2 text-xs font-semibold text-slate-400">Disclosure questions – indicate Yes/No or provide details for each principle (P1–P9)</p>
+      <h1 className="text-2xl font-bold text-gray-900">
+        Section B: Management and Process Disclosures
+      </h1>
+      <p className="mt-1 text-xs text-slate-400">
+        Structures, policies and processes towards NGRBC Principles (Annexure II)
+      </p>
 
-      {/* Table 1: Disclosures 1(a)–11 */}
-      <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[800px] border-collapse border border-gray-200 text-sm">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="border border-gray-200 px-2 py-2 text-left font-medium">Disclosure</th>
-              {PRINCIPLES.map((p) => (
-                <th key={p} className="border border-gray-200 px-2 py-2 text-center">P{p}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {mainRowsBefore7And8
-              .filter(({ cells }) => cells.some((c) => show(c.code)))
-              .map(({ rowKey, cells }) => (
-              <tr key={rowKey}>
-                <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
-                  {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
-                </td>
-                {PRINCIPLES.map((p) => {
-                  const cell = cells.find((c) => c.principle === p);
-                  return (
-                    <td key={p} className="border border-gray-200 px-2 py-1">
-                      {cell && show(cell.code) ? (
+      <h3 className="mt-6 text-sm font-semibold text-teal-400">
+        I. Policy and management processes
+      </h3>
+
+      {/* Subsection 1: Policy (1a, 1b, 1c) */}
+      {(showBlock(["sb_1a_", "sb_1b_", "sb_1c_"]) ||
+        PRINCIPLES.some(
+          (p) =>
+            show(`sb_1a_p${p}`) || show(`sb_1b_p${p}`) || show(`sb_1c_p${p}`)
+        )) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">1. Policy</h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Whether your entity&apos;s policy/policies cover each
+                    principle and its core elements of the NGRBCS
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Has the policy been approved by the Board?
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Weblink of the policy, if available
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      <YesNoSelect
+                        value={v(`sb_1a_p${p}`)}
+                        onChange={(val) => onChange(`sb_1a_p${p}`, val)}
+                        show={show(`sb_1a_p${p}`)}
+                      />
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      <YesNoSelect
+                        value={v(`sb_1b_p${p}`)}
+                        onChange={(val) => onChange(`sb_1b_p${p}`, val)}
+                        show={show(`sb_1b_p${p}`)}
+                      />
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      {show(`sb_1c_p${p}`) ? (
                         <input
                           type="text"
-                          value={v(cell.code)}
-                          onChange={(e) => onChange(cell.code, e.target.value)}
-                          placeholder="Y/N"
-                          className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
+                          value={v(`sb_1c_p${p}`)}
+                          onChange={(e) =>
+                            onChange(`sb_1c_p${p}`, e.target.value)
+                          }
+                          placeholder="Weblink"
+                          className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
                         />
                       ) : (
                         <span className="text-gray-300">—</span>
                       )}
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-            {show("sb_7_statement") && (
-            <tr>
-              <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">7. Statement by director on ESG challenges, targets, achievements</td>
-              <td colSpan={9} className="border border-gray-200 px-2 py-1">
-                <input
-                  type="text"
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subsection 2: Policy translated into procedures */}
+      {showBlock(["sb_2_"]) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">
+            2. Whether the entity has translated the policy into procedures.
+          </h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Response
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      <YesNoSelect
+                        value={v(`sb_2_p${p}`)}
+                        onChange={(val) => onChange(`sb_2_p${p}`, val)}
+                        show={show(`sb_2_p${p}`)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subsection 3: Policies extend to value chain partners */}
+      {showBlock(["sb_3_"]) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">
+            3. Do the enlisted policies extend to your value chain partners?
+          </h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Response
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      <YesNoSelect
+                        value={v(`sb_3_p${p}`)}
+                        onChange={(val) => onChange(`sb_3_p${p}`, val)}
+                        show={show(`sb_3_p${p}`)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subsection 4: National/international codes */}
+      {showBlock(["sb_4_"]) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">
+            4. Name of the national and international codes / certifications /
+            labels / standards adopted by your entity and mapped to each
+            principle.
+          </h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Enter Text
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700 align-top">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      {show(`sb_4_p${p}`) ? (
+                        <textarea
+                          value={v(`sb_4_p${p}`)}
+                          onChange={(e) =>
+                            onChange(`sb_4_p${p}`, e.target.value)
+                          }
+                          placeholder="Enter Text"
+                          rows={3}
+                          className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subsection 5: Specific commitments, goals, targets */}
+      {showBlock(["sb_5_"]) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">
+            5. Specific commitments, goals and targets set by the entity with
+            defined timelines, if any.
+          </h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Enter Text
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700 align-top">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      {show(`sb_5_p${p}`) ? (
+                        <textarea
+                          value={v(`sb_5_p${p}`)}
+                          onChange={(e) =>
+                            onChange(`sb_5_p${p}`, e.target.value)
+                          }
+                          placeholder="Enter Text"
+                          rows={3}
+                          className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Subsection 6: Performance against commitments */}
+      {showBlock(["sb_6_"]) && (
+        <div className="mt-6 border-t border-slate-600 pt-6">
+          <h4 className="text-xs font-semibold text-gray-700">
+            6. Performance of the entity against the specific commitments, goals
+            and targets along-with reasons in case the same are not met.
+          </h4>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Principle
+                  </th>
+                  <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                    Enter Text
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRINCIPLES.map((p) => (
+                  <tr key={p}>
+                    <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700 align-top">
+                      Principle {p}
+                    </td>
+                    <td className="border border-gray-200 px-2 py-1">
+                      {show(`sb_6_p${p}`) ? (
+                        <textarea
+                          value={v(`sb_6_p${p}`)}
+                          onChange={(e) =>
+                            onChange(`sb_6_p${p}`, e.target.value)
+                          }
+                          placeholder="Enter Text"
+                          rows={3}
+                          className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm"
+                        />
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* II. Governance, leadership and oversight */}
+      {(show("sb_7_statement") ||
+        show("sb_8_authority") ||
+        showBlock(["sb_9_"]) ||
+        showBlock(["sb_10a_"]) ||
+        showBlock(["sb_10b_"]) ||
+        showBlock(["sb_11_"])) && (
+        <>
+          <h3 className="mt-6 text-sm font-semibold text-teal-400">
+            II. Governance, leadership and oversight
+          </h3>
+
+          {/* Subsection 7: Statement by director */}
+          {show("sb_7_statement") && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h4 className="text-xs font-semibold text-gray-700">
+                7. Statement by director responsible for the business
+                responsibility report, highlighting ESG related challenges,
+                targets and achievements
+              </h4>
+              <div className="mt-2">
+                <textarea
                   value={v("sb_7_statement")}
                   onChange={(e) => onChange("sb_7_statement", e.target.value)}
-                  placeholder="Details / weblink"
-                  className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                  placeholder="Enter Text"
+                  rows={4}
+                  className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm"
                 />
-              </td>
-            </tr>
-            )}
-            {show("sb_8_authority") && (
-            <tr>
-              <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">8. Highest authority for implementation & oversight of BR policy</td>
-              <td colSpan={9} className="border border-gray-200 px-2 py-1">
-                <input
-                  type="text"
+              </div>
+            </div>
+          )}
+
+          {/* Subsection 8: Highest authority */}
+          {show("sb_8_authority") && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h4 className="text-xs font-semibold text-gray-700">
+                8. Details of the highest authority responsible for
+                implementation and oversight of the Business Responsibility
+                policy (ies)
+              </h4>
+              <div className="mt-2">
+                <textarea
                   value={v("sb_8_authority")}
                   onChange={(e) => onChange("sb_8_authority", e.target.value)}
-                  placeholder="Details"
-                  className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                  placeholder="Enter Text"
+                  rows={4}
+                  className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm"
                 />
-              </td>
-            </tr>
-            )}
-            {mainRowsAfter7And8
-              .filter(({ cells }) => cells.some((c) => show(c.code)))
-              .map(({ rowKey, cells }) => (
-              <tr key={rowKey}>
-                <td className="border border-gray-200 px-2 py-1.5 text-gray-700">
-                  {DISCLOSURE_ROW_LABELS[rowKey] ?? rowKey}
-                </td>
-                {PRINCIPLES.map((p) => {
-                  const cell = cells.find((c) => c.principle === p);
-                  return (
-                    <td key={p} className="border border-gray-200 px-2 py-1">
-                      {cell && show(cell.code) ? (
-                        <input
-                          type="text"
-                          value={v(cell.code)}
-                          onChange={(e) => onChange(cell.code, e.target.value)}
-                          placeholder="Y/N"
-                          className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
-                        />
-                      ) : (
-                        <span className="text-gray-300">—</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </div>
+          )}
 
-      {/* Table 2: Q12 – If not all Principles covered by policy – reasons */}
-      <p className="mt-6 text-xs font-semibold text-gray-700">12. If not all Principles covered by policy – reasons</p>
-      <div className="mt-2 overflow-x-auto">
-        <table className="w-full min-w-[800px] border-collapse border border-gray-200 text-sm">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="border border-gray-200 px-2 py-2 text-left font-medium">Reason</th>
-              {PRINCIPLES.map((p) => (
-                <th key={p} className="border border-gray-200 px-2 py-2 text-center">P{p}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {(["12a", "12b", "12c", "12d"] as const)
-              .filter((rowKey) => PRINCIPLES.some((p) => show(`sb_${rowKey}_p${p}`)))
-              .map((rowKey) => (
-              <tr key={rowKey}>
-                <td className="border border-gray-200 px-2 py-1.5 text-gray-700">{REASON_ROW_LABELS[rowKey]}</td>
-                {PRINCIPLES.map((p) => (
-                  <td key={p} className="border border-gray-200 px-2 py-1">
-                    {show(`sb_${rowKey}_p${p}`) ? (
-                      <input
-                        type="text"
-                        value={v(`sb_${rowKey}_p${p}`)}
-                        onChange={(e) => onChange(`sb_${rowKey}_p${p}`, e.target.value)}
-                        placeholder="Y/N"
-                        className="w-full rounded border border-gray-300 px-2 py-1 text-center text-sm"
-                      />
-                    ) : (
-                      <span className="text-gray-300">—</span>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-            {show("sb_12e_other") && (
-            <tr>
-              <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">Any other reason (specify)</td>
-              <td colSpan={9} className="border border-gray-200 px-2 py-1">
-                <input
-                  type="text"
-                  value={v("sb_12e_other")}
-                  onChange={(e) => onChange("sb_12e_other", e.target.value)}
-                  placeholder="Specify"
-                  className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+          {/* Subsection 9: Committee of Board/Director (single dropdown) */}
+          {showBlock(["sb_9_"]) && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h4 className="text-xs font-semibold text-gray-700">
+                9. Does the entity have a specified Committee of the Board/
+                Director responsible for decision making on Sustainability
+                related issues?
+              </h4>
+              <div className="mt-2 max-w-xs">
+                <YesNoSelect
+                  value={v("sb_9_p1")}
+                  onChange={(val) => {
+                    for (let p = 1; p <= 9; p++) {
+                      onChange(`sb_9_p${p}`, val);
+                    }
+                  }}
+                  show={show("sb_9_p1")}
                 />
-              </td>
-            </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </div>
+          )}
 
-      <p className="mt-4 text-xs text-slate-400">Data is saved automatically.</p>
+          {/* Subsection 10: Details of Review of NGRBCs */}
+          {showBlock(["sb_10a_"]) && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h4 className="text-xs font-semibold text-gray-700">
+                10. Details of Review of NGRBCs by the Company
+              </h4>
+              <h5 className="mt-2 text-xs font-medium text-gray-600">
+                i. Performance against above policies and follow up action
+              </h5>
+              <div className="mt-2 overflow-x-auto">
+                <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Principle
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Review Oversight
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Frequency
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Description
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PRINCIPLES.map((p) => (
+                      <tr key={p}>
+                        <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                          Principle {p}
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          <SelectOptions
+                            value={v(`sb_10a_p${p}_review`)}
+                            onChange={(val) =>
+                              onChange(`sb_10a_p${p}_review`, val)
+                            }
+                            options={REVIEW_OVERSIGHT_OPTIONS}
+                            show={show(`sb_10a_p${p}_review`)}
+                          />
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          <SelectOptions
+                            value={v(`sb_10a_p${p}_freq`)}
+                            onChange={(val) =>
+                              onChange(`sb_10a_p${p}_freq`, val)
+                            }
+                            options={FREQUENCY_OPTIONS}
+                            show={show(`sb_10a_p${p}_freq`)}
+                          />
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          {show(`sb_10a_p${p}`) ? (
+                            <input
+                              type="text"
+                              value={v(`sb_10a_p${p}`)}
+                              onChange={(e) =>
+                                onChange(`sb_10a_p${p}`, e.target.value)
+                              }
+                              placeholder="Description"
+                              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                            />
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Subsection 10b: Compliance with statutory requirements */}
+          {showBlock(["sb_10b_"]) && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h5 className="text-xs font-semibold text-gray-700">
+                ii. Compliance with statutory requirements of relevance to the
+                principles and rectification of any non-compliances
+              </h5>
+              <div className="mt-2 overflow-x-auto">
+                <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Principle
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Review Oversight
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Frequency
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Description
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PRINCIPLES.map((p) => (
+                      <tr key={p}>
+                        <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                          Principle {p}
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          <SelectOptions
+                            value={v(`sb_10b_p${p}_review`)}
+                            onChange={(val) =>
+                              onChange(`sb_10b_p${p}_review`, val)
+                            }
+                            options={REVIEW_OVERSIGHT_OPTIONS}
+                            show={show(`sb_10b_p${p}_review`)}
+                          />
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          <SelectOptions
+                            value={v(`sb_10b_p${p}_freq`)}
+                            onChange={(val) =>
+                              onChange(`sb_10b_p${p}_freq`, val)
+                            }
+                            options={FREQUENCY_OPTIONS}
+                            show={show(`sb_10b_p${p}_freq`)}
+                          />
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          {show(`sb_10b_p${p}`) ? (
+                            <input
+                              type="text"
+                              value={v(`sb_10b_p${p}`)}
+                              onChange={(e) =>
+                                onChange(`sb_10b_p${p}`, e.target.value)
+                              }
+                              placeholder="Description"
+                              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                            />
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Subsection 11: Independent assessment */}
+          {showBlock(["sb_11_"]) && (
+            <div className="mt-6 border-t border-slate-600 pt-6">
+              <h4 className="text-xs font-semibold text-gray-700">
+                11. Has the entity carried out independent assessment/
+                evaluation of the working of its policies by an external agency?
+              </h4>
+              <div className="mt-2 overflow-x-auto">
+                <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Principle
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Yes/No
+                      </th>
+                      <th className="border border-gray-200 px-2 py-2 text-left font-medium">
+                        Name of agency
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PRINCIPLES.map((p) => (
+                      <tr key={p}>
+                        <td className="border border-gray-200 px-2 py-1.5 font-medium text-gray-700">
+                          Principle {p}
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          <YesNoSelect
+                            value={v(`sb_11_p${p}`)}
+                            onChange={(val) => onChange(`sb_11_p${p}`, val)}
+                            show={show(`sb_11_p${p}`)}
+                          />
+                        </td>
+                        <td className="border border-gray-200 px-2 py-1">
+                          {show(`sb_11_p${p}_agency`) ? (
+                            <input
+                              type="text"
+                              value={v(`sb_11_p${p}_agency`)}
+                              onChange={(e) =>
+                                onChange(`sb_11_p${p}_agency`, e.target.value)
+                              }
+                              placeholder="Name of agency"
+                              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                            />
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      <p className="mt-6 text-xs text-slate-400">Data is saved automatically.</p>
     </section>
   );
 }

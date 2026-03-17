@@ -30,6 +30,7 @@ import type {
   BRSRTurnoverRow,
   BRSRWomenParticipationRow,
 } from "@/types/brsr";
+import { getFYLabels } from "@/lib/brsr/fyLabels";
 
 const MARGIN = 1440; // 1 inch in twips (72pt * 20)
 const TABLE_HEADER_FILL = "1F3864";
@@ -232,7 +233,7 @@ function buildHoldingTable(rows: BRSRHoldingRow[]): Table | null {
 
 function buildMaterialTable(rows: BRSRMaterialRow[]): Table | null {
   if (rows.length === 0) return null;
-  const cols = ["Issue", "Risk/Opportunity", "Rationale", "Approach", "Financial implications"];
+  const cols = ["Material issue identified", "Indicate whether risk or opportunity", "Rationale for identifying risk/ opportunity", "In case of risk, approach to adapt or mitigate", "Financial implications of the risk or opportunity"];
   const keys = ["issue", "riskOrOpp", "rationale", "approach", "financial"] as const;
   const headerRow = new TableRow({
     children: cols.map((c) => headerCell(c)),
@@ -291,8 +292,8 @@ function buildMarketsTable(indicators: BRSRIndicator[]): Table | null {
 
 function buildEmployeeTable(rows: BRSREmployeeRow[]): Table | null {
   if (rows.length === 0) return null;
-  const cols = ["Particulars", "Total (A)", "Male No. (B)", "Male % (B/A)", "Female No. (C)", "Female % (C/A)"];
-  const keys = ["category", "total", "male", "malePct", "female", "femalePct"] as const;
+  const cols = ["Particulars", "Total (A)", "Male No. (B)", "Male % (B/A)", "Female No. (C)", "Female % (C/A)", "Other Gender No. (D)", "Other Gender % (D/A)"];
+  const keys = ["category", "total", "male", "malePct", "female", "femalePct", "other", "otherPct"] as const;
   const headerRow = new TableRow({
     children: cols.map((c) => headerCell(c)),
   });
@@ -333,29 +334,6 @@ function buildWomenParticipationTable(rows: BRSRWomenParticipationRow[]): Table 
   });
 }
 
-function formatFY(s: string): string {
-  if (!s || s.length < 6) return s;
-  const m = s.match(/^(\d{4})-(\d{2,4})$/);
-  if (!m) return s;
-  const y2 = m[2].length === 2 ? "20" + m[2] : m[2];
-  return `FY ${m[1]}-${y2}`;
-}
-
-function getFYLabels(ry: { current: string; previous: string }): [string, string, string] {
-  const prior = ry.current
-    ? (() => {
-        const parts = ry.current.split("-").map((x) => parseInt(x, 10) || 0);
-        const c1 = parts[0];
-        const c2 = parts[1];
-        if (!c1 || !c2) return "";
-        const y1 = c1 - 2;
-        const y2 = c2 > 100 ? c2 - 2 : (c2 - 2 + 100) % 100;
-        return y1 >= 2000 ? `${y1}-${String(y2).padStart(2, "0")}` : "";
-      })()
-    : "";
-  return [formatFY(ry.current), formatFY(ry.previous), formatFY(prior)];
-}
-
 function buildTurnoverCombinedTable(
   empRows: BRSRTurnoverRow[],
   wrkRows: BRSRTurnoverRow[],
@@ -363,14 +341,14 @@ function buildTurnoverCombinedTable(
 ): Table | null {
   if (empRows.length === 0 && wrkRows.length === 0) return null;
   const emp = empRows.length >= 3 ? empRows : [
-    { year: "Current Year", male: "", female: "", total: "" },
-    { year: "Previous Year", male: "", female: "", total: "" },
-    { year: "Prior to Previous Year", male: "", female: "", total: "" },
+    { year: "Current Year", male: "", female: "", other: "", total: "" },
+    { year: "Previous Year", male: "", female: "", other: "", total: "" },
+    { year: "Prior to Previous Year", male: "", female: "", other: "", total: "" },
   ];
   const wrk = wrkRows.length >= 3 ? wrkRows : [
-    { year: "Current Year", male: "", female: "", total: "" },
-    { year: "Previous Year", male: "", female: "", total: "" },
-    { year: "Prior to Previous Year", male: "", female: "", total: "" },
+    { year: "Current Year", male: "", female: "", other: "", total: "" },
+    { year: "Previous Year", male: "", female: "", other: "", total: "" },
+    { year: "Prior to Previous Year", male: "", female: "", other: "", total: "" },
   ];
   const val = (r: BRSRTurnoverRow, k: keyof BRSRTurnoverRow) => (r[k] as string) || "—";
 
@@ -435,6 +413,17 @@ function buildTurnoverCombinedTable(
     }),
     new TableRow({
       children: [
+        cell("Other Gender %", false),
+        cell(val(emp[0], "other"), true),
+        cell(val(wrk[0], "other"), true),
+        cell(val(emp[1], "other"), false),
+        cell(val(wrk[1], "other"), false),
+        cell(val(emp[2], "other"), true),
+        cell(val(wrk[2], "other"), true),
+      ],
+    }),
+    new TableRow({
+      children: [
         cell("Total %", false),
         cell(val(emp[0], "total"), false),
         cell(val(wrk[0], "total"), false),
@@ -471,8 +460,6 @@ function buildPoliciesMatrix(rows: BRSRPoliciesMatrixRow[]): Table | null {
 }
 
 const COMPLAINTS_FY_SUBCOLS = [
-  "Grievance Redressal Mechanism in place",
-  "Web-link for grievance redress policy",
   "No. of complaints filed during current year",
   "No. of complaints pending resolution at close in current year",
   "Remark",
@@ -486,19 +473,29 @@ function buildComplaintsTable(
   const headerRow1 = new TableRow({
     children: [
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Stakeholder group from whom the complaint is received", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
+        children: [new Paragraph({ children: [new TextRun({ text: "Stakeholder group", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
+        shading: { fill: TABLE_HEADER_FILL },
+        rowSpan: 2,
+      }),
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: "Grievance Redressal Mechanism in place", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
+        shading: { fill: TABLE_HEADER_FILL },
+        rowSpan: 2,
+      }),
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: "Web-link for grievance redress policy", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
         shading: { fill: TABLE_HEADER_FILL },
         rowSpan: 2,
       }),
       new TableCell({
         children: [new Paragraph({ children: [new TextRun({ text: fyLabels[0], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
         shading: { fill: TABLE_HEADER_FILL },
-        columnSpan: 5,
+        columnSpan: 3,
       }),
       new TableCell({
         children: [new Paragraph({ children: [new TextRun({ text: fyLabels[1], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
         shading: { fill: TABLE_HEADER_FILL },
-        columnSpan: 5,
+        columnSpan: 3,
       }),
     ],
   });
@@ -517,8 +514,6 @@ function buildComplaintsTable(
         cell(row.cyFiled || "—", i % 2 === 1),
         cell(row.cyPending || "—", i % 2 === 1),
         cell(row.cyRemark || "—", i % 2 === 1),
-        cell(row.mechanism || "—", i % 2 === 1),
-        cell(row.webLink || "—", i % 2 === 1),
         cell(row.pyFiled || "—", i % 2 === 1),
         cell(row.pyPending || "—", i % 2 === 1),
         cell(row.pyRemark || "—", i % 2 === 1),
@@ -656,10 +651,10 @@ export async function buildBRSRDocx(
       }
     }
 
-    // V. Holding, Subsidiary & Assoc. Companies (including joint ventures)
+    // Holding, Subsidiary & Assoc. Companies (including joint ventures)
     if (data.sectionA.holdingSubsidiary.length > 0) {
       children.push(sectionBar("V. Holding, Subsidiary & Assoc. Companies (including joint ventures)"));
-      children.push(subsectionTitle("24. Names of holding / subsidiary / associate companies / joint ventures"));
+      children.push(subsectionTitle("23. Names of holding / subsidiary / associate companies / joint ventures"));
       const tbl = buildHoldingTable(data.sectionA.holdingSubsidiary);
       if (tbl) children.push(tbl);
     }
@@ -679,10 +674,10 @@ export async function buildBRSRDocx(
       }
     }
 
-    // VII. Transparency and Disclosures Compliances
+    // VII. Complaints
     if (data.sectionA.complaints.length > 0) {
-      children.push(sectionBar("VII. Transparency and Disclosures Compliances"));
-      children.push(subsectionTitle("26. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
+      children.push(sectionBar("VII. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
+      children.push(subsectionTitle("25. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
       const [fy1, fy2] = getFYLabels(data.reportingYear);
       const tbl = buildComplaintsTable(data.sectionA.complaints, [fy1, fy2]);
       if (tbl) children.push(tbl);
@@ -701,7 +696,7 @@ export async function buildBRSRDocx(
   // Section B
   if (sections.includes("sectionB")) {
     children.push(heading2("Section B – Management & Process"));
-    children.push(heading3("Policies"));
+    children.push(heading3("I. Policy and management processes"));
     const policiesTbl = buildPoliciesMatrix(data.sectionB.policies);
     if (policiesTbl) children.push(policiesTbl);
     if (data.sectionB.directorStatement && data.sectionB.directorStatement !== "—") {
@@ -711,10 +706,6 @@ export async function buildBRSRDocx(
     if (data.sectionB.highestAuthority && data.sectionB.highestAuthority !== "—") {
       children.push(heading3("8. Highest authority"));
       children.push(body(data.sectionB.highestAuthority));
-    }
-    if (data.sectionB.otherReason && data.sectionB.otherReason !== "—") {
-      children.push(heading3("12(e). Other reason"));
-      children.push(body(data.sectionB.otherReason));
     }
     if (data.sectionB.leadership.length > 0) {
       children.push(heading3("9. Committee of Board"));
