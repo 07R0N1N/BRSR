@@ -460,10 +460,19 @@ const P6_SUBSECTION_PREFIXES = [
  * rows 0..N-1 to ensure dynamic row answers (beyond row0) are included.
  */
 const DYNAMIC_TABLES: Record<number, Array<{ rowcountKey: string; prefix: string; fields: string[] }>> = {
+  1: [
+    { rowcountKey: "p1_l1_rowcount", prefix: "p1_l1_row", fields: ["prog", "topics", "pct"] },
+    { rowcountKey: "p1_e3_rowcount", prefix: "p1_e3_row", fields: ["case", "agency"] },
+    { rowcountKey: "p1_e2_pf_rowcount", prefix: "p1_e2_pf_row", fields: ["principle", "agency", "amt", "brief", "appeal"] },
+    { rowcountKey: "p1_e2_set_rowcount", prefix: "p1_e2_set_row", fields: ["principle", "agency", "amt", "brief", "appeal"] },
+    { rowcountKey: "p1_e2_cmp_rowcount", prefix: "p1_e2_cmp_row", fields: ["principle", "agency", "amt", "brief", "appeal"] },
+    { rowcountKey: "p1_e2_imp_rowcount", prefix: "p1_e2_imp_row", fields: ["principle", "agency", "brief", "appeal"] },
+    { rowcountKey: "p1_e2_pun_rowcount", prefix: "p1_e2_pun_row", fields: ["principle", "agency", "brief", "appeal"] },
+  ],
   2: [
-    { rowcountKey: "p2_l1_rowcount", prefix: "p2_l1_row", fields: ["nic", "product", "pct", "boundary", "ext", "public", "link"] },
     { rowcountKey: "p2_l2_rowcount", prefix: "p2_l2_row", fields: ["product", "risk", "action"] },
-    { rowcountKey: "p2_l3_rowcount", prefix: "p2_l3_row", fields: ["material", "recycled", "total"] },
+    { rowcountKey: "p2_l3_rowcount", prefix: "p2_l3_row", fields: ["material", "pct_cy", "pct_py"] },
+    { rowcountKey: "p2_l5_rowcount", prefix: "p2_l5_row", fields: ["category", "pct"] },
   ],
   4: [
     { rowcountKey: "p4_e2_rowcount", prefix: "p4_e2_row", fields: ["name", "vuln", "chan", "freq", "purpose"] },

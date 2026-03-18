@@ -31,7 +31,7 @@ function extractTemplateIds(html: string): string[] {
       ids.push(id);
     }
   }
-  return [...new Set(ids)].sort();
+  return Array.from(new Set(ids)).sort();
 }
 
 function extractJsxCodes(content: string): string[] {
@@ -53,7 +53,7 @@ function extractJsxCodes(content: string): string[] {
   while ((m = reQuestionInput.exec(content))) {
     ids.push(m[1]);
   }
-  return [...new Set(ids)].filter((id) => /^p\d+_/.test(id)).sort();
+  return Array.from(new Set(ids)).filter((id) => /^p\d+_/.test(id)).sort();
 }
 
 function expandDynamicCodes(templateIds: string[]): { static: string[]; dynamicPrefixes: string[] } {

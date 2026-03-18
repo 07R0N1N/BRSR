@@ -68,12 +68,14 @@ function safeEvalFormula(formula: string, values: AnswersState): number | null {
       consume();
       return v;
     }
+    // Try numeric literal first (e.g. "365"); identifiers like "p1_e8_ap_cy" parse as NaN
+    const numLit = parseFloat(t);
+    if (!Number.isNaN(numLit)) return numLit;
     if (/^[a-zA-Z0-9_]+$/.test(t)) {
       const n = getVal(t);
       return Number.isNaN(n) ? null : n;
     }
-    const n = parseFloat(t);
-    return Number.isNaN(n) ? null : n;
+    return null;
   }
 
   pos = 0;

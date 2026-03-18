@@ -19,6 +19,7 @@ type Props = {
   calcDisplay?: Record<string, string>;
   onChange: (code: string, value: string) => void;
   allowedSet?: Set<string> | null;
+  reportingYear?: string;
 };
 
 type Tab = "essential" | "leadership";
@@ -49,6 +50,7 @@ type ContentProps = {
   calcDisplay: Record<string, string>;
   onChange: (code: string, value: string) => void;
   allowedSet?: Set<string> | null;
+  reportingYear?: string;
 };
 
 function PrincipleContent({
@@ -58,8 +60,9 @@ function PrincipleContent({
   calcDisplay,
   onChange,
   allowedSet,
+  reportingYear,
 }: ContentProps & { principleNum: number; tab: Tab }) {
-  const p: ContentProps = { values, calcDisplay, onChange, allowedSet };
+  const p: ContentProps = { values, calcDisplay, onChange, allowedSet, reportingYear };
   if (tab === "essential") {
     switch (principleNum) {
       case 1: return <P1EssentialContent {...p} />;
@@ -94,6 +97,7 @@ export function PanelPrinciple({
   calcDisplay = {},
   onChange,
   allowedSet = null,
+  reportingYear,
 }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("essential");
   const notesCode = `p${principleNum}_notes`;
@@ -134,6 +138,7 @@ export function PanelPrinciple({
           calcDisplay={calcDisplay}
           onChange={onChange}
           allowedSet={allowedSet}
+          reportingYear={reportingYear}
         />
       </div>
       {notesField}

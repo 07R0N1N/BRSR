@@ -18,29 +18,29 @@ type PrefixBlock = {
 };
 
 const P1_PREFIX_BLOCKS: PrefixBlock[] = [
-  { id: "p1_1", label: "1. Percentage coverage by training and awareness programmes", prefix: "p1_e1_" },
-  { id: "p1_2", label: "2. Fines/penalties/punishment/award/compounding/settlement (monetary)", prefix: "p1_e2_" },
-  { id: "p1_3", label: "3. Appeal/Revision details (where action appealed)", prefix: "p1_e3_" },
-  { id: "p1_4", label: "4. Anti-corruption / anti-bribery policy (Y/N). If yes, details and weblink", prefix: "p1_e4_" },
-  { id: "p1_5", label: "5. Disciplinary action (law enforcement) – bribery/corruption", prefix: "p1_e5_" },
-  { id: "p1_6", label: "6. Complaints – conflict of interest (Directors / KMPs)", prefix: "p1_e6_" },
-  { id: "p1_7", label: "7. Corrective action on fines/penalties/corruption/conflict of interest", prefix: "p1_e7_" },
-  { id: "p1_8", label: "8. Days of accounts payables (AP × 365 / Cost of goods procured)", prefix: "p1_e8_" },
-  { id: "p1_9", label: "9. Open-ness – concentration of purchases/sales, RPTs", prefix: "p1_e9_" },
-  { id: "p1_l1", label: "Leadership 1. Awareness programmes for value chain partners", prefix: "p1_l1_" },
-  { id: "p1_l2", label: "Leadership 2. Processes to avoid/manage conflict of interests (Board)", prefix: "p1_l2_" },
+  { id: "p1_1", label: "1. Percentage coverage by training and awareness programmes on any of the Principles during the financial year", prefix: "p1_e1_" },
+  { id: "p1_2", label: "2. Details of fines / penalties / punishment / award / compounding fees / settlement amount paid in proceedings", prefix: "p1_e2_" },
+  { id: "p1_3", label: "3. Of the instances disclosed in Question 2 above, details of the Appeal/ Revision preferred", prefix: "p1_e3_" },
+  { id: "p1_4", label: "4. Does the entity have an anti-corruption policy or anti-bribery policy?", prefix: "p1_e4_" },
+  { id: "p1_5", label: "5. Number of Directors/KMPs/employees/workers against whom disciplinary action was taken (bribery/corruption)", prefix: "p1_e5_" },
+  { id: "p1_6", label: "6. Details of complaints with regard to conflict of interest", prefix: "p1_e6_" },
+  { id: "p1_7", label: "7. Provide details of any corrective action taken or under way on fines/penalties/corruption/conflicts of interest", prefix: "p1_e7_" },
+  { id: "p1_8", label: "8. Number of days of accounts payables", prefix: "p1_e8_" },
+  { id: "p1_9", label: "9. Open-ness of business - Provide details of concentration of purchases and sales with trading houses, dealers, and related parties along-with loans and advances & investments, with related parties, in the following format", prefix: "p1_e9_" },
+  { id: "p1_l1", label: "1. Awareness programmes conducted for value chain partners on any of the Principles during the financial year", prefix: "p1_l1_" },
+  { id: "p1_l2", label: "2. Does the entity have processes in place to avoid / manage conflict of interests involving members of the Board?", prefix: "p1_l2_" },
 ];
 
 const P2_PREFIX_BLOCKS: PrefixBlock[] = [
-  { id: "p2_1", label: "1. R&D and capex % for environmental and social impacts", prefix: "p2_e1_" },
-  { id: "p2_2", label: "2. Sustainable sourcing", prefix: "p2_e2_" },
-  { id: "p2_3", label: "3. Processes to reclaim products (reuse, recycle, dispose)", prefix: "p2_e3_" },
-  { id: "p2_4", label: "4. EPR applicable (Y/N). Waste collection plan in line with EPR? Steps if not.", prefix: "p2_e4_" },
-  { id: "p2_l1", label: "Leadership 1. Life Cycle Perspective / Assessments (LCA)", prefix: "p2_l1_" },
-  { id: "p2_l2", label: "Leadership 2. Significant social/environmental concerns from production/disposal – action taken", prefix: "p2_l2_" },
-  { id: "p2_l3", label: "Leadership 3. Recycled or reused input material as % of total material (by value)", prefix: "p2_l3_" },
-  { id: "p2_l4", label: "Leadership 4. Products and packaging reclaimed at end of life (metric tonnes)", prefix: "p2_l4_" },
-  { id: "p2_l5", label: "Leadership 5. Reclaimed products and packaging as % of products sold (by category)", prefix: "p2_l5_" },
+  { id: "p2_1", label: "1. Percentage of R&D and capex investments for environmental and social impacts", prefix: "p2_e1_" },
+  { id: "p2_2", label: "2. Does the entity have procedures in place for sustainable sourcing?", prefix: "p2_e2_" },
+  { id: "p2_3", label: "3. Describe the processes in place to safely reclaim your products for reusing, recycling and disposing at the end of life", prefix: "p2_e3_" },
+  { id: "p2_4", label: "4. Whether Extended Producer Responsibility (EPR) is applicable to the entity's activities (Yes / No).", prefix: "p2_e4_" },
+  { id: "p2_l1", label: "1. Has the Company conducted Life Cycle Assessments (LCA) for its products /services?", prefix: "p2_l1_" },
+  { id: "p2_l2", label: "2. If there are any significant social or environmental concerns and/or risks arising from production or disposal of your products / services, as identified in the Life Cycle Perspective / Assessments (LCA) or through any other means, briefly describe the same along-with action taken to mitigate the same", prefix: "p2_l2_" },
+  { id: "p2_l3", label: "3. Percentage of recycled or reused input material to total material (by value) used in production (for manufacturing industry) or providing services (for service industry).", prefix: "p2_l3_" },
+  { id: "p2_l4", label: "4. Of the products and packaging reclaimed at end of life of products, amount (in metric tonnes) reused, recycled, and safely disposed, as per the following format.", prefix: "p2_l4_" },
+  { id: "p2_l5", label: "5. Reclaimed products and their packaging materials (as percentage of products sold) for each product category.", prefix: "p2_l5_" },
 ];
 
 const P3_PREFIX_BLOCKS: PrefixBlock[] = [

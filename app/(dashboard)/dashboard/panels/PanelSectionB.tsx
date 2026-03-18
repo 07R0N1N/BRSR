@@ -10,27 +10,29 @@ type Props = {
 
 const PRINCIPLES = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-/** Yes/No dropdown options */
+/** Yes/No/NA dropdown options */
 const YES_NO_OPTIONS = [
   { value: "", label: "Choose option" },
   { value: "Yes", label: "Yes" },
   { value: "No", label: "No" },
+  { value: "NA", label: "NA" },
 ];
 
 /** Review Oversight dropdown options (10a, 10b) */
 const REVIEW_OVERSIGHT_OPTIONS = [
   { value: "", label: "Choose option" },
   { value: "Director", label: "Director" },
-  { value: "Committee", label: "Committee" },
-  { value: "Board", label: "Board" },
+  { value: "Committee of the Board", label: "Committee of the Board" },
+  { value: "Any other Committee", label: "Any other Committee" },
 ];
 
 /** Frequency dropdown options (10a, 10b) */
 const FREQUENCY_OPTIONS = [
   { value: "", label: "Choose option" },
-  { value: "Quarterly", label: "Quarterly" },
-  { value: "Half-yearly", label: "Half-yearly" },
   { value: "Annually", label: "Annually" },
+  { value: "Half Yearly", label: "Half Yearly" },
+  { value: "Quarterly", label: "Quarterly" },
+  { value: "Any other", label: "Any other" },
 ];
 
 function YesNoSelect({
@@ -256,8 +258,9 @@ export function PanelSectionB({ values, onChange, allowedSet = null }: Props) {
         <div className="mt-6 border-t border-slate-600 pt-6">
           <h4 className="text-xs font-semibold text-gray-700">
             4. Name of the national and international codes / certifications /
-            labels / standards adopted by your entity and mapped to each
-            principle.
+            labels / standards (e.g. Forest Stewardship Council, Fairtrade,
+            Rainforest Alliance, Trustee) standards (e.g. SA 8000, OHSAS, ISO,
+            BIS) adopted by your entity and mapped to each principle.
           </h4>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -635,7 +638,8 @@ export function PanelSectionB({ values, onChange, allowedSet = null }: Props) {
                         Principle
                       </th>
                       <th className="border border-gray-200 px-2 py-2 text-left font-medium">
-                        Yes/No
+                        Has the entity carried out independent assessment/
+                        evaluation of the working
                       </th>
                       <th className="border border-gray-200 px-2 py-2 text-left font-medium">
                         Name of agency

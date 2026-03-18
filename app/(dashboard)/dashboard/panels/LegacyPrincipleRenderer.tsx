@@ -111,7 +111,7 @@ export function LegacyPrincipleRenderer({
 
   // Extract dynamic table IDs from the template; only changes when rawHtml changes.
   const dynamicTableIds = useMemo(
-    () => [...rawHtml.matchAll(/data-dynamic-rows="([^"]+)"/g)].map((m) => m[1]),
+    () => Array.from(rawHtml.matchAll(/data-dynamic-rows="([^"]+)"/g), (m) => m[1]),
     [rawHtml]
   );
 

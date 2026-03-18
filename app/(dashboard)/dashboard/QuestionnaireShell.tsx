@@ -116,6 +116,7 @@ export function QuestionnaireShell({
             calcDisplay={calcDisplay}
             onChange={onChange}
             allowedSet={allowedSet ?? undefined}
+            reportingYear={reportingYear}
           />
         )}
       </div>
