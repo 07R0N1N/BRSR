@@ -451,7 +451,7 @@ function getPrincipleLabel(code: string, principleNum: number): string {
 const P6_SUBSECTION_PREFIXES = [
   "p6_e1", "p6_e2", "p6_e3", "p6_e4", "p6_e5", "p6_e6", "p6_e7", "p6_e8", "p6_e9",
   "p6_e10", "p6_e11", "p6_e12", "p6_e13",
-  "p6_l1", "p6_l2", "p6_l3", "p6_l4", "p6_l5", "p6_l6", "p6_l7",
+  "p6_l1", "p6_l2", "p6_l3", "p6_l4", "p6_l5", "p6_l6", "p6_l7", "p6_l8",
 ] as const;
 
 /**
@@ -475,7 +475,20 @@ const DYNAMIC_TABLES: Record<number, Array<{ rowcountKey: string; prefix: string
     { rowcountKey: "p2_l5_rowcount", prefix: "p2_l5_row", fields: ["category", "pct"] },
   ],
   4: [
-    { rowcountKey: "p4_e2_rowcount", prefix: "p4_e2_row", fields: ["name", "vuln", "chan", "freq", "purpose"] },
+    { rowcountKey: "p4_e2_rowcount", prefix: "p4_e2_row", fields: ["name", "vuln", "chan", "chan_other", "freq", "freq_other", "purpose"] },
+  ],
+  7: [
+    { rowcountKey: "p7_e2_rowcount", prefix: "p7_e2_row", fields: ["auth", "brief", "action"] },
+    { rowcountKey: "p7_l1_rowcount", prefix: "p7_l1_row", fields: ["policy", "method", "freq", "public", "link"] },
+  ],
+  8: [
+    { rowcountKey: "p8_e1_rowcount", prefix: "p8_e1_row", fields: ["name", "notif", "date", "ind", "pub", "link"] },
+    { rowcountKey: "p8_e2_rowcount", prefix: "p8_e2_row", fields: ["name", "state", "dist", "paf", "pct", "amt"] },
+    { rowcountKey: "p8_l1_rowcount", prefix: "p8_l1_row", fields: ["impact", "action"] },
+    { rowcountKey: "p8_l2_rowcount", prefix: "p8_l2_row", fields: ["state", "dist", "amt"] },
+    { rowcountKey: "p8_l4_rowcount", prefix: "p8_l4_row", fields: ["ip", "own", "ben", "basis"] },
+    { rowcountKey: "p8_l5_rowcount", prefix: "p8_l5_row", fields: ["auth", "brief", "action"] },
+    { rowcountKey: "p8_l6_rowcount", prefix: "p8_l6_row", fields: ["proj", "num", "pct"] },
   ],
 };
 

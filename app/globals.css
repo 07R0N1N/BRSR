@@ -83,6 +83,20 @@
 .brsr-dark button.border-transparent {
   color: #94a3b8 !important;
 }
+/* Preserve red for required indicators and error messages */
+.brsr-dark .text-red-500 {
+  color: #ef4444 !important;
+}
+.brsr-dark .text-red-700 {
+  color: #f87171 !important;
+}
+/* P4 required field error state */
+.brsr-dark input.p4-required-invalid {
+  border-color: #ef4444 !important;
+}
+.brsr-dark input.p4-required-invalid:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
+}
 .brsr-dark button.border-indigo-600 {
   background-color: #2563eb !important;
   color: #fff !important;
