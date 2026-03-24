@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { canUseApp, isMaster, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
 import { AccountDropdown } from "./AccountDropdown";
 import { ExportButton } from "@/components/ExportButton";
 import { QuestionnaireShell } from "./QuestionnaireShell";
@@ -23,9 +24,24 @@ export default async function DashboardPage() {
     ? profileData?.roles[0]?.slug
     : profileData?.roles?.slug;
 
-  // Admin with no org: send to root so it can create org and redirect to onboarding
-  if (roleSlug === "admin" && !orgId) {
-    redirect("/");
+  let onboardingComplete: boolean | null = null;
+  if (orgId) {
+    const { data: orgRow } = await supabase
+      .from("organizations")
+      .select("onboarding_complete")
+      .eq("id", orgId)
+      .single();
+    onboardingComplete = (orgRow as { onboarding_complete?: boolean } | null)?.onboarding_complete ?? null;
+  }
+
+  const ctx = {
+    roleSlug: roleSlug ?? null,
+    orgId,
+    onboardingComplete: orgId ? onboardingComplete : null,
+  };
+
+  if (!isMaster(roleSlug ?? null) && !canUseApp(ctx)) {
+    redirect(redirectForIncompleteApp(ctx));
   }
 
   let orgName: string | null = null;

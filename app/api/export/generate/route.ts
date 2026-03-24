@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 import { mapAnswersToBRSR } from "@/lib/exporters/brsrDataMapper";
 import { buildBRSRDocx } from "@/lib/exporters/brsrDocx";
 import { buildBRSRXlsx } from "@/lib/exporters/brsrXlsx";
@@ -25,13 +25,9 @@ const DEFAULT_SECTIONS: BRSRSectionId[] = [
  * Returns file stream or JSON. PDF returns 501.
  */
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase, ctx } = access;
 
   let body: { orgId?: string; year?: string; format?: string; sections?: string[] };
   try {
@@ -63,16 +59,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("org_id, roles(slug)")
-    .eq("id", user.id)
-    .single();
-  const profileData = profile as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
-  const roleSlug = Array.isArray(profileData?.roles)
-    ? profileData?.roles[0]?.slug
-    : profileData?.roles?.slug;
-  const userOrgId = profileData?.org_id ?? null;
+  const roleSlug = ctx.roleSlug;
+  const userOrgId = ctx.orgId;
 
   if (roleSlug !== "admin" && roleSlug !== "master") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

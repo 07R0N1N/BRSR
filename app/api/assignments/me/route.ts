@@ -1,28 +1,17 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 
 function getRoleSlug(roles: { slug: string } | { slug: string }[] | null | undefined) {
   return Array.isArray(roles) ? roles[0]?.slug : roles?.slug;
 }
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
 
-  const profile = await supabase
-    .from("profiles")
-    .select("org_id, roles(slug)")
-    .eq("id", user.id)
-    .single();
-
-  const profileData = profile.data as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
-  const roleSlug = getRoleSlug(profileData?.roles ?? null);
-  const orgId = profileData?.org_id ?? null;
+  const { supabase, user, ctx } = access;
+  const roleSlug = ctx.roleSlug;
+  const orgId = ctx.orgId ?? null;
 
   if (roleSlug === "master" || roleSlug === "admin") {
     return NextResponse.json({ mode: "all", question_codes: [] as string[] });

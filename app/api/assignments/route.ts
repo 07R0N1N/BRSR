@@ -1,34 +1,21 @@
-import { createClient } from "@/lib/supabase/server";
 import { ALL_QUESTION_CODES } from "@/lib/brsr/questionConfig";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 import { NextResponse } from "next/server";
 
-function getRoleSlug(roles: { slug: string } | { slug: string }[] | null | undefined) {
-  return Array.isArray(roles) ? roles[0]?.slug : roles?.slug;
-}
-
 async function getRequestContext() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  const access = await requireAppAccess("assignments");
+  if (!access.ok) return { error: access.response };
 
-  const profile = await supabase
-    .from("profiles")
-    .select("org_id, roles(slug)")
-    .eq("id", user.id)
-    .single();
-
-  const profileData = profile.data as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
-  const roleSlug = getRoleSlug(profileData?.roles ?? null);
+  const { supabase, user, ctx } = access;
+  const roleSlug = ctx.roleSlug;
   if (roleSlug !== "admin" && roleSlug !== "master") {
-    return { supabase, error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
   return {
     supabase,
     roleSlug,
-    orgId: profileData?.org_id ?? null,
+    orgId: ctx.orgId ?? null,
     userId: user.id,
   };
 }

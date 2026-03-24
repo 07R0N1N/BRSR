@@ -8,6 +8,7 @@ import { getAssignmentBlocksForPanel } from "@/lib/brsr/assignmentBlocks";
 import type { PanelId } from "@/lib/brsr/types";
 
 type OrgData = {
+  /** Empty string until the org row is created via POST /api/onboarding/organization */
   id: string;
   name: string;
   reporting_year: string | null;
@@ -75,7 +76,7 @@ function StepOrgSetup({
   onNext,
 }: {
   org: OrgData;
-  onNext: (updated: Partial<OrgData>) => void;
+  onNext: (updated: Partial<OrgData> & { id: string }) => void;
 }) {
   const [orgName, setOrgName] = useState(org.name ?? "");
   const [reportingYear, setReportingYear] = useState(org.reporting_year ?? REPORTING_YEARS[0]);
@@ -94,24 +95,52 @@ function StepOrgSetup({
     if (!companyType) { setError("Please select a company type"); return; }
     setError(null);
     setLoading(true);
-    const res = await fetch(`/api/organizations?id=${org.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: orgName.trim(),
-        reporting_year: reportingYear,
-        company_type: companyType,
-        industry: industry || null,
-        hq_city: hqCity || null,
-        country: country || "India",
-        cin: cin || null,
-        website: website || null,
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
+    const payload = {
+      name: orgName.trim(),
+      reporting_year: reportingYear,
+      company_type: companyType,
+      industry: industry || null,
+      hq_city: hqCity || null,
+      country: country || "India",
+      cin: cin || null,
+      website: website || null,
+    };
+
+    const isCreate = !org.id?.trim();
+    const res = isCreate
+      ? await fetch("/api/onboarding/organization", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      : await fetch(`/api/organizations?id=${encodeURIComponent(org.id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; org_id?: string };
     setLoading(false);
-    if (!res.ok) { setError(data.error ?? "Failed to save"); return; }
-    onNext({ name: orgName.trim(), reporting_year: reportingYear, company_type: companyType });
+    if (!res.ok) {
+      setError(data.error ?? "Failed to save");
+      return;
+    }
+    const newId = isCreate ? data.org_id : org.id;
+    if (!newId) {
+      setError("Missing organisation id from server");
+      return;
+    }
+    onNext({
+      id: newId,
+      name: orgName.trim(),
+      reporting_year: reportingYear,
+      company_type: companyType,
+      industry: industry || null,
+      hq_city: hqCity || null,
+      country: country || "India",
+      cin: cin || null,
+      website: website || null,
+      onboarding_complete: false,
+    });
   }
 
   return (
@@ -808,13 +837,11 @@ function Sidebar({ currentStep, completedSteps }: { currentStep: number; complet
 
 // ── Main onboarding wizard ───────────────────────────────────────────────────
 
-export function OnboardingClient({
-  adminEmail,
-  org: initialOrg,
+function OnboardingWizardBody({
+  initialOrg,
   initialUsers,
 }: {
-  adminEmail: string;
-  org: OrgData;
+  initialOrg: OrgData;
   initialUsers: UserRow[];
 }) {
   const [currentStep, setCurrentStep] = useState(2);
@@ -930,4 +957,40 @@ export function OnboardingClient({
       </main>
     </div>
   );
+}
+
+export function OnboardingClient({
+  adminEmail: _adminEmail,
+  org: initialOrg,
+  initialUsers,
+  mode = "wizard",
+}: {
+  adminEmail: string;
+  org: OrgData;
+  initialUsers: UserRow[];
+  mode?: "wizard" | "pending";
+}) {
+  if (mode === "pending") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0f12] px-4">
+        <div className="max-w-md rounded-xl border border-[#334155] bg-[#1a202c] p-8 text-center">
+          <p className="text-lg font-semibold text-white">Organisation setup in progress</p>
+          <p className="mt-3 text-sm text-gray-400">
+            Your administrator has not finished onboarding for this organisation yet. You will get access to
+            the workspace once they complete setup.
+          </p>
+          <form action="/api/auth/signout" method="post" className="mt-6">
+            <button
+              type="submit"
+              className="text-sm text-blue-400 hover:underline"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return <OnboardingWizardBody initialOrg={initialOrg} initialUsers={initialUsers} />;
 }

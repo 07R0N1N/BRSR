@@ -1,14 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase } = access;
   const { searchParams } = new URL(request.url);
   const org_id = searchParams.get("org_id");
   const reporting_year = searchParams.get("reporting_year");
@@ -34,13 +30,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase, user } = access;
   const body = await request.json();
   const org_id = body.org_id as string;
   const reporting_year = (body.reporting_year as string)?.trim();

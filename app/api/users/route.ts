@@ -32,18 +32,6 @@ export async function POST(request: Request) {
   }
   const admin = createAdminClient();
 
-  // Fetch role slug to check if admin
-  const { data: roleRow } = await admin.from("roles").select("slug").eq("id", role_id).single();
-  const roleSlug = (roleRow as { slug?: string } | null)?.slug;
-  if (roleSlug === "admin" && !org_id) {
-    const { data: newOrg, error: orgError } = await admin
-      .from("organizations")
-      .insert({ name: "" })
-      .select("id")
-      .single();
-    if (!orgError && newOrg?.id) org_id = newOrg.id;
-  }
-
   const { data: newUser, error: authError } = await admin.auth.admin.createUser({
     email,
     password,

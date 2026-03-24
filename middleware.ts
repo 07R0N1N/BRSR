@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { canUseApp, isMaster, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -29,8 +30,10 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isLogin = path === "/login";
-  const isMaster = path.startsWith("/master");
+  const isMasterPath = path.startsWith("/master");
   const isDashboard = path.startsWith("/dashboard");
+  const isOnboarding = path === "/onboarding" || path.startsWith("/onboarding/");
+  const isRoot = path === "/";
 
   if (!user) {
     if (!isLogin) {
@@ -51,28 +54,56 @@ export async function middleware(request: NextRequest) {
   const rolesData = profileData?.roles;
   const roleSlug = Array.isArray(rolesData) ? rolesData[0]?.slug : rolesData?.slug;
   const orgId = profileData?.org_id ?? null;
+
+  let onboardingComplete: boolean | null = null;
+  if (orgId) {
+    const { data: orgRow } = await supabase
+      .from("organizations")
+      .select("onboarding_complete")
+      .eq("id", orgId)
+      .single();
+    onboardingComplete = (orgRow as { onboarding_complete?: boolean } | null)?.onboarding_complete ?? null;
+  }
+
+  const ctx = {
+    roleSlug: roleSlug ?? null,
+    orgId,
+    onboardingComplete: orgId ? onboardingComplete : null,
+  };
+
   if (isLogin) {
     const url = request.nextUrl.clone();
-    // Admins with no org go to / so root page can create org and redirect to onboarding
-    const redirectPath =
-      roleSlug === "master"
-        ? "/master"
-        : roleSlug === "admin" && !orgId
-          ? "/"
-          : "/dashboard";
-    url.pathname = redirectPath;
+    if (isMaster(roleSlug ?? null)) {
+      url.pathname = "/master";
+    } else if (canUseApp(ctx)) {
+      url.pathname = "/dashboard";
+    } else {
+      url.pathname = redirectForIncompleteApp(ctx);
+    }
     return NextResponse.redirect(url);
   }
 
-  if (isMaster && roleSlug !== "master") {
+  if (isMasterPath && !isMaster(roleSlug ?? null)) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
-  if (isDashboard && roleSlug === "master") {
+  if (isDashboard && isMaster(roleSlug ?? null)) {
     const url = request.nextUrl.clone();
     url.pathname = "/master";
+    return NextResponse.redirect(url);
+  }
+
+  if (isOnboarding && canUseApp(ctx)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if ((isDashboard || isRoot) && !isMaster(roleSlug ?? null) && !canUseApp(ctx)) {
+    const url = request.nextUrl.clone();
+    url.pathname = redirectForIncompleteApp(ctx);
     return NextResponse.redirect(url);
   }
 
@@ -80,5 +111,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*", "/master/:path*"],
+  matcher: ["/", "/login", "/onboarding", "/onboarding/:path*", "/dashboard/:path*", "/master/:path*"],
 };

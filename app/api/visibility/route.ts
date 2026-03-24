@@ -1,14 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase, user } = access;
   const profile = await supabase
     .from("profiles")
     .select("roles(slug)")

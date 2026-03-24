@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingClient } from "./OnboardingClient";
+import {
+  canUseApp,
+  isMaster,
+  redirectForIncompleteApp,
+  shouldShowOrgPendingOnly,
+} from "@/lib/auth/accessPolicy";
 
 export default async function OnboardingPage() {
   const supabase = await createClient();
@@ -25,9 +31,76 @@ export default async function OnboardingPage() {
   const roleSlug = Array.isArray(rolesData) ? rolesData[0]?.slug : rolesData?.slug;
   const orgId = profileData?.org_id ?? null;
 
-  // Only admins with an org see this flow
-  if (roleSlug !== "admin" || !orgId) {
+  if (isMaster(roleSlug ?? null)) {
+    redirect("/master");
+  }
+
+  let onboardingComplete: boolean | null = null;
+  if (orgId) {
+    const { data: orgRow } = await supabase
+      .from("organizations")
+      .select("onboarding_complete")
+      .eq("id", orgId)
+      .single();
+    onboardingComplete = (orgRow as { onboarding_complete?: boolean } | null)?.onboarding_complete ?? null;
+  }
+
+  const ctx = {
+    roleSlug: roleSlug ?? null,
+    orgId,
+    onboardingComplete: orgId ? onboardingComplete : null,
+  };
+
+  if (canUseApp(ctx)) {
     redirect("/dashboard");
+  }
+
+  if (shouldShowOrgPendingOnly(ctx)) {
+    return (
+      <OnboardingClient
+        adminEmail={user.email ?? ""}
+        org={{
+          id: orgId ?? "",
+          name: "",
+          reporting_year: null,
+          company_type: null,
+          industry: null,
+          hq_city: null,
+          country: "India",
+          cin: null,
+          website: null,
+          onboarding_complete: false,
+        }}
+        initialUsers={[]}
+        mode="pending"
+      />
+    );
+  }
+
+  if (roleSlug !== "admin") {
+    redirect(redirectForIncompleteApp(ctx));
+  }
+
+  if (!orgId) {
+    return (
+      <OnboardingClient
+        adminEmail={user.email ?? ""}
+        org={{
+          id: "",
+          name: "",
+          reporting_year: null,
+          company_type: null,
+          industry: null,
+          hq_city: null,
+          country: "India",
+          cin: null,
+          website: null,
+          onboarding_complete: false,
+        }}
+        initialUsers={[]}
+        mode="wizard"
+      />
+    );
   }
 
   const { data: org } = await supabase
@@ -49,12 +122,10 @@ export default async function OnboardingPage() {
     onboarding_complete: boolean;
   } | null;
 
-  // Already onboarded — go to dashboard
   if (orgData?.onboarding_complete) {
     redirect("/dashboard");
   }
 
-  // Fetch existing org users (already added before this session)
   const { data: existingUsers } = await supabase
     .from("profiles")
     .select("id, email, display_name")
@@ -67,8 +138,22 @@ export default async function OnboardingPage() {
   return (
     <OnboardingClient
       adminEmail={user.email ?? ""}
-      org={orgData ?? { id: orgId, name: "", reporting_year: null, company_type: null, industry: null, hq_city: null, country: "India", cin: null, website: null, onboarding_complete: false }}
+      org={
+        orgData ?? {
+          id: orgId,
+          name: "",
+          reporting_year: null,
+          company_type: null,
+          industry: null,
+          hq_city: null,
+          country: "India",
+          cin: null,
+          website: null,
+          onboarding_complete: false,
+        }
+      }
       initialUsers={users}
+      mode="wizard"
     />
   );
 }

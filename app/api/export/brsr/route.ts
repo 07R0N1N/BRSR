@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 import { mapAnswersToBRSR } from "@/lib/exporters/brsrDataMapper";
 import type { OrgRow } from "@/types/brsr";
 
@@ -8,13 +8,9 @@ import type { OrgRow } from "@/types/brsr";
  * Returns BRSR export data (JSON). Auth required; RLS ensures org access.
  */
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase, ctx } = access;
 
   const { searchParams } = new URL(request.url);
   const orgId = searchParams.get("orgId") ?? searchParams.get("org_id");
@@ -27,16 +23,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("org_id, roles(slug)")
-    .eq("id", user.id)
-    .single();
-  const profileData = profile as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
-  const roleSlug = Array.isArray(profileData?.roles)
-    ? profileData?.roles[0]?.slug
-    : profileData?.roles?.slug;
-  const userOrgId = profileData?.org_id ?? null;
+  const roleSlug = ctx.roleSlug;
+  const userOrgId = ctx.orgId;
 
   if (roleSlug !== "admin" && roleSlug !== "master") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

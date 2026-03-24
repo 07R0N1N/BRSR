@@ -1,9 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-
-function getRoleSlug(roles: { slug: string } | { slug: string }[] | null | undefined) {
-  return Array.isArray(roles) ? roles[0]?.slug : roles?.slug;
-}
+import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 
 function toPct(completed: number, assigned: number) {
   if (!assigned) return 0;
@@ -11,21 +7,11 @@ function toPct(completed: number, assigned: number) {
 }
 
 export async function GET(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const access = await requireAppAccess("data");
+  if (!access.ok) return access.response;
+  const { supabase, ctx } = access;
 
-  const profile = await supabase
-    .from("profiles")
-    .select("org_id, roles(slug)")
-    .eq("id", user.id)
-    .single();
-  const profileData = profile.data as { org_id: string | null; roles?: { slug: string } | { slug: string }[] } | null;
-  const roleSlug = getRoleSlug(profileData?.roles ?? null);
+  const roleSlug = ctx.roleSlug;
   if (roleSlug !== "admin" && roleSlug !== "master") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -37,7 +23,7 @@ export async function GET(request: Request) {
   }
 
   const requestedOrgId = (searchParams.get("org_id") ?? "").trim();
-  const targetOrgId = roleSlug === "master" ? requestedOrgId : profileData?.org_id ?? null;
+  const targetOrgId = roleSlug === "master" ? requestedOrgId : ctx.orgId ?? null;
   if (!targetOrgId) {
     return NextResponse.json({ error: "Organization not available" }, { status: 400 });
   }

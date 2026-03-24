@@ -28,24 +28,21 @@ export default function LoginPage() {
     }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("role_id, roles(slug)")
+      .select("role_id, org_id, roles(slug)")
       .eq("id", user.id)
       .single();
     const rolesData = (profile as { roles?: { slug: string } | { slug: string }[] } | null)?.roles;
     const roleSlug = Array.isArray(rolesData) ? rolesData[0]?.slug : rolesData?.slug;
-    const redirectPath = roleSlug === "master" ? "/master" : "/dashboard";
-    // #region agent log
-    fetch("http://127.0.0.1:7762/ingest/58fab4a8-b32e-4ce2-b25a-ed83ca637c06", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "548a71" }, body: JSON.stringify({ sessionId: "548a71", runId: "login", hypothesisId: "H1_H2_H3", location: "app/login/page.tsx:redirect", message: "Login profile and redirect", data: { hasProfile: !!profile, profileError: profileError?.message ?? null, rolesDataType: Array.isArray(rolesData) ? "array" : typeof rolesData, rolesDataRaw: rolesData, roleSlug, redirectPath }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     if (roleSlug === "master") {
       router.push("/master");
       router.refresh();
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+      return;
     }
+    // Home + middleware apply onboarding gate; avoids duplicating policy here
+    router.push("/");
+    router.refresh();
   }
 
   return (
