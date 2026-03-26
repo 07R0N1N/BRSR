@@ -133,6 +133,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
         <div className="mt-4">
           <label className="block text-xs font-medium uppercase text-gray-400">User</label>
           <select
+            data-testid="user-select"
             value={selectedUserId}
             onChange={(e) => setSelectedUserId(e.target.value)}
             className="mt-1 w-full rounded border border-[#334155] bg-[#111827] px-3 py-2 text-sm text-white md:w-96"
@@ -153,6 +154,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                 <button
                   key={panel.id}
                   type="button"
+                  data-testid={`section-${panel.id}`}
                   onClick={() => setActivePanel(panel.id)}
                   className={`w-full rounded px-2 py-2 text-left text-sm ${
                     activePanel === panel.id
@@ -179,6 +181,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                   <button
                     key={tab}
                     type="button"
+                    data-testid={`tab-${tab}`}
                     onClick={() => setAssignmentTab(tab)}
                     className={`border-b-2 px-3 py-2 text-sm font-medium ${
                       assignmentTab === tab
@@ -206,6 +209,8 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                     <button
                       key={block.id}
                       type="button"
+                      data-testid={`block-${block.id}`}
+                      data-checked={checked ? "true" : "false"}
                       onClick={() => toggleBlock(block.questionCodes)}
                       className={`flex items-center justify-between rounded border px-2 py-2 text-left text-sm ${
                         checked
@@ -230,14 +235,15 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
+            data-testid="confirm-assignment"
             onClick={() => confirmAssignments(reloadStats)}
             disabled={!selectedUserId || savingAssignments}
             className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
             {savingAssignments ? "Saving..." : "Confirm Assignment"}
           </button>
-          {success && <p className="text-sm text-emerald-400">{success}</p>}
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {success && <p data-testid="assignment-success" className="text-sm text-emerald-400">{success}</p>}
+          {error && <p data-testid="assignment-error" className="text-sm text-red-400">{error}</p>}
         </div>
       </section>
     </div>

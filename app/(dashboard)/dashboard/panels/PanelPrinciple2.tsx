@@ -2,6 +2,7 @@
 
 import type { AnswersState } from "@/lib/brsr/types";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
+import { blockAllowed } from "@/lib/brsr/visibilityUtils";
 
 const MAX_ROWS = 20;
 
@@ -72,12 +73,13 @@ function pctInp(code: string, values: AnswersState, onChange: (code: string, val
   );
 }
 
-export function P2EssentialContent({ values, onChange, reportingYear = "2024-25" }: Props) {
+export function P2EssentialContent({ values, onChange, allowedSet, reportingYear = "2024-25" }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const [fyCurrent, fyPrevious] = getFYLabelsFromReportingYear(reportingYear);
 
   return (
     <>
-      <div>
+      {sb("p2_e1_") && <div data-testid="qblock-p2_e1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Percentage of R&D and capital expenditure (capex) investments in specific technologies to improve the environmental and social impacts of product and processes to total R&D and capex investments made by the entity, respectively.
         </h3>
@@ -121,8 +123,8 @@ export function P2EssentialContent({ values, onChange, reportingYear = "2024-25"
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p2_e2_") && <div data-testid="qblock-p2_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Does the entity have procedures in place for sustainable sourcing?</h3>
         <div className="mt-2">
           <select
@@ -137,8 +139,8 @@ export function P2EssentialContent({ values, onChange, reportingYear = "2024-25"
             ))}
           </select>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p2_e3_") && <div data-testid="qblock-p2_e3">
         <h3 className="text-sm font-semibold text-teal-400">
           3. Describe the processes in place to safely reclaim your products for reusing, recycling and disposing at the end of life
         </h3>
@@ -160,8 +162,8 @@ export function P2EssentialContent({ values, onChange, reportingYear = "2024-25"
             </div>
           ))}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p2_e4_") && <div data-testid="qblock-p2_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Whether Extended Producer Responsibility (EPR) is applicable to the entity&apos;s activities (Yes / No).</h3>
         <div className="mt-2">
           <select
@@ -176,12 +178,13 @@ export function P2EssentialContent({ values, onChange, reportingYear = "2024-25"
             ))}
           </select>
         </div>
-      </div>
+      </div>}
     </>
   );
 }
 
-export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25" }: Props) {
+export function P2LeadershipContent({ values, onChange, allowedSet, reportingYear = "2024-25" }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const l2Count = rowCount(values, "p2_l2_rowcount");
   const l3Count = rowCount(values, "p2_l3_rowcount");
   const l5Count = rowCount(values, "p2_l5_rowcount");
@@ -189,8 +192,7 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
 
   return (
     <>
-      {/* L1 – LCA Yes/No/NA */}
-      <div>
+      {sb("p2_l1_") && <div data-testid="qblock-p2_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Has the Company conducted Life Cycle Assessments (LCA) for its products /services?</h3>
         <div className="mt-2">
           <select
@@ -205,10 +207,9 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
             ))}
           </select>
         </div>
-      </div>
+      </div>}
 
-      {/* L2 – Social/environmental risks */}
-      <div>
+      {sb("p2_l2_") && <div data-testid="qblock-p2_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. If there are any significant social or environmental concerns and/or risks arising from production or disposal of your products / services, as identified in the Life Cycle Perspective / Assessments (LCA) or through any other means, briefly describe the same along-with action taken to mitigate the same</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -258,10 +259,9 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
             </button>
           )}
         </div>
-      </div>
+      </div>}
 
-      {/* L3 – Recycled/reused input material (%) */}
-      <div>
+      {sb("p2_l3_") && <div data-testid="qblock-p2_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Percentage of recycled or reused input material to total material (by value) used in production (for manufacturing industry) or providing services (for service industry).</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -304,10 +304,9 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
             </button>
           )}
         </div>
-      </div>
+      </div>}
 
-      {/* L4 – Reclaimed products (metric tonnes) */}
-      <div>
+      {sb("p2_l4_") && <div data-testid="qblock-p2_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. Of the products and packaging reclaimed at end of life of products, amount (in metric tonnes) reused, recycled, and safely disposed, as per the following format.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
@@ -347,10 +346,9 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
 
-      {/* L5 – Reclaimed products by category (%) */}
-      <div>
+      {sb("p2_l5_") && <div data-testid="qblock-p2_l5">
         <h3 className="text-sm font-semibold text-teal-400">5. Reclaimed products and their packaging materials (as percentage of products sold) for each product category.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -391,7 +389,7 @@ export function P2LeadershipContent({ values, onChange, reportingYear = "2024-25
             </button>
           )}
         </div>
-      </div>
+      </div>}
     </>
   );
 }

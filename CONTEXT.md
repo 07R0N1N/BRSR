@@ -10,7 +10,7 @@ This document gives all context needed to understand and work on the codebase: p
 
 - **Master area** (`/master`): Super-admin. Manages organizations, users, roles, and question visibility. Role slug: `master`.
 - **Onboarding** (`/onboarding`): First-time setup for a new org. Admins complete a multi-step wizard (create org, invite team, configure question assignments, launch). Non-admin users see a "pending" screen until the admin finishes onboarding.
-- **Dashboard** (`/dashboard`): Org users. Fill the BRSR questionnaire (General Data, Section A/B/C, Principles 1–9) per organization and reporting year. Includes per-user question assignments (admin assigns specific codes to users) and BRSR export (DOCX/XLSX/JSON). Roles: `admin`, `normal` (and custom).
+- **Dashboard** (`/dashboard`): Org users. Fill the BRSR questionnaire (General Data, Section A/B/C, Principles 1–9) per organization and reporting year. Includes per-user question assignments (admin assigns specific codes to users) and BRSR export (DOCX/XLSX/JSON). Roles: `admin`, `user` (and custom).
 - **Auth**: Email/password via Supabase Auth. Post-login redirect by role (master → `/master`, others → `/` where onboarding gate applies).
 
 **Phases**
@@ -31,7 +31,7 @@ The codebase now also includes onboarding (multi-step org setup wizard), BRSR ex
 | Styling    | Tailwind CSS |
 | Language   | TypeScript |
 | Export     | docx, xlsx (BRSR document generation) |
-| Testing    | Vitest |
+| Testing    | Vitest (unit), Playwright (E2E) |
 
 - **Package manager**: npm  
 - **Path alias**: `@/` → project root (see `tsconfig.json`).
@@ -85,6 +85,15 @@ BRSR/
 │       ├── visibilityUtils.ts     # isAllowed, filterByAllowed, sectionHasAnyAllowed
 │       ├── fyLabels.ts            # getFYLabelsFromReportingYear, getFYLabels
 │       └── principleBlocksConfig.ts # getStaticPrincipleBlocks (P1–5, P7–9 assignment blocks)
+├── playwright/
+│   ├── tests/
+│   │   ├── global-setup.ts                   # Saves admin + user storageState
+│   │   ├── panel-checklist.spec.ts           # Full panel-by-panel visibility checklist
+│   │   └── user-question-visibility.spec.ts  # User-only smoke tests
+│   └── .auth/                                # Saved auth state (gitignored)
+│       ├── admin.json
+│       └── user.json
+├── playwright.config.ts           # Playwright config (4 projects; workers=1 for serial)
 ├── supabase/migrations/           # SQL migrations (001 → 008)
 ├── scripts/
 │   ├── seed-master.ts             # Create first Master user
@@ -105,7 +114,7 @@ BRSR/
 | Table | Purpose |
 |-------|--------|
 | `organizations` | Tenants/clients. `id`, `name`, `plan_tier`, `created_at`. Added in 006: `reporting_year`, `company_type`, `industry`, `hq_city`, `country` (default `'India'`), `cin`, `website`, `onboarding_complete` (boolean, default `false`). Constraint: name must not be blank (008). |
-| `roles` | System (`master`, `admin`, `normal`) + custom. `id`, `name`, `slug` (unique), `is_system`, `created_at`. Seeded in 001. |
+| `roles` | System (`master`, `admin`, `user`) + custom. `id`, `name`, `slug` (unique), `is_system`, `created_at`. Seeded in 001; migration 009 renames Normal → User (`slug` `user`). |
 | `profiles` | Extends `auth.users`. `id` = `auth.uid()`, `org_id`, `role_id`, `email`, `display_name`, `created_by`, timestamps. |
 | `user_role_slug_cache` | Cache for RLS: `user_id` → `role_slug`, `org_id`. Kept in sync by trigger on `profiles` (002). Avoids reading `profiles` inside RLS (recursion). |
 | `brsr_questions_visibility` | Per-role (and optionally org) visibility: `role_id`, `section`, `principle_no`, `question_code`. Unique on (org_id, role_id, section, principle_no, question_code). |
@@ -117,7 +126,7 @@ BRSR/
 
 1. **001_initial_schema.sql**
    - Creates `organizations`, `roles`, `profiles`, `brsr_questions_visibility`.
-   - Seeds `roles` (Master, Admin, Normal).
+   - Seeds `roles` (Master, Admin, Normal; later migration renames Normal to User / `user`).
    - Enables RLS; policies use `public.user_role_slug()` (reads from `profiles`).
    - Trigger: `profiles.updated_at`.
 
@@ -136,7 +145,7 @@ BRSR/
 
 5. **005_user_question_assignments.sql**
    - Creates `user_question_assignments` table with RLS (select for master, admin same-org, or own rows; insert/update/delete for master or admin same-org).
-   - Creates `can_access_question(target_org_id, target_question_code)` function (master → true; admin → true if same org; normal → requires matching row in `user_question_assignments`).
+   - Creates `can_access_question(target_org_id, target_question_code)` function (master → true; admin → true if same org; non-admin org users → requires matching row in `user_question_assignments`).
    - **Rewrites all 4 `answers` RLS policies** to use `can_access_question(org_id, question_code)` instead of direct org/role checks.
 
 6. **006_onboarding_fields.sql**
@@ -158,7 +167,7 @@ BRSR/
 - **roles**: All authenticated = SELECT; Master = INSERT, UPDATE, DELETE (API restricts system role deletes).
 - **profiles**: Master = all; same-org = SELECT; user = SELECT own. Only Master INSERT/UPDATE.
 - **brsr_questions_visibility**: Master = all; others SELECT by own org (or org_id NULL). Insert/Update/Delete = Master or Admin.
-- **answers**: After 005, all operations use `can_access_question(org_id, question_code)` — master always; admin if same org; normal only if assigned that code in `user_question_assignments`.
+- **answers**: After 005, all operations use `can_access_question(org_id, question_code)` — master always; admin if same org; User-role accounts only if assigned that code in `user_question_assignments`.
 - **user_question_assignments**: SELECT for master, admin (same org), or own rows. INSERT/UPDATE/DELETE for master or admin (same org).
 - **brsr_questions**: SELECT for all authenticated users.
 
@@ -197,7 +206,7 @@ Pure-function policy layer used by middleware, API routes (`requireAppAccess`), 
 ### 5.3 Roles
 
 - **master**: No org; access only to `/master`. Full admin over orgs, users, roles, visibility.
-- **admin** / **normal**: Has `org_id`; access to `/dashboard`. Admin drives onboarding (create org, invite users, configure assignments, launch), manages visibility and question assignments, and can export. Normal users fill their assigned questions. Difference between admin and normal is scope (e.g. visibility, assignments, user management, export) as implemented in API/UI.
+- **admin** / **user**: Has `org_id`; access to `/dashboard`. Admin drives onboarding (create org, invite users, configure assignments, launch), manages visibility and question assignments, and can export. User-role accounts fill their assigned questions. Difference between admin and User is scope (e.g. visibility, assignments, user management, export) as implemented in API/UI.
 
 ---
 
@@ -301,6 +310,11 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon key (public). |
 | `SUPABASE_SERVICE_ROLE_KEY` | For Master user create, seed, and onboarding | Service role key. Never expose to client. |
+| `E2E_ADMIN_EMAIL` | For Playwright E2E | Email of an `admin`-role account (org with completed onboarding). |
+| `E2E_ADMIN_PASSWORD` | For Playwright E2E | Password for the admin account. |
+| `E2E_USER_EMAIL` | For Playwright E2E | Email of a `user`-role account in the same org. |
+| `E2E_USER_PASSWORD` | For Playwright E2E | Password for the user account. |
+| `PLAYWRIGHT_BASE_URL` | No (default `http://127.0.0.1:3000`) | Override base URL for E2E tests. |
 
 Copy `.env.local.example` to `.env.local` and set values. See README for setup steps.
 
@@ -312,7 +326,11 @@ Copy `.env.local.example` to `.env.local` and set values. See README for setup s
 - **`npm run build`** / **`npm run start`** — Production build and start.
 - **`npm run seed:master`** — Create first Master user: `npm run seed:master -- <email> <password>`. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 - **`npm run seed:questions`** — Seed `brsr_questions` table from code. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY`.
-- **`npm run test`** / **`npm run test:watch`** — Run tests with Vitest (one-shot / watch mode).
+- **`npm run test`** / **`npm run test:watch`** — Run unit tests with Vitest (one-shot / watch mode).
+- **`npm run test:e2e`** — Run all Playwright E2E tests (headless Chromium). Requires `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_USER_EMAIL`, `E2E_USER_PASSWORD` in `.env.local`.
+- **`npm run test:e2e -- --project=panel-checklist`** — Run only the panel-by-panel visibility checklist (admin assigns via API → user verifies per panel, Essential/Leadership separately).
+- **`npm run test:e2e -- --project=user-visibility`** — Run only the user-context smoke tests.
+- **`npm run test:e2e:ui`** — Open Playwright UI mode for interactive debugging.
 - **`npm run lint`** — Next.js lint.
 
 ---

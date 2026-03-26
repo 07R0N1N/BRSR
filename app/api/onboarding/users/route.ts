@@ -34,15 +34,10 @@ export async function POST(request: Request) {
   if (slug !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   if (!orgId) return NextResponse.json({ error: "No organization assigned to your account" }, { status: 400 });
 
-  // fetch the normal role id
-  const { data: normalRole } = await supabase
-    .from("roles")
-    .select("id")
-    .eq("slug", "normal")
-    .single();
-  const normalRoleId = (normalRole as { id: string } | null)?.id;
-  if (!normalRoleId) {
-    return NextResponse.json({ error: "Normal role not found" }, { status: 500 });
+  const { data: roleRows } = await supabase.from("roles").select("id").in("slug", ["user", "normal"]).limit(1);
+  const userRoleId = (roleRows as { id: string }[] | null)?.[0]?.id;
+  if (!userRoleId) {
+    return NextResponse.json({ error: "User role not found" }, { status: 500 });
   }
 
   const body = await request.json();
@@ -86,7 +81,7 @@ export async function POST(request: Request) {
       email,
       display_name: displayName,
       org_id: orgId,
-      role_id: normalRoleId,
+      role_id: userRoleId,
       created_by: user.id,
     });
 

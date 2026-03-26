@@ -62,8 +62,8 @@ export async function DELETE(request: Request) {
   if (!role) {
     return NextResponse.json({ error: "Role not found" }, { status: 404 });
   }
-  if (role.slug === "master" || role.slug === "admin") {
-    return NextResponse.json({ error: "Cannot delete master or admin role" }, { status: 400 });
+  if (role.slug === "master" || role.slug === "admin" || role.slug === "user" || role.slug === "normal") {
+    return NextResponse.json({ error: "Cannot delete system roles" }, { status: 400 });
   }
   const { error } = await supabase.from("roles").delete().eq("id", id);
   if (error) {

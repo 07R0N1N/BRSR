@@ -17,3 +17,12 @@ export function sectionHasAnyAllowed(codes: string[], allowedSet: Set<string> | 
   if (allowedSet === null) return true;
   return codes.some((c) => allowedSet.has(c));
 }
+
+/**
+ * True when no restriction is active, or at least one assigned code starts with `prefix`.
+ * Used to gate entire question blocks inside principle panels.
+ */
+export function blockAllowed(prefix: string, allowedSet: Set<string> | null | undefined): boolean {
+  if (allowedSet == null) return true;
+  return Array.from(allowedSet).some((code) => code.startsWith(prefix));
+}

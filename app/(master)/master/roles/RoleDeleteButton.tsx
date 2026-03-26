@@ -14,7 +14,7 @@ export function RoleDeleteButton({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  if (slug === "master" || slug === "admin") {
+  if (slug === "master" || slug === "admin" || slug === "user" || slug === "normal") {
     return null;
   }
 

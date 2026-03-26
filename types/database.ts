@@ -41,4 +41,4 @@ export interface BRSRQuestionVisibility {
   created_at: string;
 }
 
-export type RoleSlug = "master" | "admin" | "normal";
+export type RoleSlug = "master" | "admin" | "user";

@@ -1,0 +1,3141 @@
+{
+  "config": {
+    "configFile": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright.config.ts",
+    "rootDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "auth-setup",
+        "name": "auth-setup",
+        "testDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/global-setup\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "panel-checklist",
+        "name": "panel-checklist",
+        "testDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/panel-checklist\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin",
+        "name": "admin",
+        "testDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-.*\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "user-visibility",
+        "name": "user-visibility",
+        "testDir": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/user-.*\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://127.0.0.1:3000",
+      "reuseExistingServer": true,
+      "timeout": 45000
+    }
+  },
+  "suites": [
+    {
+      "title": "global-setup.ts",
+      "file": "global-setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "authenticate as admin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "auth-setup",
+              "projectName": "auth-setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7504,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-03-26T19:25:06.270Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "13722ad43cd6b8b1aa42-5055600edc0774a413b8",
+          "file": "global-setup.ts",
+          "line": 7,
+          "column": 6
+        },
+        {
+          "title": "authenticate as restricted user",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "auth-setup",
+              "projectName": "auth-setup",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6004,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-03-26T19:25:14.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "13722ad43cd6b8b1aa42-52d64eb87581d04e58a8",
+          "file": "global-setup.ts",
+          "line": 25,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "panel-checklist.spec.ts",
+      "file": "panel-checklist.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "[ General Data ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 189,
+          "column": 6,
+          "specs": [
+            {
+              "title": "✓ assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4246,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[setup] E2E user ID resolved: 260bc634-26fa-4f39-982e-76bb496a9679\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign General Data codes",
+                          "duration": 1242
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2985
+                        },
+                        {
+                          "title": "Assert: panel-generaldata is in sidebar",
+                          "duration": 16
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:21.182Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-f37b6cb1cb1de1a8b35c",
+              "file": "panel-checklist.spec.ts",
+              "line": 190,
+              "column": 7
+            },
+            {
+              "title": "✗ no assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3757,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 959
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2788
+                        },
+                        {
+                          "title": "Assert: empty-state message shown, panel hidden",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:31.127Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-87eab72c60d7c2b08000",
+              "file": "panel-checklist.spec.ts",
+              "line": 204,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "[ Section A ] General Disclosures panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 223,
+          "column": 6,
+          "specs": [
+            {
+              "title": "✓ assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4006,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Section A codes",
+                          "duration": 1207
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2786
+                        },
+                        {
+                          "title": "Assert: panel-general is in sidebar",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:34.899Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-475565cdeaa8ceb70dc7",
+              "file": "panel-checklist.spec.ts",
+              "line": 224,
+              "column": 7
+            },
+            {
+              "title": "✗ no assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3754,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 969
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2777
+                        },
+                        {
+                          "title": "Assert: panel hidden",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:38.921Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-208d261bc9d6a1b166a7",
+              "file": "panel-checklist.spec.ts",
+              "line": 238,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "[ Section B ] Management & Process panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 256,
+          "column": 6,
+          "specs": [
+            {
+              "title": "✓ assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4045,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Section B codes",
+                          "duration": 1200
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2835
+                        },
+                        {
+                          "title": "Assert: panel-sectionb is in sidebar",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:42.690Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d680a95e6bb035869da4",
+              "file": "panel-checklist.spec.ts",
+              "line": 257,
+              "column": 7
+            },
+            {
+              "title": "✗ no assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3776,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 958
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2810
+                        },
+                        {
+                          "title": "Assert: panel hidden",
+                          "duration": 6
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:46.749Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-547826db72125db4f65d",
+              "file": "panel-checklist.spec.ts",
+              "line": 271,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 1 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4046,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1181
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2849
+                        },
+                        {
+                          "title": "Assert: panel-p1 visible (Essential only)",
+                          "duration": 14
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:50.537Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-9f06611a349f4e523a74",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3983,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1152
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2811
+                        },
+                        {
+                          "title": "Assert: panel-p1 visible (Leadership only)",
+                          "duration": 17
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:54.595Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d3e447b17fcbcb2cd947",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4035,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1173
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2846
+                        },
+                        {
+                          "title": "Assert: panel-p1 visible (both)",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:25:58.591Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-cc37c35bad710c435c0b",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4040,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 997
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3027
+                        },
+                        {
+                          "title": "Assert: panel-p1 hidden",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:02.637Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-afad69ec855c9263d4e7",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 2 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4541,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1199
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3327
+                        },
+                        {
+                          "title": "Assert: panel-p2 visible (Essential only)",
+                          "duration": 11
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:06.691Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-4d50721c3c1684ad7355",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4175,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1182
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2973
+                        },
+                        {
+                          "title": "Assert: panel-p2 visible (Leadership only)",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:11.249Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-47553e695b59da625e43",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4079,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1172
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2890
+                        },
+                        {
+                          "title": "Assert: panel-p2 visible (both)",
+                          "duration": 14
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:15.440Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-558bcdd74c01878f9cd5",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4384,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 976
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3387
+                        },
+                        {
+                          "title": "Assert: panel-p2 hidden",
+                          "duration": 19
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:19.532Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-a73f9871ccbbb3df9971",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 3 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4299,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1177
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3100
+                        },
+                        {
+                          "title": "Assert: panel-p3 visible (Essential only)",
+                          "duration": 19
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:23.932Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5c3aa4931a9dacbf470c",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4734,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1234
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3445
+                        },
+                        {
+                          "title": "Assert: panel-p3 visible (Leadership only)",
+                          "duration": 50
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:28.251Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-fcbaab33dfad1a78640a",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4691,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1203
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3466
+                        },
+                        {
+                          "title": "Assert: panel-p3 visible (both)",
+                          "duration": 19
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:32.998Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5303a2131b1137e8d77f",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3946,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 991
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2938
+                        },
+                        {
+                          "title": "Assert: panel-p3 hidden",
+                          "duration": 14
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:37.701Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-bf148dec18b320d74cb5",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 4 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4115,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1184
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2919
+                        },
+                        {
+                          "title": "Assert: panel-p4 visible (Essential only)",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:41.669Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-a2f2538ab29adfac5262",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4525,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1215
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3294
+                        },
+                        {
+                          "title": "Assert: panel-p4 visible (Leadership only)",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:45.807Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d729a841d43217c5243b",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4033,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1166
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2852
+                        },
+                        {
+                          "title": "Assert: panel-p4 visible (both)",
+                          "duration": 14
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:50.352Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-176541d840521cad5634",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3824,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 953
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2859
+                        },
+                        {
+                          "title": "Assert: panel-p4 hidden",
+                          "duration": 10
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:54.397Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-4f78a6cfba29130b5f51",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 5 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4017,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1183
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2817
+                        },
+                        {
+                          "title": "Assert: panel-p5 visible (Essential only)",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:26:58.236Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5b5540be309fcf74e720",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4728,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1209
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3494
+                        },
+                        {
+                          "title": "Assert: panel-p5 visible (Leadership only)",
+                          "duration": 24
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:02.263Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-b607a8c18cfcfa771cfc",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4151,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1223
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2906
+                        },
+                        {
+                          "title": "Assert: panel-p5 visible (both)",
+                          "duration": 18
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:07.003Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5732a328cbb35c3e2dc8",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3850,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 979
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2859
+                        },
+                        {
+                          "title": "Assert: panel-p5 hidden",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:11.167Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-3b98bf6961ce934c6b07",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 6 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4077,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1192
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2865
+                        },
+                        {
+                          "title": "Assert: panel-p6 visible (Essential only)",
+                          "duration": 18
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:15.033Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-fada500e8f69e13cb6d6",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4040,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1174
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2850
+                        },
+                        {
+                          "title": "Assert: panel-p6 visible (Leadership only)",
+                          "duration": 15
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:19.122Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-b4e00677d61157264125",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4502,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1167
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3309
+                        },
+                        {
+                          "title": "Assert: panel-p6 visible (both)",
+                          "duration": 25
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:23.171Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-96ad79de19b61020b416",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3776,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 967
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2800
+                        },
+                        {
+                          "title": "Assert: panel-p6 hidden",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:27.683Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5c9643cdbab1097dd00c",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 7 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4033,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1227
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2793
+                        },
+                        {
+                          "title": "Assert: panel-p7 visible (Essential only)",
+                          "duration": 10
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:31.469Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-7e08cfe21d0dbdcba421",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3953,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1160
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2780
+                        },
+                        {
+                          "title": "Assert: panel-p7 visible (Leadership only)",
+                          "duration": 10
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:35.513Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-9c28207bdf87e5bba2ef",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4548,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1169
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3356
+                        },
+                        {
+                          "title": "Assert: panel-p7 visible (both)",
+                          "duration": 20
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:39.478Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-031372ab066c96a2f001",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3944,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 1052
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2876
+                        },
+                        {
+                          "title": "Assert: panel-p7 hidden",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:44.041Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d19115e36c96c16e8ae2",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 8 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4473,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1154
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3306
+                        },
+                        {
+                          "title": "Assert: panel-p8 visible (Essential only)",
+                          "duration": 10
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:48.003Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d3be1f38f2ed17637cb9",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4171,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1308
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2853
+                        },
+                        {
+                          "title": "Assert: panel-p8 visible (Leadership only)",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:52.487Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-aeac8f21f477331865e1",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4508,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1175
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3315
+                        },
+                        {
+                          "title": "Assert: panel-p8 visible (both)",
+                          "duration": 16
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:27:56.668Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-5f402a042e8a4fbce447",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4353,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 979
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3362
+                        },
+                        {
+                          "title": "Assert: panel-p8 hidden",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:01.189Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-90424af9ebc0cfb9a934",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Principle 9 ] panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 297,
+          "column": 8,
+          "specs": [
+            {
+              "title": "✓ Essential indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4565,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Essential codes",
+                          "duration": 1205
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3342
+                        },
+                        {
+                          "title": "Assert: panel-p9 visible (Essential only)",
+                          "duration": 16
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:05.554Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-c6ed4ce210da214292b5",
+              "file": "panel-checklist.spec.ts",
+              "line": 298,
+              "column": 9
+            },
+            {
+              "title": "✓ Leadership indicators assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4119,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign Leadership codes",
+                          "duration": 1190
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2920
+                        },
+                        {
+                          "title": "Assert: panel-p9 visible (Leadership only)",
+                          "duration": 7
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:10.133Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d3c9317200cfb1234744",
+              "file": "panel-checklist.spec.ts",
+              "line": 313,
+              "column": 9
+            },
+            {
+              "title": "✓ Both Essential + Leadership assigned → panel is visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "indicator-type",
+                      "description": "Essential + Leadership"
+                    },
+                    {
+                      "type": "result",
+                      "description": "PASS – panel visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4038,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign both Essential and Leadership codes",
+                          "duration": 1185
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2839
+                        },
+                        {
+                          "title": "Assert: panel-p9 visible (both)",
+                          "duration": 12
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:14.264Z",
+                      "annotations": [
+                        {
+                          "type": "indicator-type",
+                          "description": "Essential + Leadership"
+                        },
+                        {
+                          "type": "result",
+                          "description": "PASS – panel visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-010f6f0c7d115d746d3d",
+              "file": "panel-checklist.spec.ts",
+              "line": 328,
+              "column": 9
+            },
+            {
+              "title": "✗ No assignments → panel is hidden",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – panel hidden"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4403,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: clear all assignments",
+                          "duration": 1046
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 3346
+                        },
+                        {
+                          "title": "Assert: panel-p9 hidden",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:18.312Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – panel hidden"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-bde7b0ae8584a76ee2e5",
+              "file": "panel-checklist.spec.ts",
+              "line": 343,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "[ Multi-panel ] cross-panel visibility",
+          "file": "panel-checklist.spec.ts",
+          "line": 374,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Assign codes for 3 panels → exactly those 3 panels appear",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "result",
+                      "description": "PASS – only assigned panels visible"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3968,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Admin: assign codes spanning Section A, P1, P3",
+                          "duration": 1167
+                        },
+                        {
+                          "title": "User: reload dashboard",
+                          "duration": 2762
+                        },
+                        {
+                          "title": "Assert: panels general, p1, p3 visible",
+                          "duration": 21
+                        },
+                        {
+                          "title": "Assert: other panels hidden",
+                          "duration": 12
+                        },
+                        {
+                          "title": "Assert: restricted banner shown",
+                          "duration": 4
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:22.726Z",
+                      "annotations": [
+                        {
+                          "type": "result",
+                          "description": "PASS – only assigned panels visible"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-d5f10aa0502c40297a4a",
+              "file": "panel-checklist.spec.ts",
+              "line": 375,
+              "column": 7
+            },
+            {
+              "title": "Admin has canViewAll — NO restricted banner shown",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "panel-checklist",
+                  "projectName": "panel-checklist",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9100,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\nExpected: \u001b[32m13\u001b[39m\nReceived: \u001b[31m12\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\u001b[22m\n\u001b[2m    9 × locator resolved to 12 elements\u001b[22m\n\u001b[2m      - unexpected value \"12\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\nExpected: \u001b[32m13\u001b[39m\nReceived: \u001b[31m12\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\u001b[22m\n\u001b[2m    9 × locator resolved to 12 elements\u001b[22m\n\u001b[2m      - unexpected value \"12\"\u001b[22m\n\n    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:419:34\n    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:410:5",
+                        "location": {
+                          "file": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts",
+                          "column": 34,
+                          "line": 419
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 417 |\u001b[39m       \u001b[90m// All 13 panel buttons should be present\u001b[39m\n \u001b[90m 418 |\u001b[39m       \u001b[36mconst\u001b[39m panelButtons \u001b[33m=\u001b[39m sidebar\u001b[33m.\u001b[39mlocator(\u001b[32m\"button[data-testid^='panel-']\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 419 |\u001b[39m       \u001b[36mawait\u001b[39m expect(panelButtons)\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m13\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 420 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 421 |\u001b[39m     testInfo\u001b[33m.\u001b[39mannotations\u001b[33m.\u001b[39mpush({ type\u001b[33m:\u001b[39m \u001b[32m\"result\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"PASS – admin sees all panels\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 422 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts",
+                            "column": 34,
+                            "line": 419
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\nExpected: \u001b[32m13\u001b[39m\nReceived: \u001b[31m12\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\u001b[22m\n\u001b[2m    9 × locator resolved to 12 elements\u001b[22m\n\u001b[2m      - unexpected value \"12\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 417 |\u001b[39m       \u001b[90m// All 13 panel buttons should be present\u001b[39m\n \u001b[90m 418 |\u001b[39m       \u001b[36mconst\u001b[39m panelButtons \u001b[33m=\u001b[39m sidebar\u001b[33m.\u001b[39mlocator(\u001b[32m\"button[data-testid^='panel-']\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 419 |\u001b[39m       \u001b[36mawait\u001b[39m expect(panelButtons)\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m13\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 420 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 421 |\u001b[39m     testInfo\u001b[33m.\u001b[39mannotations\u001b[33m.\u001b[39mpush({ type\u001b[33m:\u001b[39m \u001b[32m\"result\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"PASS – admin sees all panels\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 422 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:419:34\u001b[22m\n\u001b[2m    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:410:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open admin's own dashboard",
+                          "duration": 3936
+                        },
+                        {
+                          "title": "Assert: admin sees all panels, no restricted banner",
+                          "duration": 5073,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\nExpected: \u001b[32m13\u001b[39m\nReceived: \u001b[31m12\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\u001b[22m\n\u001b[2m    9 × locator resolved to 12 elements\u001b[22m\n\u001b[2m      - unexpected value \"12\"\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\nExpected: \u001b[32m13\u001b[39m\nReceived: \u001b[31m12\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('sidebar').locator('button[data-testid^=\\'panel-\\']')\u001b[22m\n\u001b[2m    9 × locator resolved to 12 elements\u001b[22m\n\u001b[2m      - unexpected value \"12\"\u001b[22m\n\n    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:419:34\n    at /Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts:410:5",
+                            "location": {
+                              "file": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts",
+                              "column": 34,
+                              "line": 419
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 417 |\u001b[39m       \u001b[90m// All 13 panel buttons should be present\u001b[39m\n \u001b[90m 418 |\u001b[39m       \u001b[36mconst\u001b[39m panelButtons \u001b[33m=\u001b[39m sidebar\u001b[33m.\u001b[39mlocator(\u001b[32m\"button[data-testid^='panel-']\"\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 419 |\u001b[39m       \u001b[36mawait\u001b[39m expect(panelButtons)\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m13\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 420 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 421 |\u001b[39m     testInfo\u001b[33m.\u001b[39mannotations\u001b[33m.\u001b[39mpush({ type\u001b[33m:\u001b[39m \u001b[32m\"result\"\u001b[39m\u001b[33m,\u001b[39m description\u001b[33m:\u001b[39m \u001b[32m\"PASS – admin sees all panels\"\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 422 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-03-26T19:28:26.707Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results/panel-checklist--Multi-pan-5a49f--NO-restricted-banner-shown-panel-checklist/test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results/panel-checklist--Multi-pan-5a49f--NO-restricted-banner-shown-panel-checklist/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results/panel-checklist--Multi-pan-5a49f--NO-restricted-banner-shown-panel-checklist/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/credibl/Desktop/Internal Tooling/BRSR/test-results/panel-checklist--Multi-pan-5a49f--NO-restricted-banner-shown-panel-checklist/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/credibl/Desktop/Internal Tooling/BRSR/playwright/tests/panel-checklist.spec.ts",
+                        "column": 34,
+                        "line": 419
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0fd5a52b1be1c03b3b3f-a62674f0d5845f3283cb",
+              "file": "panel-checklist.spec.ts",
+              "line": 405,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-26T19:25:05.559Z",
+    "duration": 211835.636,
+    "expected": 45,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

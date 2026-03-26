@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { QuestionInput } from "@/components/QuestionInput";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
+import { blockAllowed } from "@/lib/brsr/visibilityUtils";
 
 type P6Props = {
   values: AnswersState;
@@ -76,7 +77,8 @@ const P6_E11_FIELDS = ["loc", "type", "yn", "correct"] as const;
 const P6_E12_FIELDS = ["name", "notif", "date", "ind", "pub", "link"] as const;
 const P6_E13_FIELDS = ["law", "detail", "fines", "correct"] as const;
 
-export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: _allowedSet = null, reportingYear }: P6Props) {
+export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, reportingYear }: P6Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const d = (code: string) => calcDisplay[code] ?? "";
   const dOrDash = (code: string) => d(code) || "–";
   const [fyCurr, fyPrev] = reportingYear ? getFYLabelsFromReportingYear(reportingYear) : ["Current FY", "Previous FY"];
@@ -136,7 +138,7 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
 
   return (
     <>
-      <div>
+      {sb("p6_e1_") && <div data-testid="qblock-p6_e1">
         <h3 className="text-sm font-semibold text-teal-400">1. Total energy consumption</h3>
         <p className="mt-1 text-xs text-slate-400">Revenue from operations and PPP-adjusted revenue are auto-filled from General Data.</p>
 
@@ -228,8 +230,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             )}
           </div>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e2_") && <div data-testid="qblock-p6_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Does the entity have any sites / facilities identified as designated consumers (DCs) under the Performance, Achieve and Trade (PAT) Scheme of the Government of India?</h3>
         <div className="mt-2 flex gap-4">
           {(["Yes", "No"] as const).map((opt) => (
@@ -245,8 +247,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <textarea value={values["p6_e2_targets"] ?? ""} onChange={(e) => onChange("p6_e2_targets", e.target.value)} placeholder="Targets + remedial action" rows={4} className="w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm" />
           </div>
         )}
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e3_") && <div data-testid="qblock-p6_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Water related information.</h3>
         <p className="mt-1 text-xs font-medium text-slate-600">i. Provide details of the following disclosures related to water (Water withdrawal by source (in kilolitres))</p>
         <div className="mt-2 overflow-x-auto">
@@ -291,8 +293,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Name of external agency</label>{inp("p6_e3_assess_agency", values, onChange, "Agency name")}</div>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e4_") && <div data-testid="qblock-p6_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Provide the following details related to water discharged.</h3>
         <p className="mt-1 text-xs font-medium text-slate-600">i. Water discharge by destination and level of treatment (in kilolitres)</p>
         <div className="mt-2 overflow-x-auto">
@@ -345,8 +347,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Name of external agency</label>{inp("p6_e4_assess_agency", values, onChange, "Agency name")}</div>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e5_") && <div data-testid="qblock-p6_e5">
         <h3 className="text-sm font-semibold text-teal-400">5. Has the entity implemented a mechanism for Zero Liquid Discharge?</h3>
         <div className="mt-2 flex flex-col gap-2">
           <select value={getYesNoValue(values, "p6_e5_zld")} onChange={(e) => onChange("p6_e5_zld", e.target.value)} className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 text-sm">
@@ -361,8 +363,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             </>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e6_") && <div data-testid="qblock-p6_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Air emissions (other than GHG emissions)</h3>
         <p className="mt-1 text-xs font-medium text-slate-600">i. Whether air emissions (other than GHG emissions) by the entity is applicable to the company?</p>
         <div className="mt-2 flex gap-4">
@@ -402,8 +404,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">If yes, Name of the external agency</label>{inp("p6_e6_assess_agency", values, onChange, "Text")}</div>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e7_") && <div data-testid="qblock-p6_e7">
         <h3 className="text-sm font-semibold text-teal-400">7. Greenhouse gas emissions.</h3>
         <p className="mt-1 text-xs font-medium text-slate-600">i. Whether greenhouse gas emissions (Scope 1 and Scope 2 emissions) & its intensity is applicable to the company?</p>
         <div className="mt-2 flex gap-4">
@@ -453,8 +455,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">If yes, Name of the external agency</label>{inp("p6_e7_assess_agency", values, onChange, "Text")}</div>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e8_") && <div data-testid="qblock-p6_e8">
         <h3 className="text-sm font-semibold text-teal-400">8. Does the entity have any project related to reducing Green House Gas emission?</h3>
         <div className="mt-2">
           <select value={getYesNoValue(values, "p6_e8_ghg_yn")} onChange={(e) => onChange("p6_e8_ghg_yn", e.target.value)} className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 text-sm">
@@ -463,8 +465,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             ))}
           </select>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e9_") && <div data-testid="qblock-p6_e9">
         <h3 className="text-sm font-semibold text-teal-400">9. Provide details related to waste management by the entity</h3>
         <p className="mt-2 text-xs font-medium text-slate-600">i. Total Waste generated (in metric tonnes)</p>
         <div className="mt-1 overflow-x-auto">
@@ -543,12 +545,12 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Name of external agency</label>{inp("p6_e9_assess_agency", values, onChange, "Agency name")}</div>
           ) : null}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e10_") && <div data-testid="qblock-p6_e10">
         <h3 className="text-sm font-semibold text-teal-400">10. Briefly describe the waste management practices adopted in your establishments. Describe the strategy adopted by your company to reduce usage of hazardous and toxic chemicals in your products and processes and the practices adopted to manage such wastes.</h3>
         <textarea value={values["p6_e10_waste"] ?? ""} onChange={(e) => onChange("p6_e10_waste", e.target.value)} placeholder="Details" rows={4} className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm" />
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e11_") && <div data-testid="qblock-p6_e11">
         <h3 className="text-sm font-semibold text-teal-400">11. If the entity has operations/offices in/around ecologically sensitive areas (such as national parks, wildlife sanctuaries, biosphere reserves, wetlands, biodiversity hotspots, forests, coastal regulation zones etc.) where environmental approvals / clearances are required.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: n11 }, (_, i) => {
@@ -619,8 +621,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             </button>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e12_") && <div data-testid="qblock-p6_e12">
         <h3 className="text-sm font-semibold text-teal-400">12. Details of environmental impact assessments of projects undertaken by the entity based on applicable laws, in the current financial year</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: n12 }, (_, i) => {
@@ -707,8 +709,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             </button>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_e13_") && <div data-testid="qblock-p6_e13">
         <h3 className="text-sm font-semibold text-teal-400">13. Applicable environmental law/ regulations/ guidelines in India.</h3>
         <p className="mt-2 text-xs font-medium text-slate-600">i. Is the entity compliant with the applicable environmental law/ regulations/ guidelines in India; such as the Water (Prevention and Control of Pollution) Act, Air (Prevention and Control of Pollution) Act, Environment protection act and rules thereunder.</p>
         <div className="mt-2">
@@ -782,7 +784,7 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet: 
             </div>
           </>
         )}
-      </div>
+      </div>}
     </>
   );
 }
@@ -792,10 +794,11 @@ const P6_L4_FIELDS = ["init", "detail", "outcome", "correct"] as const;
 export function P6LeadershipContent({
   values,
   onChange,
-  allowedSet: _allowedSet = null,
+  allowedSet,
   reportingYear,
   calcDisplay = {},
 }: P6Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const d = (code: string) => calcDisplay[code] ?? "";
   const dOrDash = (code: string) => d(code) || "–";
   const [fyCurr, fyPrev] = reportingYear ? getFYLabelsFromReportingYear(reportingYear) : ["Current FY", "Previous FY"];
@@ -832,7 +835,7 @@ export function P6LeadershipContent({
 
   return (
     <>
-      <div>
+      {sb("p6_l1_") && <div data-testid="qblock-p6_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Water withdrawal, consumption and discharge in areas of water stress (in kilolitres)</h3>
         <p className="mt-2 text-xs font-medium text-slate-600">i. For each facility / plant located in areas of water stress.</p>
         <div className="mt-2 flex flex-col gap-3">
@@ -935,8 +938,8 @@ export function P6LeadershipContent({
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Name of external agency</label>{inp("p6_l1_assess_agency", values, onChange, "Agency name")}</div>
           ) : null}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l2_") && <div data-testid="qblock-p6_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Total Scope 3 emissions</h3>
         <p className="mt-2 text-xs font-medium text-slate-600">(i) Whether total Scope 3 emissions & its intensity is applicable to the company?</p>
         <div className="mt-2 flex gap-4">
@@ -995,12 +998,12 @@ export function P6LeadershipContent({
             <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Name of external agency</label>{inp("p6_l2_assess_agency", values, onChange, "Agency name")}</div>
           ) : null}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l3_") && <div data-testid="qblock-p6_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. With respect to the ecologically sensitive areas reported at Question 10 of Essential Indicators above, provide details of significant direct & indirect impact of the entity on biodiversity in such areas along-with prevention and remediation activities.</h3>
         <textarea value={values["p6_l3_bio"] ?? ""} onChange={(e) => onChange("p6_l3_bio", e.target.value)} placeholder="Text" rows={4} className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm" />
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l4_") && <div data-testid="qblock-p6_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. If the entity has undertaken any specific initiatives or used innovative technology or solutions to improve resource efficiency, or reduce impact due to emissions / effluent discharge / waste generated.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: nL4 }, (_, i) => {
@@ -1028,8 +1031,8 @@ export function P6LeadershipContent({
             </button>
           )}
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l5_") && <div data-testid="qblock-p6_l5">
         <h3 className="text-sm font-semibold text-teal-400">5. Does the entity have a business continuity and disaster management plan?</h3>
         <div className="mt-2">
           <select value={values["p6_l5_yn"] ?? ""} onChange={(e) => onChange("p6_l5_yn", e.target.value)} className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 text-sm">
@@ -1042,25 +1045,25 @@ export function P6LeadershipContent({
             <textarea value={values["p6_l5_bcp"] ?? ""} onChange={(e) => onChange("p6_l5_bcp", e.target.value)} placeholder="Details/weblink" rows={3} className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm" />
           </div>
         )}
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l6_") && <div data-testid="qblock-p6_l6">
         <h3 className="text-sm font-semibold text-teal-400">6. Disclose any significant adverse impact to the environment, arising from the value chain of the entity. What mitigation or adaptation measures have been taken by the entity in this regard?</h3>
         <textarea value={values["p6_l6_value"] ?? ""} onChange={(e) => onChange("p6_l6_value", e.target.value)} placeholder="Text" rows={4} className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm" />
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l7_") && <div data-testid="qblock-p6_l7">
         <h3 className="text-sm font-semibold text-teal-400">7. Percentage of value chain partners (by value of business done with such partners) that were assessed for environmental impacts.</h3>
         <div className="mt-2 flex items-center gap-2">
           <input type="text" value={values["p6_l7_pct"] ?? ""} onChange={(e) => onChange("p6_l7_pct", e.target.value)} placeholder="0" className="w-24 rounded border border-gray-300 px-2 py-1.5 text-sm" />
           <span className="rounded border border-gray-300 bg-gray-100 px-2 py-1.5 text-sm text-gray-600">%</span>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p6_l8_") && <div data-testid="qblock-p6_l8">
         <h3 className="text-sm font-semibold text-teal-400">8. Green Credits</h3>
         <div className="mt-2 space-y-3">
           <div><label className="block text-xs text-gray-500">a) Green Credits Generated – Total number of credits generated</label>{inp("p6_l8_generated", values, onChange, "Total number of credits generated")}</div>
           <div><label className="block text-xs text-gray-500">b) Green Credits Procured – Credits purchased from third parties</label>{inp("p6_l8_procured", values, onChange, "Credits purchased from third parties")}</div>
         </div>
-      </div>
+      </div>}
     </>
   );
 }

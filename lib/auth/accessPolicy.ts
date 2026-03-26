@@ -3,7 +3,7 @@
  * Used by middleware, API helpers, and tests.
  */
 
-export type RoleSlug = "master" | "admin" | "normal" | string;
+export type RoleSlug = "master" | "admin" | "user" | string;
 
 export type AccessContext = {
   roleSlug: string | null;
@@ -57,7 +57,7 @@ export function shouldShowOrgPendingOnly(ctx: AccessContext): boolean {
 
 /**
  * Admin-only: assignment APIs during onboarding (before launch), after org exists.
- * Not for normal users until `canUseApp`.
+ * Not for standard (User role) accounts until `canUseApp`.
  */
 export function canAccessAssignmentEndpoints(ctx: AccessContext): boolean {
   if (isMaster(ctx.roleSlug)) return true;

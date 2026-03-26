@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { CalcCell } from "@/components/CalcCell";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
+import { blockAllowed } from "@/lib/brsr/visibilityUtils";
 
 const MAX_E1_ROWS = 20;
 const MAX_E2_ROWS = 20;
@@ -81,7 +82,8 @@ function rowCount(values: AnswersState, code: string, max: number): number {
   return Math.min(n, max);
 }
 
-export function P8EssentialContent({ values, calcDisplay, onChange, reportingYear }: Props) {
+export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, reportingYear }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const d = (code: string) => <CalcCell code={code} calcDisplay={calcDisplay} />;
   const n1 = rowCount(values, "p8_e1_rowcount", MAX_E1_ROWS);
   const n2 = rowCount(values, "p8_e2_rowcount", MAX_E2_ROWS);
@@ -151,7 +153,7 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
 
   return (
     <>
-      <div>
+      {sb("p8_e1_") && <div data-testid="qblock-p8_e1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Details of Social Impact Assessments (SIA) of projects undertaken by the Company based on applicable laws, in the current financial year.
         </h3>
@@ -268,8 +270,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
         >
           +ADD
         </button>
-      </div>
-      <div>
+      </div>}
+      {sb("p8_e2_") && <div data-testid="qblock-p8_e2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Provide information on project(s) for which ongoing Rehabilitation and Resettlement (R&amp;R) is being undertaken by your entity.
         </h3>
@@ -328,8 +330,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
         >
           +ADD
         </button>
-      </div>
-      <div>
+      </div>}
+      {sb("p8_e3_") && <div data-testid="qblock-p8_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Describe the mechanisms to receive and redress grievances of the community.</h3>
         <textarea
           value={values["p8_e3_griev"] ?? ""}
@@ -337,8 +339,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
-      <div>
+      </div>}
+      {sb("p8_e4_") && <div data-testid="qblock-p8_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Percentage of input material (inputs to total inputs by value) sourced from suppliers.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -349,8 +351,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p8_e5_") && <div data-testid="qblock-p8_e5">
         <h3 className="text-sm font-semibold text-teal-400">
           5. Job creation in smaller towns - Disclose wages paid to persons employed (including employees or workers employed on a permanent or non-permanent / on contract basis) in the following locations, as % of total wage cost
         </h3>
@@ -392,12 +394,13 @@ export function P8EssentialContent({ values, calcDisplay, onChange, reportingYea
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
     </>
   );
 }
 
-export function P8LeadershipContent({ values, onChange }: Props) {
+export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const nL1 = rowCount(values, "p8_l1_rowcount", MAX_L_ROWS);
   const nL2 = rowCount(values, "p8_l2_rowcount", MAX_L_ROWS);
   const nL4 = rowCount(values, "p8_l4_rowcount", MAX_L_ROWS);
@@ -524,7 +527,7 @@ export function P8LeadershipContent({ values, onChange }: Props) {
 
   return (
     <>
-      <div>
+      {sb("p8_l1_") && <div data-testid="qblock-p8_l1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Provide details of actions taken to mitigate any negative social impacts identified in the Social Impact Assessments. (Reference: Question 1 of Essential Indicators above)
         </h3>
@@ -560,9 +563,9 @@ export function P8LeadershipContent({ values, onChange }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL1} disabled={nL1 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>
+      </div>}
 
-      <div>
+      {sb("p8_l2_") && <div data-testid="qblock-p8_l2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Provide the following information on CSR projects undertaken by your entity in designated aspirational districts as identified by government bodies.
         </h3>
@@ -584,9 +587,9 @@ export function P8LeadershipContent({ values, onChange }: Props) {
           ))}
         </div>
         <button type="button" onClick={addRowL2} disabled={nL2 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>
+      </div>}
 
-      <div>
+      {sb("p8_l3_") && <div data-testid="qblock-p8_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Preferential procurement from marginalized/vulnerable groups</h3>
         <div className="mt-2 space-y-4">
           <div>
@@ -610,9 +613,9 @@ export function P8LeadershipContent({ values, onChange }: Props) {
             {pctInp("p8_l3_pct", values, onChange)}
           </div>
         </div>
-      </div>
+      </div>}
 
-      <div>
+      {sb("p8_l4_") && <div data-testid="qblock-p8_l4">
         <h3 className="text-sm font-semibold text-teal-400">
           4. Details of the benefits derived and shared from the intellectual properties owned or acquired by your entity (in the current financial year), based on traditional knowledge.
         </h3>
@@ -652,9 +655,9 @@ export function P8LeadershipContent({ values, onChange }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL4} disabled={nL4 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>
+      </div>}
 
-      <div>
+      {sb("p8_l5_") && <div data-testid="qblock-p8_l5">
         <h3 className="text-sm font-semibold text-teal-400">
           5. Details of corrective actions taken or underway, based on any adverse order in intellectual property related disputes wherein usage of traditional knowledge is involved.
         </h3>
@@ -681,9 +684,9 @@ export function P8LeadershipContent({ values, onChange }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL5} disabled={nL5 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>
+      </div>}
 
-      <div>
+      {sb("p8_l6_") && <div data-testid="qblock-p8_l6">
         <h3 className="text-sm font-semibold text-teal-400">6. Details of beneficiaries of CSR Projects.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: nL6 }, (_, i) => (
@@ -703,7 +706,7 @@ export function P8LeadershipContent({ values, onChange }: Props) {
           ))}
         </div>
         <button type="button" onClick={addRowL6} disabled={nL6 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>
+      </div>}
     </>
   );
 }

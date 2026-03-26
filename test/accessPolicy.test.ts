@@ -36,16 +36,16 @@ describe("canUseApp", () => {
     expect(canUseApp({ roleSlug: "admin", orgId: "o1", onboardingComplete: true })).toBe(true);
   });
 
-  it("denies normal with org incomplete", () => {
-    expect(canUseApp({ roleSlug: "normal", orgId: "o1", onboardingComplete: false })).toBe(false);
+  it("denies user role with org incomplete", () => {
+    expect(canUseApp({ roleSlug: "user", orgId: "o1", onboardingComplete: false })).toBe(false);
   });
 
-  it("allows normal when org complete", () => {
-    expect(canUseApp({ roleSlug: "normal", orgId: "o1", onboardingComplete: true })).toBe(true);
+  it("allows user role when org complete", () => {
+    expect(canUseApp({ roleSlug: "user", orgId: "o1", onboardingComplete: true })).toBe(true);
   });
 
-  it("denies normal with null org", () => {
-    expect(canUseApp({ roleSlug: "normal", orgId: null, onboardingComplete: null })).toBe(false);
+  it("denies user role with null org", () => {
+    expect(canUseApp({ roleSlug: "user", orgId: null, onboardingComplete: null })).toBe(false);
   });
 });
 
@@ -57,7 +57,7 @@ describe("redirectForIncompleteApp", () => {
   });
 
   it("sends non-admin without org to login", () => {
-    expect(redirectForIncompleteApp({ roleSlug: "normal", orgId: null, onboardingComplete: null })).toBe(
+    expect(redirectForIncompleteApp({ roleSlug: "user", orgId: null, onboardingComplete: null })).toBe(
       "/login"
     );
   });
@@ -66,7 +66,7 @@ describe("redirectForIncompleteApp", () => {
     expect(redirectForIncompleteApp({ roleSlug: "admin", orgId: "o1", onboardingComplete: false })).toBe(
       "/onboarding"
     );
-    expect(redirectForIncompleteApp({ roleSlug: "normal", orgId: "o1", onboardingComplete: false })).toBe(
+    expect(redirectForIncompleteApp({ roleSlug: "user", orgId: "o1", onboardingComplete: false })).toBe(
       "/onboarding"
     );
   });
@@ -77,16 +77,16 @@ describe("canUseAdminOnboardingWizard", () => {
     expect(canUseAdminOnboardingWizard({ roleSlug: "admin", orgId: null, onboardingComplete: null })).toBe(
       true
     );
-    expect(canUseAdminOnboardingWizard({ roleSlug: "normal", orgId: "o1", onboardingComplete: false })).toBe(
+    expect(canUseAdminOnboardingWizard({ roleSlug: "user", orgId: "o1", onboardingComplete: false })).toBe(
       false
     );
   });
 });
 
 describe("shouldShowOrgPendingOnly", () => {
-  it("is true for normal with org and incomplete onboarding", () => {
+  it("is true for user role with org and incomplete onboarding", () => {
     expect(
-      shouldShowOrgPendingOnly({ roleSlug: "normal", orgId: "o1", onboardingComplete: false })
+      shouldShowOrgPendingOnly({ roleSlug: "user", orgId: "o1", onboardingComplete: false })
     ).toBe(true);
   });
 
@@ -97,7 +97,7 @@ describe("shouldShowOrgPendingOnly", () => {
   });
 
   it("is false when complete", () => {
-    expect(shouldShowOrgPendingOnly({ roleSlug: "normal", orgId: "o1", onboardingComplete: true })).toBe(
+    expect(shouldShowOrgPendingOnly({ roleSlug: "user", orgId: "o1", onboardingComplete: true })).toBe(
       false
     );
   });
@@ -114,10 +114,10 @@ describe("canAccessAssignmentEndpoints", () => {
     ).toBe(true);
   });
 
-  it("denies normal user before onboarding complete", () => {
+  it("denies user role before onboarding complete", () => {
     expect(
       canAccessAssignmentEndpoints({
-        roleSlug: "normal",
+        roleSlug: "user",
         orgId: "o1",
         onboardingComplete: false,
       })

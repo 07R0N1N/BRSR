@@ -3,6 +3,7 @@
 import type { AnswersState } from "@/lib/brsr/types";
 import { CalcCell } from "@/components/CalcCell";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
+import { blockAllowed } from "@/lib/brsr/visibilityUtils";
 
 type Props = {
   values: AnswersState;
@@ -131,7 +132,8 @@ function MinWageRowTotalFY({
   );
 }
 
-export function P5EssentialContent({ values, calcDisplay, onChange, reportingYear = "2024-25" }: Props) {
+export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, reportingYear = "2024-25" }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const d = (code: string) => <CalcCell code={code} calcDisplay={calcDisplay} />;
   const [fyCurrent, fyPrevious] = getFYLabelsFromReportingYear(reportingYear);
   const e4 = values["p5_e4_focal"] ?? "";
@@ -141,7 +143,7 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
   const e9Val = e9 === "Y" || e9 === "y" ? "Yes" : e9 === "N" || e9 === "n" ? "No" : e9 === "NA" || e9 === "na" ? "NA" : e9;
   return (
     <>
-      <div>
+      {sb("p5_e1_") && <div data-testid="qblock-p5_e1">
         <h3 className="text-sm font-semibold text-teal-400">1. Employees and workers who have been provided training on human rights issues and policy(ies) of the entity</h3>
         <div className="mt-2 space-y-4 overflow-x-auto">
           <div>
@@ -197,8 +199,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </table>
           </div>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e2_") && <div data-testid="qblock-p5_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Details of minimum wages paid to employees and workers</h3>
         <div className="mt-2 space-y-4 overflow-x-auto">
           <div>
@@ -326,8 +328,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </table>
           </div>
         </div>
-      </div>
-      <div>
+      </div>}
+      {(sb("p5_e3a_") || sb("p5_e3b_")) && <div data-testid="qblock-p5_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Details of remuneration/salary/wages</h3>
         <div className="mt-2 space-y-4 overflow-x-auto">
           <div>
@@ -400,8 +402,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </table>
           </div>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e4_") && <div data-testid="qblock-p5_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Do you have a focal point (Individual/ Committee) responsible for addressing human rights impacts or issues caused or contributed to by the business?</h3>
         <div className="mt-2 flex gap-4">
           <label className="inline-flex items-center gap-1.5">
@@ -413,8 +415,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             <span className="text-sm">No</span>
           </label>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e5_") && <div data-testid="qblock-p5_e5">
         <h3 className="text-sm font-semibold text-teal-400">5. Describe the internal mechanisms in place to redress grievances related to human rights issues.</h3>
         <textarea
           value={values["p5_e5_mech"] ?? ""}
@@ -422,8 +424,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e6_") && <div data-testid="qblock-p5_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Number of Complaints on the following made by employees and workers</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
@@ -465,8 +467,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e7_") && <div data-testid="qblock-p5_e7">
         <h3 className="text-sm font-semibold text-teal-400">7. Complaints filed under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013, in the following format:</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -485,8 +487,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e8_") && <div data-testid="qblock-p5_e8">
         <h3 className="text-sm font-semibold text-teal-400">8. Mechanisms to prevent adverse consequences to the complainant in discrimination and harassment cases.</h3>
         <textarea
           value={values["p5_e8_mech"] ?? ""}
@@ -494,8 +496,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e9_") && <div data-testid="qblock-p5_e9">
         <h3 className="text-sm font-semibold text-teal-400">9. Do human rights requirements form part of your business agreements and contracts?</h3>
         <div className="mt-2">
           <select
@@ -509,8 +511,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             <option value="NA">NA</option>
           </select>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e10_") && <div data-testid="qblock-p5_e10">
         <h3 className="text-sm font-semibold text-teal-400">10. Assessment for the year</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -537,8 +539,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_e11_") && <div data-testid="qblock-p5_e11">
         <h3 className="text-sm font-semibold text-teal-400">11. Provide details of any corrective actions taken or underway to address significant risks / concerns arising from the assessments at Question 10 above.</h3>
         <textarea
           value={values["p5_e11_corrective"] ?? ""}
@@ -546,18 +548,19 @@ export function P5EssentialContent({ values, calcDisplay, onChange, reportingYea
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
+      </div>}
     </>
   );
 }
 
-export function P5LeadershipContent({ values, onChange }: Props) {
+export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const l3 = values["p5_l3_access"] ?? "";
   const l3Yes = l3 === "Yes" || l3 === "Y" || l3 === "y";
   const l3No = l3 === "No" || l3 === "N" || l3 === "n";
   return (
     <>
-      <div>
+      {sb("p5_l1_") && <div data-testid="qblock-p5_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Details of a business process being modified / introduced as a result of addressing human rights grievances/complaints.</h3>
         <textarea
           value={values["p5_l1_process"] ?? ""}
@@ -565,8 +568,8 @@ export function P5LeadershipContent({ values, onChange }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
-      <div>
+      </div>}
+      {sb("p5_l2_") && <div data-testid="qblock-p5_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Details of the scope and coverage of any Human rights due-diligence conducted.</h3>
         <textarea
           value={values["p5_l2_scope"] ?? ""}
@@ -574,8 +577,8 @@ export function P5LeadershipContent({ values, onChange }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
-      <div>
+      </div>}
+      {sb("p5_l3_") && <div data-testid="qblock-p5_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Is the premise/office of the entity accessible to differently abled visitors, as per the requirements of the Rights of Persons with Disabilities Act, 2016?</h3>
         <div className="mt-2 flex gap-4">
           <label className="inline-flex items-center gap-1.5">
@@ -587,8 +590,8 @@ export function P5LeadershipContent({ values, onChange }: Props) {
             <span className="text-sm">No</span>
           </label>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_l4_") && <div data-testid="qblock-p5_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. Details on assessment of value chain partners</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -623,8 +626,8 @@ export function P5LeadershipContent({ values, onChange }: Props) {
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p5_l5_") && <div data-testid="qblock-p5_l5">
         <h3 className="text-sm font-semibold text-teal-400">5. Provide details of any corrective actions taken or underway to address significant risks / concerns arising from the assessments at Question 4 above.</h3>
         <textarea
           value={values["p5_l5_corrective"] ?? ""}
@@ -632,7 +635,7 @@ export function P5LeadershipContent({ values, onChange }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>
+      </div>}
     </>
   );
 }

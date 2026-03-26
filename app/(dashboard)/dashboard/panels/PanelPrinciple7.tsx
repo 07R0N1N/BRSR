@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
+import { blockAllowed } from "@/lib/brsr/visibilityUtils";
 
 const MAX_TABLE_ROWS = 20;
 const MAX_L1_ROWS = 20;
@@ -56,10 +57,11 @@ function getPublicValue(values: AnswersState, rowKey: string): string {
   return v;
 }
 
-export function P7EssentialContent({ values, onChange }: Props) {
+export function P7EssentialContent({ values, onChange, allowedSet }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   return (
     <>
-      <div>
+      {(sb("p7_e1a_") || sb("p7_e1b_")) && <div data-testid="qblock-p7_e1">
         <h3 className="text-sm font-semibold text-teal-400">1. Trade and industry chambers / associations</h3>
         <p className="mt-2 text-sm font-medium text-gray-700">i. Number of affiliations with trade and industry chambers / associations</p>
         <div className="mt-1">{inp("p7_e1a_count", values, onChange, "Number")}</div>
@@ -99,8 +101,8 @@ export function P7EssentialContent({ values, onChange }: Props) {
             </tbody>
           </table>
         </div>
-      </div>
-      <div>
+      </div>}
+      {sb("p7_e2_") && <div data-testid="qblock-p7_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Provide details of corrective action taken or underway on any issues related to Anti-competitive conduct by the entity, based on adverse orders from regulatory authorities.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -154,12 +156,13 @@ export function P7EssentialContent({ values, onChange }: Props) {
             +ADD
           </button>
         </div>
-      </div>
+      </div>}
     </>
   );
 }
 
-export function P7LeadershipContent({ values, onChange }: Props) {
+export function P7LeadershipContent({ values, onChange, allowedSet }: Props) {
+  const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   const n = rowCount(values, "p7_l1_rowcount");
 
   // Migrate p7_l1_1_* / p7_l1_2_* to p7_l1_row0_* / p7_l1_row1_* for backward compatibility
@@ -202,7 +205,7 @@ export function P7LeadershipContent({ values, onChange }: Props) {
 
   return (
     <>
-      <div>
+      {sb("p7_l1_") && <div data-testid="qblock-p7_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Details of public policy positions advocated by the entity.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: n }, (_, i) => {
@@ -291,7 +294,7 @@ export function P7LeadershipContent({ values, onChange }: Props) {
             +ADD
           </button>
         </div>
-      </div>
+      </div>}
     </>
   );
 }

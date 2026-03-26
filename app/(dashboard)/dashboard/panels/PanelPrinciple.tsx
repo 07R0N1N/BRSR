@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { NGRBC_PRINCIPLE_TITLES } from "@/lib/brsr/questionConfig";
 import { P1EssentialContent, P1LeadershipContent } from "./PanelPrinciple1";
@@ -24,23 +24,40 @@ type Props = {
 
 type Tab = "essential" | "leadership";
 
-function TabBar({ activeTab, onChange }: { activeTab: Tab; onChange: (t: Tab) => void }) {
+function TabBar({
+  activeTab,
+  onChange,
+  hasEssential,
+  hasLeadership,
+}: {
+  activeTab: Tab;
+  onChange: (t: Tab) => void;
+  hasEssential: boolean;
+  hasLeadership: boolean;
+}) {
+  const tabs: { key: Tab; label: string; has: boolean }[] = [
+    { key: "essential", label: "Essential indicators", has: hasEssential },
+    { key: "leadership", label: "Leadership indicators", has: hasLeadership },
+  ];
   return (
     <div className="mt-4 flex gap-2 border-b border-gray-200">
-      {(["essential", "leadership"] as Tab[]).map((tab) => (
-        <button
-          key={tab}
-          type="button"
-          onClick={() => onChange(tab)}
-          className={`border-b-2 px-3 py-2 text-sm font-medium capitalize ${
-            activeTab === tab
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          {tab === "essential" ? "Essential indicators" : "Leadership indicators"}
-        </button>
-      ))}
+      {tabs.map(({ key, label, has }) =>
+        has ? (
+          <button
+            key={key}
+            type="button"
+            data-testid={`tab-${key}`}
+            onClick={() => onChange(key)}
+            className={`border-b-2 px-3 py-2 text-sm font-medium capitalize ${
+              activeTab === key
+                ? "border-indigo-600 text-indigo-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {label}
+          </button>
+        ) : null
+      )}
     </div>
   );
 }
@@ -99,7 +116,20 @@ export function PanelPrinciple({
   allowedSet = null,
   reportingYear,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("essential");
+  const prefix = `p${principleNum}`;
+  const hasEssential =
+    allowedSet === null || Array.from(allowedSet).some((c) => c.startsWith(`${prefix}_e`));
+  const hasLeadership =
+    allowedSet === null || Array.from(allowedSet).some((c) => c.startsWith(`${prefix}_l`));
+
+  const defaultTab: Tab = hasEssential ? "essential" : "leadership";
+  const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
+
+  useEffect(() => {
+    if (!hasEssential && activeTab === "essential") setActiveTab("leadership");
+    else if (!hasLeadership && activeTab === "leadership") setActiveTab("essential");
+  }, [hasEssential, hasLeadership, activeTab]);
+
   const notesCode = `p${principleNum}_notes`;
   const v = (code: string) => values[code] ?? "";
   const show = (code: string) => allowedSet === null || allowedSet.has(code);
@@ -129,17 +159,32 @@ export function PanelPrinciple({
       <h1 className="text-2xl font-bold text-gray-900">Principle {principleNum}</h1>
       <p className="mt-1 text-sm font-semibold text-teal-400">{title}</p>
       {p6Note}
-      <TabBar activeTab={activeTab} onChange={setActiveTab} />
+      <TabBar
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        hasEssential={hasEssential}
+        hasLeadership={hasLeadership}
+      />
       <div className="mt-6 space-y-8">
-        <PrincipleContent
-          principleNum={principleNum}
-          tab={activeTab}
-          values={values}
-          calcDisplay={calcDisplay}
-          onChange={onChange}
-          allowedSet={allowedSet}
-          reportingYear={reportingYear}
-        />
+        {((activeTab === "essential" && !hasEssential) ||
+          (activeTab === "leadership" && !hasLeadership)) ? (
+          <p
+            data-testid="tab-no-questions"
+            className="text-sm text-gray-400"
+          >
+            No questions assigned for this section.
+          </p>
+        ) : (
+          <PrincipleContent
+            principleNum={principleNum}
+            tab={activeTab}
+            values={values}
+            calcDisplay={calcDisplay}
+            onChange={onChange}
+            allowedSet={allowedSet}
+            reportingYear={reportingYear}
+          />
+        )}
       </div>
       {notesField}
     </section>

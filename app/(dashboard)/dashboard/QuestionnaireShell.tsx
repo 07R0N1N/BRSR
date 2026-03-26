@@ -53,7 +53,7 @@ export function QuestionnaireShell({
 
   return (
     <div className="flex min-h-full w-full">
-      <aside className="w-56 shrink-0 border-r border-[#334155] bg-[#1a202c] p-3">
+      <aside data-testid="sidebar" className="w-56 shrink-0 border-r border-[#334155] bg-[#1a202c] p-3">
         <div className="mb-4 rounded border border-[#334155] bg-[#2d3748] px-2 py-1.5">
           <p className="text-xs font-medium uppercase text-gray-400">Reporting year</p>
           <p className="mt-0.5 text-sm font-semibold text-white">{reportingYear}</p>
@@ -66,6 +66,7 @@ export function QuestionnaireShell({
                 <li key={p.id}>
                   <button
                     type="button"
+                    data-testid={`panel-${p.id}`}
                     onClick={() => setActivePanel(p.id)}
                     className={`w-full rounded px-2 py-1.5 text-left text-sm ${
                       activePanel === p.id
@@ -84,10 +85,10 @@ export function QuestionnaireShell({
       </aside>
       <div className="brsr-dark min-w-0 flex-1 overflow-auto bg-[#0a0f12] p-6">
         {visiblePanels.length === 0 && (
-          <p className="text-sm text-gray-400">No questions assigned. Contact your administrator.</p>
+          <p data-testid="empty-assignments" className="text-sm text-gray-400">No questions assigned. Contact your administrator.</p>
         )}
         {visiblePanels.length > 0 && allowedSet && (
-          <p className="mb-4 text-sm text-slate-400">You can view and update only assigned questions.</p>
+          <p data-testid="restricted-banner" className="mb-4 text-sm text-slate-400">You can view and update only assigned questions.</p>
         )}
         {visiblePanels.length > 0 && activePanel === "generaldata" && (
           <PanelGeneralData

@@ -1,0 +1,123 @@
+# BRSR Data Collection — Cursor Rules
+# Full codebase context is in CONTEXT.md at the project root. Read it before making changes.
+
+---
+
+## Stack
+
+- Next.js 14 (App Router), TypeScript, Supabase (Auth + Postgres), Tailwind CSS
+- Package manager: npm
+- Path alias: `@/` → project root
+
+---
+
+## Project areas
+
+- `/master` — Super-admin (role slug: `master`). Manages orgs, users, roles, visibility.
+- `/dashboard` — Org users (roles: `admin`, `user`, custom). BRSR questionnaire per org + reporting year.
+- Auth: email/password via Supabase. Post-login redirect by role. Middleware handles all role-based routing.
+
+---
+
+## Directory conventions
+
+- `app/(dashboard)/dashboard/hooks/` — Custom React hooks only (`useAnswers`, `useAssignments`, `useAssignmentStats`).
+- `app/(dashboard)/dashboard/panels/` — One panel component per BRSR section.
+- `lib/brsr/` — All BRSR logic. Never put BRSR business logic in components or API routes.
+  - `questionCodes.ts` — All `*_CODES` arrays and `getQuestionCodesForPanel()`. Add new codes here.
+  - `calcRules.ts` — `CALC_RULES` array. Add new calc rules here.
+  - `calcEngine.ts` — `runCalculations()`. Do not modify unless changing the engine itself.
+  - `flowGeneralDataToP6.ts` — General Data → Principle 6 autofill logic.
+  - `questionConfig.ts` — Re-export barrel only. Do not add logic here.
+- `components/` — Shared, reusable components only (`QuestionInput.tsx` etc.).
+- `supabase/migrations/` — SQL migrations. Always add a new numbered file; never edit existing ones.
+
+---
+
+## Supabase client usage
+
+| Context | Import |
+|---------|--------|
+| Server components, API routes | `createClient()` from `@/lib/supabase/server` |
+| Client components | `createClient()` from `@/lib/supabase/client` |
+| Admin ops (create user, seed) | `@/lib/supabase/admin` (service role — never expose to client) |
+
+RLS is enforced at the DB layer. Always let RLS do org isolation — do not manually filter by `org_id` in queries unless RLS is not yet in place.
+
+---
+
+## Answers / questionnaire
+
+- One row per `(org_id, reporting_year, question_code)` in the `answers` table. Values are always strings.
+- `AnswersState = Record<string, string>` — question_code → value.
+- Load via GET `/api/answers?org_id=...&reporting_year=...`. Save via POST `/api/answers` with debounce (`SAVE_DEBOUNCE_MS` from `constants.ts`).
+- Calculated fields come from `runCalculations(values)` — they are never stored in the DB; always derive them on the fly.
+- General Data → Principle 6 autofill: call `flowGeneralDataToPrinciple6(values)` whenever `gdata_turnover_cy/py` or `gdata_ppp_cy/py` change; merge result into answers state.
+
+---
+
+## Naming conventions
+
+| Pattern | Use for |
+|---------|---------|
+| `useXxx` | Custom React hooks |
+| `handleXxx` | Event handlers |
+| `fetchXxx` | Async data fetching functions |
+| `PanelXxx` | Dashboard panel components |
+| `*_CODES` | Question code arrays in `questionCodes.ts` |
+| `gdata_*` | General Data question codes |
+| `p6_*` | Principle 6 question codes |
+
+---
+
+## TypeScript rules
+
+- No `any`. Use `unknown` + type guard if the shape is truly unknown.
+- No `React.FC`. Use plain function components with explicit return types.
+- Named exports only. No default exports except Next.js page/layout files (required by the framework).
+- Zod for all external input validation (API route bodies, form data).
+- Return `{ success: boolean; error?: string }` objects from server actions and API handlers — never throw generic `Error`.
+
+---
+
+## API route rules
+
+- All authenticated routes: verify session via `createClient()` from server; rely on RLS for data access.
+- Master-only routes: check `role_slug === 'master'` explicitly at the top of the handler before any DB call.
+- Admin operations (user create): use `@/lib/supabase/admin`. Never use the service role client in response to user-supplied data without validating role first.
+- System roles (`master`, `admin`, `user`) must never be deleted — enforce this in the API, not only the UI.
+
+---
+
+## RLS / database rules
+
+- Never bypass RLS with the service role client in application code. Service role is for seeding and user provisioning only.
+- `current_user_org_id()` and `current_user_role_slug()` read from `user_role_slug_cache` — use these in new RLS policies, not `user_role_slug()` (avoids recursion introduced pre-002).
+- New migrations: add a new file `supabase/migrations/00N_description.sql`. Never edit existing migration files.
+
+---
+
+## Styling
+
+- Dark theme via `.brsr-dark` class in `globals.css`. Do not add custom colors inline — extend `globals.css` or use the existing Tailwind config.
+- Header/sidebar: `#1a202c`. Content area: `#0a0f12`. Borders: `#334155`.
+- Use Tailwind utility classes. No CSS modules, no styled-components.
+
+---
+
+## Do not
+
+- Do not add `console.log`. Use the logger utility if one exists; otherwise use `console.error` for errors only.
+- Do not duplicate question codes — all codes live in `lib/brsr/questionCodes.ts`.
+- Do not put calc logic in components — use `runCalculations()` and pass `calcDisplay` as a prop.
+- Do not store calculated values in the `answers` table.
+- Do not repeat instructions already present in this file when prompting — reference `CONTEXT.md` or this file instead.
+- Do not use agent/auto-apply mode for multi-file refactors without reviewing each file change individually.
+
+---
+
+## Reference
+
+- Full context: `CONTEXT.md` (project root) — read before adding new panels, question codes, or migrations.
+- BRSR question structure aligns with `brsr-data-entry 2.html` — keep new codes in sync.
+- Reporting years: `REPORTING_YEARS` constant in `lib/brsr/constants.ts`.

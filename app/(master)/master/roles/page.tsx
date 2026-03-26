@@ -13,7 +13,7 @@ export default async function RolesPage() {
     <div>
       <h2 className="text-2xl font-semibold text-white">Roles</h2>
       <p className="mt-1 text-gray-400">
-        System roles (Master, Admin, Normal) and custom roles for access control.
+        System roles (Master, Admin, User) and custom roles for access control.
       </p>
       <RolesForm />
       <div className="mt-8 overflow-hidden rounded-lg border border-[#334155] bg-[#1e293b] shadow">
