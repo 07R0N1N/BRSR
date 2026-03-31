@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
+import {
+  computeAllowedBlockPrefixes,
+  isQuestionCodeAllowedForRestrictedUser,
+} from "@/lib/brsr/blockAccessPrefixes";
 import { flowGeneralDataToPrinciple6 } from "@/lib/brsr/flowGeneralDataToP6";
 import { SAVE_DEBOUNCE_MS } from "@/lib/brsr/constants";
 
@@ -22,6 +26,11 @@ export function useAnswers({
   const answersRef = useRef<AnswersState>(answers);
   answersRef.current = answers;
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const allowedBlockPrefixes = useMemo(
+    () => (allowedSet ? computeAllowedBlockPrefixes(allowedSet) : undefined),
+    [allowedSet]
+  );
 
   const load = useCallback(async () => {
     if (!orgId || !reportingYear) return;
@@ -68,14 +77,21 @@ export function useAnswers({
 
   const onChange = useCallback(
     (questionCode: string, value: string) => {
-      if (allowedSet && !allowedSet.has(questionCode)) return;
+      if (
+        allowedSet &&
+        !isQuestionCodeAllowedForRestrictedUser(questionCode, allowedSet, allowedBlockPrefixes)
+      ) {
+        return;
+      }
       setAnswers((prev) => {
         const next = { ...prev, [questionCode]: value };
         if (GDATA_KEYS.includes(questionCode)) {
           const p6Updates = flowGeneralDataToPrinciple6(next);
           if (allowedSet) {
             for (const [code, codeValue] of Object.entries(p6Updates)) {
-              if (allowedSet.has(code)) next[code] = codeValue ?? "";
+              if (isQuestionCodeAllowedForRestrictedUser(code, allowedSet, allowedBlockPrefixes)) {
+                next[code] = codeValue ?? "";
+              }
             }
           } else {
             Object.assign(next, p6Updates);
@@ -85,7 +101,7 @@ export function useAnswers({
       });
       scheduleSave();
     },
-    [allowedSet, scheduleSave]
+    [allowedSet, allowedBlockPrefixes, scheduleSave]
   );
 
   return { answers, loading, saving, onChange };

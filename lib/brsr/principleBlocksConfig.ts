@@ -143,6 +143,11 @@ const PREFIX_BLOCKS_BY_PRINCIPLE: Record<number, PrefixBlock[]> = {
   9: P9_PREFIX_BLOCKS,
 };
 
+/** Prefix strings for assignment / RLS “same block” checks — keep in sync with `blockAccessPrefixes.ts` / migration 009. */
+export function getAllMigratedPrincipleAssignmentPrefixes(): string[] {
+  return Object.values(PREFIX_BLOCKS_BY_PRINCIPLE).flatMap((blocks) => blocks.map((b) => b.prefix));
+}
+
 /**
  * Returns assignment blocks for a migrated principle (P1-5, P7-9) by
  * matching each question code against the defined prefix table.
