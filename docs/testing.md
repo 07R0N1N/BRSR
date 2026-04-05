@@ -4,7 +4,7 @@
 
 | File | Type | Breaker | What it covers | Run command |
 |------|------|---------|----------------|-------------|
-| `lib/exporters/brsrDocx.test.ts` | Vitest unit | N/A | `tv()`, `pv()`, `isRowEmpty()` helpers map mapper sentinel / null / blank to correct table-cell ("") and prose ("Disclosure Not Available") display values. | `npx vitest run lib/exporters/brsrDocx.test.ts` |
+| `lib/exporters/brsrDocx.test.ts` | Vitest unit | N/A | `tv()`, `pv()`, `isRowEmpty()`, `buildStructuredTable()` — empty sentinel handling and all-empty dynamic-row filtering in BRSR DOCX output. | `npx vitest run lib/exporters/brsrDocx.test.ts` |
 | `lib/brsr/blockAccessPrefixes.test.ts` | Vitest unit | VISIBILITY | Prefix-based access matches RLS/UI so dynamic row codes save when the block is assigned; migration 011 array stays in sync with TS. | `npx vitest run lib/brsr/blockAccessPrefixes.test.ts` |
 | `test/accessPolicy.test.ts` | Vitest unit | VISIBILITY | Role + onboarding combinations gate app use and redirects (master / admin / user). | `npx vitest run test/accessPolicy.test.ts` |
 | `supabase/tests/rls-dynamic-rows.test.ts` | Vitest RLS integration | BOTH | Postgres RLS on `answers` for dynamic row codes; restricted vs admin vs master. | `SUPABASE_RLS_INTEGRATION=1 npx vitest run --config vitest.rls.config.ts supabase/tests/rls-dynamic-rows.test.ts` |

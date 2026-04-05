@@ -31,6 +31,8 @@ import type {
   BRSRWomenParticipationRow,
   SBQ10Row,
   SBQ11Row,
+  StructuredTable,
+  PrincipleBlock,
 } from "@/types/brsr";
 import { getFYLabels } from "@/lib/brsr/fyLabels";
 
@@ -607,6 +609,39 @@ function buildQ11Table(rows: SBQ11Row[]): Table | null {
   return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
 }
 
+/**
+ * Render a StructuredTable as a docx Table.
+ * Skips rows where every cell is null or empty (all-empty dynamic rows).
+ */
+export function buildStructuredTable(st: StructuredTable): Table | null {
+  const filteredRows = st.rows.filter((r) => !isRowEmpty(r));
+  if (filteredRows.length === 0) return null;
+  const headerRow = new TableRow({
+    children: st.columns.map((c) => headerCell(c)),
+  });
+  const bodyRows = filteredRows.map((row, i) =>
+    new TableRow({
+      children: row.map((v) => cell(v ?? "", i % 2 === 1)),
+    })
+  );
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+}
+
+/**
+ * Render a single PrincipleBlock as docx elements (heading + table or body paragraph).
+ */
+function renderPrincipleBlock(block: PrincipleBlock): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = [];
+  elements.push(subsectionTitle(block.title));
+  if (typeof block.content === "string") {
+    elements.push(body(block.content || PROSE_EMPTY));
+  } else {
+    const tbl = buildStructuredTable(block.content);
+    if (tbl) elements.push(tbl);
+  }
+  return elements;
+}
+
 const COMPLAINTS_FY_SUBCOLS = [
   "No. of complaints filed during current year",
   "No. of complaints pending resolution at close in current year",
@@ -937,15 +972,31 @@ export async function buildBRSRDocx(
     }
     children.push(heading2(`Principle ${n}`));
     if (p.ngrbcStatement) {
-      children.push(body(p.ngrbcStatement));
+      children.push(heading3(`Principle ${n}: ${p.ngrbcStatement}`));
     }
-    if (p.subsections && p.subsections.length > 0) {
+    if (p.docxBlocks) {
+      // Phase 3: named-column structured blocks per question
+      if (p.docxBlocks.essential.length > 0) {
+        children.push(heading3("Essential Indicators"));
+        for (const block of p.docxBlocks.essential) {
+          children.push(...renderPrincipleBlock(block));
+        }
+      }
+      if (p.docxBlocks.leadership.length > 0) {
+        children.push(heading3("Leadership Indicators"));
+        for (const block of p.docxBlocks.leadership) {
+          children.push(...renderPrincipleBlock(block));
+        }
+      }
+    } else if (p.subsections && p.subsections.length > 0) {
+      // P6: grouped sub-sections
       for (const sub of p.subsections) {
         children.push(heading3(sub.label));
         const tbl = indicatorsToTable(sub.indicators);
         if (tbl) children.push(tbl);
       }
     } else {
+      // Fallback: flat indicator list (P6 or any un-mapped principle)
       if (p.essential.length > 0) {
         children.push(heading3("Essential Indicators"));
         const tbl = indicatorsToTable(p.essential);

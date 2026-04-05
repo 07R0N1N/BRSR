@@ -190,13 +190,43 @@ export type BRSRSectionB = {
   q11Assessment: SBQ11Row[];
 };
 
+/**
+ * A named-column table for DOCX principle rendering.
+ * `columns` are the header strings; each `rows` entry must have the same length.
+ * Null cells are rendered as blank (not "—").
+ */
+export type StructuredTable = {
+  columns: string[];
+  rows: (string | null)[][];
+};
+
+/**
+ * A single titled block inside a principle section.
+ * `content` is either a StructuredTable (multi-column) or a prose string.
+ */
+export type PrincipleBlock = {
+  title: string;
+  content: StructuredTable | string;
+};
+
 /** Principle data – Essential and Leadership indicators */
 export type BRSRPrinciple = {
   ngrbcStatement: string;
+  /** Flat indicator list — kept for XLSX compatibility */
   essential: BRSRIndicator[];
+  /** Flat indicator list — kept for XLSX compatibility */
   leadership: BRSRIndicator[];
   /** P6 only: grouped sub-sections for readability */
   subsections?: { label: string; indicators: BRSRIndicator[] }[];
+  /**
+   * Phase 3 named-column blocks for DOCX rendering.
+   * When present, brsrDocx.ts uses these instead of the flat essential/leadership arrays.
+   * Additive — brsrXlsx.ts and the JSON API endpoint are unaffected.
+   */
+  docxBlocks?: {
+    essential: PrincipleBlock[];
+    leadership: PrincipleBlock[];
+  };
 };
 
 /** Section C – Principles 1–9 */

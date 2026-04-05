@@ -10,7 +10,8 @@
  * Depends:  none — pure unit
  */
 import { describe, it, expect } from "vitest";
-import { tv, pv, isRowEmpty, PROSE_EMPTY } from "./brsrDocx";
+import { tv, pv, isRowEmpty, buildStructuredTable, PROSE_EMPTY } from "./brsrDocx";
+import type { StructuredTable } from "@/types/brsr";
 
 describe("tv (table-cell value)", () => {
   it("returns empty string for the mapper sentinel '—'", () => {
@@ -97,5 +98,41 @@ describe("isRowEmpty", () => {
 
   it("returns true for an empty array", () => {
     expect(isRowEmpty([])).toBe(true);
+  });
+});
+
+describe("buildStructuredTable", () => {
+  const st: StructuredTable = {
+    columns: ["A", "B", "C"],
+    rows: [
+      ["1", "2", "3"],
+      [null, null, null],  // all-empty row — should be skipped
+      ["4", "5", "6"],
+    ],
+  };
+
+  it("returns null when all rows are empty", () => {
+    const empty: StructuredTable = { columns: ["X"], rows: [[null], [null]] };
+    expect(buildStructuredTable(empty)).toBeNull();
+  });
+
+  it("returns null for zero rows", () => {
+    const empty: StructuredTable = { columns: ["X"], rows: [] };
+    expect(buildStructuredTable(empty)).toBeNull();
+  });
+
+  it("produces a Table object for non-empty data", () => {
+    const result = buildStructuredTable(st);
+    expect(result).not.toBeNull();
+  });
+
+  it("skips all-empty rows (null values) in the output", () => {
+    // After skipping all-empty row, only 2 data rows should be present
+    const result = buildStructuredTable(st);
+    // Table has 1 header + 2 body rows = 3 rows total
+    // Access via the internal rows property
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tableRows = (result as any).root.filter((n: any) => n.constructor?.name === "TableRow");
+    expect(tableRows.length).toBe(3); // header + 2 data
   });
 });

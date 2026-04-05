@@ -32,6 +32,8 @@ import type {
   SBQ10Row,
   SBQ11Row,
   OrgRow,
+  PrincipleBlock,
+  StructuredTable,
 } from "@/types/brsr";
 
 const EMPTY = "—";
@@ -553,6 +555,590 @@ function getDynamicRowCodes(principleNum: number, answers: Record<string, string
   return extra;
 }
 
+// ─── Phase 3 helpers ─────────────────────────────────────────────────────────
+
+/** Extract trimmed answer string or null for empty/missing. */
+function av(answers: Record<string, string>, code: string): string | null {
+  const v = (answers[code] ?? "").trim();
+  return v || null;
+}
+
+/** Build a StructuredTable from a fixed set of row-code arrays. */
+function staticTable(columns: string[], rowData: (string | null)[][]): StructuredTable {
+  return { columns, rows: rowData.filter((r) => r.some((v) => v !== null)) };
+}
+
+/**
+ * Build rows from dynamic (user-added) table entries.
+ * Reads rowcount from `answers[rowcountKey]`, then constructs codes as
+ * `${rowPrefix}${i}_${field}` for i in [0, rowcount).
+ */
+function dynamicRows(
+  answers: Record<string, string>,
+  rowcountKey: string,
+  rowPrefix: string,
+  fields: string[]
+): (string | null)[][] {
+  const n = Math.min(parseInt(answers[rowcountKey] || "1", 10), 20);
+  const rows: (string | null)[][] = [];
+  for (let i = 0; i < n; i++) {
+    const row = fields.map((f) => av(answers, `${rowPrefix}${i}_${f}`));
+    if (row.some((v) => v !== null)) rows.push(row);
+  }
+  return rows;
+}
+
+/** Convenience: build a PrincipleBlock with a StructuredTable. */
+function tableBlock(title: string, columns: string[], rows: (string | null)[][]): PrincipleBlock {
+  return { title, content: { columns, rows } };
+}
+
+/** Convenience: build a PrincipleBlock with prose content. */
+function proseBlock(title: string, value: string | null): PrincipleBlock {
+  return { title, content: value ?? "" };
+}
+
+// ─── P1 (Ethics, Transparency, Accountability) ───────────────────────────────
+
+function buildP1DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+  const fy = answers;
+
+  const essential: PrincipleBlock[] = [
+    // E1: Training coverage
+    tableBlock(
+      "1. Training and awareness programmes",
+      ["Segment", "No. of programmes", "Topics / Impact", "% persons covered"],
+      [
+        ["Board of Directors", g("p1_e1_bod_prog"), g("p1_e1_bod_topics"), g("p1_e1_bod_pct")],
+        ["Key Management Personnel (KMPs)", g("p1_e1_kmp_prog"), g("p1_e1_kmp_topics"), g("p1_e1_kmp_pct")],
+        ["Employees other than BoD/KMPs", g("p1_e1_emp_prog"), g("p1_e1_emp_topics"), g("p1_e1_emp_pct")],
+        ["Workers", g("p1_e1_wrk_prog"), g("p1_e1_wrk_topics"), g("p1_e1_wrk_pct")],
+      ]
+    ),
+    // E2.i Monetary: Penalty/Fine
+    tableBlock(
+      "2(i). Fines / Penalties (Monetary)",
+      ["NGRBC Principle", "Regulatory / judicial body", "Amount (INR)", "Brief of case", "Appeal preferred?"],
+      dynamicRows(answers, "p1_e2_pf_rowcount", "p1_e2_pf_row", ["principle", "agency", "amt", "brief", "appeal"])
+    ),
+    // E2.ii Monetary: Settlement
+    tableBlock(
+      "2(ii). Settlements (Monetary)",
+      ["NGRBC Principle", "Regulatory / judicial body", "Amount (INR)", "Brief of case", "Appeal preferred?"],
+      dynamicRows(answers, "p1_e2_set_rowcount", "p1_e2_set_row", ["principle", "agency", "amt", "brief", "appeal"])
+    ),
+    // E2.iii Monetary: Compounding fee
+    tableBlock(
+      "2(iii). Compounding fees (Monetary)",
+      ["NGRBC Principle", "Regulatory / judicial body", "Amount (INR)", "Brief of case", "Appeal preferred?"],
+      dynamicRows(answers, "p1_e2_cmp_rowcount", "p1_e2_cmp_row", ["principle", "agency", "amt", "brief", "appeal"])
+    ),
+    // E2.iv Non-Monetary: Imprisonment
+    tableBlock(
+      "2(iv). Imprisonment (Non-Monetary)",
+      ["NGRBC Principle", "Regulatory / judicial body", "Brief of case", "Appeal preferred?"],
+      dynamicRows(answers, "p1_e2_imp_rowcount", "p1_e2_imp_row", ["principle", "agency", "brief", "appeal"])
+    ),
+    // E2.v Non-Monetary: Punishment
+    tableBlock(
+      "2(v). Punishment / Strictures (Non-Monetary)",
+      ["NGRBC Principle", "Regulatory / judicial body", "Brief of case", "Appeal preferred?"],
+      dynamicRows(answers, "p1_e2_pun_rowcount", "p1_e2_pun_row", ["principle", "agency", "brief", "appeal"])
+    ),
+    // E3: Appeal details
+    tableBlock(
+      "3. Details of appeals pending",
+      ["Case Details", "Name of regulatory / judicial institution"],
+      dynamicRows(answers, "p1_e3_rowcount", "p1_e3_row", ["case", "agency"])
+    ),
+    // E4: Anti-corruption policy
+    proseBlock("4. Anti-corruption policy details", g("p1_e4_anticorr")),
+    // E5: Disciplinary action
+    tableBlock(
+      "5. Number of disciplinary action taken (current and previous year)",
+      ["Category", "FY Current Year", "FY Previous Year"],
+      [
+        ["Directors", g("p1_e5_dir_cy"), g("p1_e5_dir_py")],
+        ["KMPs", g("p1_e5_kmp_cy"), g("p1_e5_kmp_py")],
+        ["Employees other than BoD/KMPs", g("p1_e5_emp_cy"), g("p1_e5_emp_py")],
+        ["Workers", g("p1_e5_wrk_cy"), g("p1_e5_wrk_py")],
+      ]
+    ),
+    // E6: Conflict of interest complaints
+    tableBlock(
+      "6. Details of complaints regarding conflict of interest",
+      ["Category", "FY Current Year (No.)", "FY Current Year (Remarks)", "FY Previous Year (No.)", "FY Previous Year (Remarks)"],
+      [
+        ["Directors / KMPs", g("p1_e6_dir_cy"), g("p1_e6_dir_cy_rem"), g("p1_e6_dir_py"), g("p1_e6_dir_py_rem")],
+        ["Key Management Personnel", g("p1_e6_kmp_cy"), g("p1_e6_kmp_cy_rem"), g("p1_e6_kmp_py"), g("p1_e6_kmp_py_rem")],
+      ]
+    ),
+    // E7: Corrective action taken
+    proseBlock("7. Corrective action taken or underway", g("p1_e7_corrective")),
+    // E8: Accounts payable days
+    tableBlock(
+      "8. Provide details of any corrective action taken or underway on issues related to fines / penalties / action taken by regulators / law enforcement agencies",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Number of days of accounts payable", g("p1_e8_ap_cy"), g("p1_e8_ap_py")],
+        ["Adjusted cost of goods/services procured (INR Crore)", g("p1_e8_cost_cy"), g("p1_e8_cost_py")],
+      ]
+    ),
+    // E9: Concentration — Purchases
+    tableBlock(
+      "9(a). Purchases concentration",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Purchases from trading houses (INR Crore)", g("p1_e9_purch_i_cy"), g("p1_e9_purch_i_py")],
+        ["Total purchases (INR Crore)", g("p1_e9_purch_total_cy"), g("p1_e9_purch_total_py")],
+        ["Number of trading house suppliers", g("p1_e9_purch_num_cy"), g("p1_e9_purch_num_py")],
+        ["% of purchases from top 10 trading houses", g("p1_e9_purch_top10_cy"), g("p1_e9_purch_top10_py")],
+      ]
+    ),
+    tableBlock(
+      "9(b). Sales concentration",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Sales to dealers/distributors (INR Crore)", g("p1_e9_sales_i_cy"), g("p1_e9_sales_i_py")],
+        ["Total sales (INR Crore)", g("p1_e9_sales_total_cy"), g("p1_e9_sales_total_py")],
+        ["Number of dealers/distributors", g("p1_e9_sales_num_cy"), g("p1_e9_sales_num_py")],
+        ["% of sales from top 10 dealers/distributors", g("p1_e9_sales_top10_cy"), g("p1_e9_sales_top10_py")],
+      ]
+    ),
+    tableBlock(
+      "9(c). Related party transactions (RPTs) concentration",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Purchases (INR Crore)", g("p1_e9_rpt_purch_i_cy"), g("p1_e9_rpt_purch_i_py")],
+        ["Total purchases (INR Crore)", g("p1_e9_rpt_purch_total_cy"), g("p1_e9_rpt_purch_total_py")],
+        ["Sales (INR Crore)", g("p1_e9_rpt_sales_i_cy"), g("p1_e9_rpt_sales_i_py")],
+        ["Total sales (INR Crore)", g("p1_e9_rpt_sales_total_cy"), g("p1_e9_rpt_sales_total_py")],
+        ["Loans & advances (INR Crore)", g("p1_e9_rpt_loans_i_cy"), g("p1_e9_rpt_loans_i_py")],
+        ["Investments (INR Crore)", g("p1_e9_rpt_inv_i_cy"), g("p1_e9_rpt_inv_i_py")],
+      ]
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    tableBlock(
+      "L1. Training and awareness programmes (non-mandatory)",
+      ["Segment / programme", "Topics / impact", "% persons covered"],
+      dynamicRows(answers, "p1_l1_rowcount", "p1_l1_row", ["prog", "topics", "pct"])
+    ),
+    proseBlock("L2. Complaints regarding conflict of interest of the Board", g("p1_l2_conflict")),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P2 (Sustainable and Safe Goods/Services) ────────────────────────────────
+
+function buildP2DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    tableBlock(
+      "1. R&D and capital expenditure investments",
+      ["Type", "FY Current Year (INR)", "FY Previous Year (INR)", "Details"],
+      [
+        ["R&D expenditure", g("p2_e1_rd_cy"), g("p2_e1_rd_py"), g("p2_e1_rd_details")],
+        ["Capital expenditure (CAPEX)", g("p2_e1_capex_cy"), g("p2_e1_capex_py"), g("p2_e1_capex_details")],
+      ]
+    ),
+    proseBlock("2. Has the entity sought independent assessment/evaluation of its products/services?", g("p2_e2_yn")),
+    tableBlock(
+      "3. Percentage of recycled or reused input material",
+      ["Input material", "% recycled or reused"],
+      [
+        ["Plastics", g("p2_e3_plastics")],
+        ["E-waste", g("p2_e3_ewaste")],
+        ["Hazardous waste", g("p2_e3_hazardous")],
+        ["Other waste", g("p2_e3_other")],
+      ]
+    ),
+    proseBlock("4. Extended Producer Responsibility (EPR) details", g("p2_e4_epr")),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    proseBlock("L1. Voluntary recall of products", g("p2_l1_yn")),
+    tableBlock(
+      "L2. Percentage of products / packaging material reclaimed",
+      ["Product / material", "Environmental risk", "Action taken"],
+      dynamicRows(answers, "p2_l2_rowcount", "p2_l2_row", ["product", "risk", "action"])
+    ),
+    tableBlock(
+      "L3. Reclaimed post-consumer waste material",
+      ["Reclaimed material", "% recycled or reused (Current FY)", "% recycled or reused (Previous FY)"],
+      dynamicRows(answers, "p2_l3_rowcount", "p2_l3_row", ["material", "pct_cy", "pct_py"])
+    ),
+    tableBlock(
+      "L4. Reclaimed waste by category (Re-used / Recycled / Disposed)",
+      ["Category", "CY Re-used", "CY Recycled", "CY Disposed", "PY Re-used", "PY Recycled", "PY Disposed"],
+      [
+        ["Plastics", g("p2_l4_plast_cy_re"), g("p2_l4_plast_cy_rc"), g("p2_l4_plast_cy_d"), g("p2_l4_plast_py_re"), g("p2_l4_plast_py_rc"), g("p2_l4_plast_py_d")],
+        ["E-waste", g("p2_l4_ew_cy_re"), g("p2_l4_ew_cy_rc"), g("p2_l4_ew_cy_d"), g("p2_l4_ew_py_re"), g("p2_l4_ew_py_rc"), g("p2_l4_ew_py_d")],
+        ["Hazardous waste", g("p2_l4_haz_cy_re"), g("p2_l4_haz_cy_rc"), g("p2_l4_haz_cy_d"), g("p2_l4_haz_py_re"), g("p2_l4_haz_py_rc"), g("p2_l4_haz_py_d")],
+        ["Other waste", g("p2_l4_oth_cy_re"), g("p2_l4_oth_cy_rc"), g("p2_l4_oth_cy_d"), g("p2_l4_oth_py_re"), g("p2_l4_oth_py_rc"), g("p2_l4_oth_py_d")],
+      ]
+    ),
+    tableBlock(
+      "L5. Products reclaimed by category",
+      ["Category", "% of products reclaimed"],
+      dynamicRows(answers, "p2_l5_rowcount", "p2_l5_row", ["category", "pct"])
+    ),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P3 (Well-being of All Employees and Workers) ────────────────────────────
+
+function buildP3DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    tableBlock(
+      "1(a). Details of measures for the well-being of Employees",
+      ["Category", "Total (A)", "Health ins. covered (B)", "Accident ins. covered (C)", "Maternity (D)", "Paternity (E)", "Day care (F)"],
+      [
+        ["Permanent – Male", g("p3_e1a_perm_m_t"), g("p3_e1a_perm_m_hi"), g("p3_e1a_perm_m_ac"), g("p3_e1a_perm_m_mat"), g("p3_e1a_perm_m_pat"), g("p3_e1a_perm_m_dc")],
+        ["Permanent – Female", g("p3_e1a_perm_f_t"), g("p3_e1a_perm_f_hi"), g("p3_e1a_perm_f_ac"), g("p3_e1a_perm_f_mat"), g("p3_e1a_perm_f_pat"), g("p3_e1a_perm_f_dc")],
+        ["Permanent – Other", g("p3_e1a_perm_o_t"), g("p3_e1a_perm_o_hi"), g("p3_e1a_perm_o_ac"), g("p3_e1a_perm_o_mat"), g("p3_e1a_perm_o_pat"), g("p3_e1a_perm_o_dc")],
+        ["Other than permanent – Male", g("p3_e1a_oth_m_t"), g("p3_e1a_oth_m_hi"), g("p3_e1a_oth_m_ac"), g("p3_e1a_oth_m_mat"), g("p3_e1a_oth_m_pat"), g("p3_e1a_oth_m_dc")],
+        ["Other than permanent – Female", g("p3_e1a_oth_f_t"), g("p3_e1a_oth_f_hi"), g("p3_e1a_oth_f_ac"), g("p3_e1a_oth_f_mat"), g("p3_e1a_oth_f_pat"), g("p3_e1a_oth_f_dc")],
+        ["Other than permanent – Other", g("p3_e1a_oth_o_t"), g("p3_e1a_oth_o_hi"), g("p3_e1a_oth_o_ac"), g("p3_e1a_oth_o_mat"), g("p3_e1a_oth_o_pat"), g("p3_e1a_oth_o_dc")],
+      ]
+    ),
+    tableBlock(
+      "1(b). Details of measures for the well-being of Workers",
+      ["Category", "Total (A)", "Health ins. covered (B)", "Accident ins. covered (C)", "Maternity (D)", "Paternity (E)", "Day care (F)"],
+      [
+        ["Permanent – Male", g("p3_e1b_perm_m_t"), g("p3_e1b_perm_m_hi"), g("p3_e1b_perm_m_ac"), g("p3_e1b_perm_m_mat"), g("p3_e1b_perm_m_pat"), g("p3_e1b_perm_m_dc")],
+        ["Permanent – Female", g("p3_e1b_perm_f_t"), g("p3_e1b_perm_f_hi"), g("p3_e1b_perm_f_ac"), g("p3_e1b_perm_f_mat"), g("p3_e1b_perm_f_pat"), g("p3_e1b_perm_f_dc")],
+        ["Permanent – Other", g("p3_e1b_perm_o_t"), g("p3_e1b_perm_o_hi"), g("p3_e1b_perm_o_ac"), g("p3_e1b_perm_o_mat"), g("p3_e1b_perm_o_pat"), g("p3_e1b_perm_o_dc")],
+        ["Other than permanent – Male", g("p3_e1b_oth_m_t"), g("p3_e1b_oth_m_hi"), g("p3_e1b_oth_m_ac"), g("p3_e1b_oth_m_mat"), g("p3_e1b_oth_m_pat"), g("p3_e1b_oth_m_dc")],
+        ["Other than permanent – Female", g("p3_e1b_oth_f_t"), g("p3_e1b_oth_f_hi"), g("p3_e1b_oth_f_ac"), g("p3_e1b_oth_f_mat"), g("p3_e1b_oth_f_pat"), g("p3_e1b_oth_f_dc")],
+        ["Other than permanent – Other", g("p3_e1b_oth_o_t"), g("p3_e1b_oth_o_hi"), g("p3_e1b_oth_o_ac"), g("p3_e1b_oth_o_mat"), g("p3_e1b_oth_o_pat"), g("p3_e1b_oth_o_dc")],
+      ]
+    ),
+    tableBlock(
+      "1(c). Expenditure on employee well-being as % of total revenue",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Well-being expenditure (INR)", g("p3_e1c_cy_spend"), g("p3_e1c_py_spend")],
+        ["Total revenue of entity (INR)", g("p3_e1c_cy_rev"), g("p3_e1c_py_rev")],
+      ]
+    ),
+    tableBlock(
+      "2. Statutory payments made for employees and workers (Provident Fund, Gratuity, ESI, etc.)",
+      ["Benefit", "Employees – CY", "Workers – CY", "Dependents – CY", "Employees – PY", "Workers – PY", "Dependents – PY"],
+      [
+        ["Provident Fund", g("p3_e2_pf_emp_cy"), g("p3_e2_pf_wrk_cy"), g("p3_e2_pf_dep_cy"), g("p3_e2_pf_emp_py"), g("p3_e2_pf_wrk_py"), g("p3_e2_pf_dep_py")],
+        ["Gratuity", g("p3_e2_gr_emp_cy"), g("p3_e2_gr_wrk_cy"), g("p3_e2_gr_dep_cy"), g("p3_e2_gr_emp_py"), g("p3_e2_gr_wrk_py"), g("p3_e2_gr_dep_py")],
+        ["ESI", g("p3_e2_esi_emp_cy"), g("p3_e2_esi_wrk_cy"), g("p3_e2_esi_dep_cy"), g("p3_e2_esi_emp_py"), g("p3_e2_esi_wrk_py"), g("p3_e2_esi_dep_py")],
+        ["Other", g("p3_e2_oth_emp_cy"), g("p3_e2_oth_wrk_cy"), g("p3_e2_oth_dep_cy"), g("p3_e2_oth_emp_py"), g("p3_e2_oth_wrk_py"), g("p3_e2_oth_dep_py")],
+      ]
+    ),
+    proseBlock("3. Accessibility of the entities' facilities to employees/workers with disabilities", g("p3_e3_access")),
+    proseBlock("4. Does the entity have an equal opportunity policy?", g("p3_e4_equal")),
+    tableBlock(
+      "5. Return to work and retention rates of employees and workers after parental leave",
+      ["Category", "Male Return", "Male Retention", "Female Return", "Female Retention", "Other Return", "Other Retention", "Total Return", "Total Retention"],
+      [
+        ["Employees", g("p3_e5_m_emp_ret"), g("p3_e5_m_emp_retn"), g("p3_e5_f_emp_ret"), g("p3_e5_f_emp_retn"), g("p3_e5_o_emp_ret"), g("p3_e5_o_emp_retn"), g("p3_e5_tot_emp_ret"), g("p3_e5_tot_emp_retn")],
+        ["Workers", g("p3_e5_m_wrk_ret"), g("p3_e5_m_wrk_retn"), g("p3_e5_f_wrk_ret"), g("p3_e5_f_wrk_retn"), g("p3_e5_o_wrk_ret"), g("p3_e5_o_wrk_retn"), g("p3_e5_tot_wrk_ret"), g("p3_e5_tot_wrk_retn")],
+      ]
+    ),
+    proseBlock("6. Mechanism for employees and workers to file complaints", `${g("p3_e6_yn") ?? ""}${g("p3_e6_emp_perm") ? `\nEmployees (permanent): ${g("p3_e6_emp_perm")}` : ""}${g("p3_e6_wrk_perm") ? `\nWorkers (permanent): ${g("p3_e6_wrk_perm")}` : ""}`),
+    tableBlock(
+      "11. Employees / workers covered under OHS management system",
+      ["Category", "Total – CY", "Covered – CY", "Total – PY", "Covered – PY"],
+      [
+        ["LTIFR – Employees", null, g("p3_e11_ltifr_emp_cy"), null, g("p3_e11_ltifr_emp_py")],
+        ["LTIFR – Workers", null, g("p3_e11_ltifr_wrk_cy"), null, g("p3_e11_ltifr_wrk_py")],
+        ["Recordable injuries – Employees", null, g("p3_e11_rec_emp_cy"), null, g("p3_e11_rec_emp_py")],
+        ["Recordable injuries – Workers", null, g("p3_e11_rec_wrk_cy"), null, g("p3_e11_rec_wrk_py")],
+        ["Fatalities – Employees", null, g("p3_e11_fat_emp_cy"), null, g("p3_e11_fat_emp_py")],
+        ["Fatalities – Workers", null, g("p3_e11_fat_wrk_cy"), null, g("p3_e11_fat_wrk_py")],
+      ]
+    ),
+    tableBlock(
+      "13. Complaints related to Working Conditions and Health & Safety",
+      ["Category", "CY Filed", "CY Pending", "CY Remarks", "PY Filed", "PY Pending", "PY Remarks"],
+      [
+        ["Working Conditions", g("p3_e13_wc_cy_f"), g("p3_e13_wc_cy_p"), g("p3_e13_wc_cy_r"), g("p3_e13_wc_py_f"), g("p3_e13_wc_py_p"), g("p3_e13_wc_py_r")],
+        ["Health & Safety", g("p3_e13_hs_cy_f"), g("p3_e13_hs_cy_p"), g("p3_e13_hs_cy_r"), g("p3_e13_hs_py_f"), g("p3_e13_hs_py_p"), g("p3_e13_hs_py_r")],
+      ]
+    ),
+    proseBlock("12. Details of safety-related incidents", `HS assessment: ${g("p3_e14_hs") ?? ""}; WC assessment: ${g("p3_e14_wc") ?? ""}`),
+    proseBlock("15. Corrective action taken", g("p3_e15_corrective")),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    proseBlock("L1. Life and disability cover", `Employees: ${g("p3_l1_emp") ?? ""}; Workers: ${g("p3_l1_wrk") ?? ""}`),
+    proseBlock("L2. Statutory vs contractual benefits", g("p3_l2_statutory")),
+    tableBlock(
+      "L3. Employees/workers covered in health and safety training",
+      ["Category", "Total – CY", "Regular – CY", "Total – PY", "Regular – PY"],
+      [
+        ["Employees", g("p3_l3_emp_cy_t"), g("p3_l3_emp_cy_r"), g("p3_l3_emp_py_t"), g("p3_l3_emp_py_r")],
+        ["Workers", g("p3_l3_wrk_cy_t"), g("p3_l3_wrk_cy_r"), g("p3_l3_wrk_py_t"), g("p3_l3_wrk_py_r")],
+      ]
+    ),
+    proseBlock("L4. Transition assistance programs", g("p3_l4_transition")),
+    proseBlock("L5. Complaints on OHS / Working Conditions (corrective action)", `HS: ${g("p3_l5_hs") ?? ""}; WC: ${g("p3_l5_wc") ?? ""}`),
+    proseBlock("L6. Corrective action (leadership)", g("p3_l6_corrective")),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P4 (Stakeholders) ───────────────────────────────────────────────────────
+
+function buildP4DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    proseBlock("1. Process for identifying stakeholders", g("p4_e1_process")),
+    tableBlock(
+      "2. Stakeholder identification and engagement",
+      ["Stakeholder group", "Material issue / vulnerability", "Communication channels", "Other channels", "Frequency", "Other frequency", "Purpose"],
+      dynamicRows(answers, "p4_e2_rowcount", "p4_e2_row", ["name", "vuln", "chan", "chan_other", "freq", "freq_other", "purpose"])
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    proseBlock("L1. Consultative process for key decisions", g("p4_l1_consult")),
+    proseBlock("L2. Special initiatives / programs for disadvantaged stakeholders", `${g("p4_l2_yn") ?? ""}\n${g("p4_l2_instances") ?? ""}`),
+    proseBlock("L3. Engagement with local and marginalized communities", g("p4_l3_engagement")),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P5 (Human Rights) ───────────────────────────────────────────────────────
+
+function buildP5DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    tableBlock(
+      "1. Employees and workers covered by human rights training",
+      ["Category", "Total – CY", "Covered – CY", "Total – PY", "Covered – PY"],
+      [
+        ["Employees – Permanent", g("p5_e1_emp_perm_t_cy"), g("p5_e1_emp_perm_c_cy"), g("p5_e1_emp_perm_t_py"), g("p5_e1_emp_perm_c_py")],
+        ["Employees – Other", g("p5_e1_emp_oth_t_cy"), g("p5_e1_emp_oth_c_cy"), g("p5_e1_emp_oth_t_py"), g("p5_e1_emp_oth_c_py")],
+        ["Workers – Permanent", g("p5_e1_wrk_perm_t_cy"), g("p5_e1_wrk_perm_c_cy"), g("p5_e1_wrk_perm_t_py"), g("p5_e1_wrk_perm_c_py")],
+        ["Workers – Other", g("p5_e1_wrk_oth_t_cy"), g("p5_e1_wrk_oth_c_cy"), g("p5_e1_wrk_oth_t_py"), g("p5_e1_wrk_oth_c_py")],
+      ]
+    ),
+    tableBlock(
+      "3(b). Complaints on sexual harassment, discrimination, child labour, forced labour, wages",
+      ["Category", "CY Filed", "CY Total", "PY Filed", "PY Total"],
+      [
+        ["Sexual harassment", g("p5_e3b_cy_f"), g("p5_e3b_cy_t"), g("p5_e3b_py_f"), g("p5_e3b_py_t")],
+      ]
+    ),
+    proseBlock("4. Focal point for human rights issues", g("p5_e4_focal")),
+    proseBlock("5. Internal mechanism for raising grievances on human rights", g("p5_e5_mech")),
+    tableBlock(
+      "6. Complaints filed under the human rights framework",
+      ["Category", "CY Filed", "CY Pending", "CY Remarks", "PY Filed", "PY Pending", "PY Remarks"],
+      [
+        ["Sexual harassment", g("p5_e6_sh_cy_f"), g("p5_e6_sh_cy_p"), g("p5_e6_sh_cy_r"), g("p5_e6_sh_py_f"), g("p5_e6_sh_py_p"), g("p5_e6_sh_py_r")],
+        ["Discrimination at workplace", g("p5_e6_disc_cy_f"), g("p5_e6_disc_cy_p"), g("p5_e6_disc_cy_r"), g("p5_e6_disc_py_f"), g("p5_e6_disc_py_p"), g("p5_e6_disc_py_r")],
+        ["Child labour", g("p5_e6_cl_cy_f"), g("p5_e6_cl_cy_p"), g("p5_e6_cl_cy_r"), g("p5_e6_cl_py_f"), g("p5_e6_cl_py_p"), g("p5_e6_cl_py_r")],
+        ["Forced labour / involuntary labour", g("p5_e6_fl_cy_f"), g("p5_e6_fl_cy_p"), g("p5_e6_fl_cy_r"), g("p5_e6_fl_py_f"), g("p5_e6_fl_py_p"), g("p5_e6_fl_py_r")],
+        ["Wages", g("p5_e6_wg_cy_f"), g("p5_e6_wg_cy_p"), g("p5_e6_wg_cy_r"), g("p5_e6_wg_py_f"), g("p5_e6_wg_py_p"), g("p5_e6_wg_py_r")],
+        ["Other HR related", g("p5_e6_oth_cy_f"), g("p5_e6_oth_cy_p"), g("p5_e6_oth_cy_r"), g("p5_e6_oth_py_f"), g("p5_e6_oth_py_p"), g("p5_e6_oth_py_r")],
+      ]
+    ),
+    tableBlock(
+      "7. Mechanisms to prevent adverse consequences to complainants",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Total complaints received", g("p5_e7_tot_cy"), g("p5_e7_tot_py")],
+        ["Filed by employees", g("p5_e7_f_cy"), g("p5_e7_f_py")],
+        ["Up-streamed to authorities", g("p5_e7_up_cy"), g("p5_e7_up_py")],
+      ]
+    ),
+    proseBlock("8. Mechanism in place to prevent adverse consequences to complainant/whistle blower", g("p5_e8_mech")),
+    proseBlock("9. Contracts with value chain partners ensuring human rights", g("p5_e9_contracts")),
+    proseBlock("10. Assessments for child labour, forced/involuntary labour, sexual harassment, discrimination, wages", `Child labour: ${g("p5_e10_cl") ?? ""}; Forced labour: ${g("p5_e10_fl") ?? ""}; Sexual harassment: ${g("p5_e10_sh") ?? ""}; Discrimination: ${g("p5_e10_disc") ?? ""}; Wages: ${g("p5_e10_wg") ?? ""}; Other: ${g("p5_e10_oth") ?? ""} ${g("p5_e10_oth_details") ?? ""}`),
+    proseBlock("11. Corrective action taken on human rights issues", g("p5_e11_corrective")),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    proseBlock("L1. Process to address human rights in value chain", g("p5_l1_process")),
+    proseBlock("L2. Scope of human rights commitments", g("p5_l2_scope")),
+    proseBlock("L3. Mechanisms enabling accessibility", g("p5_l3_access")),
+    proseBlock("L5. Corrective action on human rights in value chain", g("p5_l5_corrective")),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P7 (Public and Regulatory Policy) ───────────────────────────────────────
+
+function buildP7DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    proseBlock("1(a). Number of trade and industry chambers / associations the entity is a member of", g("p7_e1a_count")),
+    tableBlock(
+      "1(b). Trade and industry chamber memberships",
+      ["Chamber / Association Name", "Reach"],
+      Array.from({ length: 10 }, (_, i) => [g(`p7_e1b_${i + 1}_name`), g(`p7_e1b_${i + 1}_reach`)]).filter((r) => r.some((v) => v !== null))
+    ),
+    tableBlock(
+      "2. Anti-competitive conduct — corrective actions taken",
+      ["Authority name", "Brief of case", "Corrective action"],
+      dynamicRows(answers, "p7_e2_rowcount", "p7_e2_row", ["auth", "brief", "action"])
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    tableBlock(
+      "L1. Public policy positions",
+      ["Policy advocated", "Method", "Frequency", "Web link publicly available?", "Web link"],
+      dynamicRows(answers, "p7_l1_rowcount", "p7_l1_row", ["policy", "method", "freq", "public", "link"])
+    ),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P8 (Inclusive Growth and Equitable Development) ─────────────────────────
+
+function buildP8DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    tableBlock(
+      "1. Social impact assessments (SIA) for projects",
+      ["Project name", "Notified?", "Date of notification", "Conducted by independent entity?", "Published?", "Web link"],
+      dynamicRows(answers, "p8_e1_rowcount", "p8_e1_row", ["name", "notif", "date", "ind", "pub", "link"])
+    ),
+    tableBlock(
+      "2. Projects / programs for rehabilitation and resettlement",
+      ["Name of project / programme", "State", "District", "PAF (Project Affected Families)", "% of PAF covered", "Amount paid (INR)"],
+      dynamicRows(answers, "p8_e2_rowcount", "p8_e2_row", ["name", "state", "dist", "paf", "pct", "amt"])
+    ),
+    proseBlock("3. Grievance redressal mechanism for communities", g("p8_e3_griev")),
+    tableBlock(
+      "4. Direct value created for local supply chain",
+      ["Metric", "FY Current Year (INR)", "FY Previous Year (INR)"],
+      [
+        ["Sourced from MSMEs / small producers", g("p8_e4_msme_cy"), g("p8_e4_msme_py")],
+        ["Sourced from within the district / 200 km", g("p8_e4_india_cy"), g("p8_e4_india_py")],
+      ]
+    ),
+    tableBlock(
+      "5. Job creation in smaller towns",
+      ["Location", "FY Current – Women", "FY Current – Total", "FY Previous – Women", "FY Previous – Total"],
+      [
+        ["Rural", g("p8_e5_rural_w_cy"), g("p8_e5_rural_t_cy"), g("p8_e5_rural_w_py"), g("p8_e5_rural_t_py")],
+        ["Semi-urban", g("p8_e5_semi_w_cy"), g("p8_e5_semi_t_cy"), g("p8_e5_semi_w_py"), g("p8_e5_semi_t_py")],
+        ["Urban", g("p8_e5_urb_w_cy"), g("p8_e5_urb_t_cy"), g("p8_e5_urb_w_py"), g("p8_e5_urb_t_py")],
+        ["Metropolitan", g("p8_e5_metro_w_cy"), g("p8_e5_metro_t_cy"), g("p8_e5_metro_w_py"), g("p8_e5_metro_t_py")],
+      ]
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    tableBlock(
+      "L1. Significant adverse social impact identified in value chain",
+      ["Social impact identified", "Corrective action"],
+      dynamicRows(answers, "p8_l1_rowcount", "p8_l1_row", ["impact", "action"])
+    ),
+    tableBlock(
+      "L2. CSR projects in aspirational districts",
+      ["State", "District", "Amount spent (INR Crore)"],
+      dynamicRows(answers, "p8_l2_rowcount", "p8_l2_row", ["state", "dist", "amt"])
+    ),
+    proseBlock("L3. Preference to marginalized / vulnerable groups", `${g("p8_l3_yn") ?? ""}\n${g("p8_l3_groups") ?? ""}\n${g("p8_l3_pct") ?? ""}`),
+    tableBlock(
+      "L4. Intellectual property rights over traditional knowledge",
+      ["IP-based product / service", "Owner", "Beneficiary", "Basis of benefit sharing"],
+      dynamicRows(answers, "p8_l4_rowcount", "p8_l4_row", ["ip", "own", "ben", "basis"])
+    ),
+    tableBlock(
+      "L5. Corrective actions for negative impact on communities",
+      ["Authority name", "Brief of case", "Corrective action"],
+      dynamicRows(answers, "p8_l5_rowcount", "p8_l5_row", ["auth", "brief", "action"])
+    ),
+    tableBlock(
+      "L6. Beneficiaries of CSR projects",
+      ["CSR project", "No. of persons benefited", "% of beneficiaries from vulnerable groups"],
+      dynamicRows(answers, "p8_l6_rowcount", "p8_l6_row", ["proj", "num", "pct"])
+    ),
+  ];
+
+  return { essential, leadership };
+}
+
+// ─── P9 (Consumers) ───────────────────────────────────────────────────────────
+
+function buildP9DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    proseBlock("1. Mechanisms for receiving and responding to consumer complaints / feedback", g("p9_e1_mech")),
+    proseBlock("2. Turnover of products and services with environmental and social information labelled", `Environmental labelling: ${g("p9_e2_env") ?? ""}; Safe use information: ${g("p9_e2_safe") ?? ""}; Recyclability info: ${g("p9_e2_recycle") ?? ""}`),
+    tableBlock(
+      "3. Number of consumer complaints with respect to the following",
+      ["Category", "CY Filed", "CY Pending", "CY Remarks", "PY Filed", "PY Pending", "PY Remarks"],
+      [
+        ["Data privacy", g("p9_e3_dp_cy_f"), g("p9_e3_dp_cy_p"), g("p9_e3_dp_cy_r"), g("p9_e3_dp_py_f"), g("p9_e3_dp_py_p"), g("p9_e3_dp_py_r")],
+        ["Advertising", g("p9_e3_adv_cy_f"), g("p9_e3_adv_cy_p"), g("p9_e3_adv_cy_r"), g("p9_e3_adv_py_f"), g("p9_e3_adv_py_p"), g("p9_e3_adv_py_r")],
+        ["Cyber-security", g("p9_e3_cs_cy_f"), g("p9_e3_cs_cy_p"), g("p9_e3_cs_cy_r"), g("p9_e3_cs_py_f"), g("p9_e3_cs_py_p"), g("p9_e3_cs_py_r")],
+        ["Delivery of essential services", g("p9_e3_del_cy_f"), g("p9_e3_del_cy_p"), g("p9_e3_del_cy_r"), g("p9_e3_del_py_f"), g("p9_e3_del_py_p"), g("p9_e3_del_py_r")],
+        ["Restrictive trade practices", g("p9_e3_rtp_cy_f"), g("p9_e3_rtp_cy_p"), g("p9_e3_rtp_cy_r"), g("p9_e3_rtp_py_f"), g("p9_e3_rtp_py_p"), g("p9_e3_rtp_py_r")],
+        ["Unfair trade practices", g("p9_e3_utp_cy_f"), g("p9_e3_utp_cy_p"), g("p9_e3_utp_cy_r"), g("p9_e3_utp_py_f"), g("p9_e3_utp_py_p"), g("p9_e3_utp_py_r")],
+        ["Other", g("p9_e3_oth_cy_f"), g("p9_e3_oth_cy_p"), g("p9_e3_oth_cy_r"), g("p9_e3_oth_py_f"), g("p9_e3_oth_py_p"), g("p9_e3_oth_py_r")],
+      ]
+    ),
+    proseBlock("4. Product recalls (voluntary and forced)", `Voluntary: number = ${g("p9_e4_vol_num") ?? ""}; reason = ${g("p9_e4_vol_reason") ?? ""}\nForced: number = ${g("p9_e4_for_num") ?? ""}; reason = ${g("p9_e4_for_reason") ?? ""}`),
+    proseBlock("5. Consumer satisfaction surveys", `Framework: ${g("p9_e5_framework") ?? ""}; Web link: ${g("p9_e5_link") ?? ""}`),
+    proseBlock("6. Corrective action taken on data privacy issues", g("p9_e6_corrective")),
+    tableBlock(
+      "7. Channels and platforms for consumer communication",
+      ["Channel", "FY Current Year", "FY Previous Year"],
+      [
+        ["Digital / online", g("p9_e7a_cy"), g("p9_e7a_py")],
+        ["Traditional", g("p9_e7b_cy"), g("p9_e7b_py")],
+        ["Dedicated support", g("p9_e7c_cy"), g("p9_e7c_py")],
+      ]
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    proseBlock("L1. Channels to disseminate information to customers", g("p9_l1_channels")),
+    proseBlock("L2. Steps to inform and educate consumers", g("p9_l2_steps")),
+    proseBlock("L3. Mechanism to address grievances with respect to data usage", g("p9_l3_mech")),
+    proseBlock("L4. Fair / responsible marketing", `${g("p9_l4_beyond") ?? ""}\n${g("p9_l4_detail") ?? ""}\n${g("p9_l4_survey") ?? ""}`),
+  ];
+
+  return { essential, leadership };
+}
+
+/** Dispatch to the correct per-principle docxBlocks builder. */
+function buildDocxBlocks(answers: Record<string, string>, n: number): BRSRPrinciple["docxBlocks"] | undefined {
+  switch (n) {
+    case 1: return buildP1DocxBlocks(answers);
+    case 2: return buildP2DocxBlocks(answers);
+    case 3: return buildP3DocxBlocks(answers);
+    case 4: return buildP4DocxBlocks(answers);
+    case 5: return buildP5DocxBlocks(answers);
+    // P6 keeps the existing subsections path (complex autofill structure)
+    case 7: return buildP7DocxBlocks(answers);
+    case 8: return buildP8DocxBlocks(answers);
+    case 9: return buildP9DocxBlocks(answers);
+    default: return undefined;
+  }
+}
+
 function mapPrinciple(answers: Record<string, string>, principleNum: number): BRSRPrinciple {
   const get = (code: string) => val(answers[code]);
   const essential: BRSRIndicator[] = [];
@@ -592,7 +1178,8 @@ function mapPrinciple(answers: Record<string, string>, principleNum: number): BR
   }
 
   const ngrbcStatement = NGRBC_PRINCIPLE_TITLES[principleNum] ?? "";
-  return { ngrbcStatement, essential, leadership, subsections };
+  const docxBlocks = buildDocxBlocks(answers, principleNum);
+  return { ngrbcStatement, essential, leadership, subsections, docxBlocks };
 }
 
 function mapSectionC(answers: Record<string, string>): BRSRSectionC {
