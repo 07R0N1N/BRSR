@@ -14,7 +14,7 @@ import {
   WidthType,
   Footer,
   PageNumber,
-  AlignmentType,
+  TabStopType,
 } from "docx";
 import type {
   BRSRExportData,
@@ -40,6 +40,40 @@ const FONT = "Arial";
 const SZ_12 = 12 * 2; // section heading
 const SZ_10 = 10 * 2; // subheading
 const SZ_8 = 8 * 2; // questions + table items
+
+/** Sentinel emitted by brsrDataMapper for unanswered fields. */
+const MAPPER_EMPTY = "—";
+/** Footer tab stop: A4 content width at 1-inch margins (11906 − 2×1440 twips). */
+const FOOTER_TAB_TWIPS = 9026;
+
+/** Unanswered value for prose/narrative contexts. */
+export const PROSE_EMPTY = "Disclosure Not Available";
+
+/**
+ * Table-cell value: converts mapper sentinel / null / blank to an empty
+ * string so cells are left blank rather than showing "—".
+ */
+export function tv(v: string | null | undefined): string {
+  if (v == null || v === MAPPER_EMPTY || v === "") return "";
+  return v;
+}
+
+/**
+ * Prose value: converts mapper sentinel / null / blank to the standard
+ * "Disclosure Not Available" disclosure string for narrative paragraphs.
+ */
+export function pv(v: string | null | undefined): string {
+  if (v == null || v === MAPPER_EMPTY || v === "") return PROSE_EMPTY;
+  return v;
+}
+
+/**
+ * Returns true when every value in the array is blank or the mapper sentinel.
+ * Used to skip all-empty dynamic rows in table builders.
+ */
+export function isRowEmpty(vals: (string | null | undefined)[]): boolean {
+  return vals.every((v) => v == null || v === MAPPER_EMPTY || v === "");
+}
 
 function heading1(text: string) {
   return new Paragraph({
@@ -100,7 +134,7 @@ function subHeading(text: string) {
 
 function cellSerif(text: string, shaded?: boolean) {
   return new TableCell({
-    children: [new Paragraph({ children: [new TextRun({ text, size: SZ_8, font: FONT })] })],
+    children: [new Paragraph({ children: [new TextRun({ text: tv(text), size: SZ_8, font: FONT })] })],
     shading: shaded ? { fill: TABLE_ALT_FILL } : undefined,
   });
 }
@@ -129,7 +163,7 @@ function indicatorsToTable(indicators: BRSRIndicator[]): Table | null {
           shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
         }),
         new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: ind.value, size: SZ_8, font: FONT })] })],
+          children: [new Paragraph({ children: [new TextRun({ text: tv(ind.value), size: SZ_8, font: FONT })] })],
           shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
         }),
       ],
@@ -173,7 +207,7 @@ function buildDetailsTable(indicators: BRSRIndicator[]): Table | null {
 
 function cell(text: string, shaded?: boolean) {
   return new TableCell({
-    children: [new Paragraph({ children: [new TextRun({ text, size: SZ_8, font: FONT })] })],
+    children: [new Paragraph({ children: [new TextRun({ text: tv(text), size: SZ_8, font: FONT })] })],
     shading: shaded ? { fill: TABLE_ALT_FILL } : undefined,
   });
 }
@@ -350,7 +384,7 @@ function buildTurnoverCombinedTable(
     { year: "Previous Year", male: "", female: "", other: "", total: "" },
     { year: "Prior to Previous Year", male: "", female: "", other: "", total: "" },
   ];
-  const val = (r: BRSRTurnoverRow, k: keyof BRSRTurnoverRow) => (r[k] as string) || "—";
+  const val = (r: BRSRTurnoverRow, k: keyof BRSRTurnoverRow) => tv(r[k] as string);
 
   const headerRow1 = new TableRow({
     children: [
@@ -537,7 +571,7 @@ export async function buildBRSRDocx(
 
   // Section A (page 1 – no cover page)
   if (sections.includes("sectionA")) {
-    children.push(sectionBar("SECTION A: GENERAL DISCLOSURES"));
+    children.push(sectionBar("Section A: General Disclosures"));
 
     // I. Details
     if (data.sectionA.details.length > 0) {
@@ -592,11 +626,11 @@ export async function buildBRSRDocx(
         }
         if (exportPct && (exportPct.value || exportPct.label)) {
           children.push(subHeading(`ii. ${exportPct.label.replace(/^19\(b\)\.\s*/, "")}`));
-          children.push(bodySerif(exportPct.value || "—"));
+          children.push(bodySerif(pv(exportPct.value)));
         }
         if (customers && (customers.value || customers.label)) {
           children.push(subHeading(`iii. ${customers.label.replace(/^19\(c\)\.\s*/, "")}`));
-          children.push(bodySerif(customers.value || "—"));
+          children.push(bodySerif(pv(customers.value)));
         }
       }
     }
@@ -670,7 +704,7 @@ export async function buildBRSRDocx(
       ];
       for (let i = 0; i < csrLabels.length; i++) {
         children.push(subHeading(csrLabels[i]));
-        children.push(body(data.sectionA.csr[i]?.value || "—"));
+        children.push(body(pv(data.sectionA.csr[i]?.value)));
       }
     }
 
@@ -695,7 +729,7 @@ export async function buildBRSRDocx(
 
   // Section B
   if (sections.includes("sectionB")) {
-    children.push(heading2("Section B – Management & Process"));
+    children.push(heading2("Section B: Management & Process Disclosures"));
     children.push(heading3("I. Policy and management processes"));
     const policiesTbl = buildPoliciesMatrix(data.sectionB.policies);
     if (policiesTbl) children.push(policiesTbl);
@@ -716,11 +750,16 @@ export async function buildBRSRDocx(
   }
 
   // Section C – Principles 1–9
+  let sectionCHeadingAdded = false;
   for (let n = 1; n <= 9; n++) {
     const pid = `p${n}` as BRSRSectionId;
     if (!sections.includes(pid)) continue;
     const p = data.sectionC[`p${n}` as keyof typeof data.sectionC];
     if (!p) continue;
+    if (!sectionCHeadingAdded) {
+      children.push(heading2("Section C: Principle wise performance disclosure"));
+      sectionCHeadingAdded = true;
+    }
     children.push(heading2(`Principle ${n}`));
     if (p.ngrbcStatement) {
       children.push(body(p.ngrbcStatement));
@@ -762,36 +801,17 @@ export async function buildBRSRDocx(
         footers: {
           default: new Footer({
             children: [
-              new Table({
-                rows: [
-                  new TableRow({
-                    children: [
-                      new TableCell({
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.LEFT,
-                            children: [new TextRun({ text: `${data.org.name} - `, font: FONT, size: SZ_8 })],
-                          }),
-                        ],
-                      }),
-                      new TableCell({
-                        children: [
-                          new Paragraph({
-                            alignment: AlignmentType.RIGHT,
-                            children: [
-                              new TextRun({
-                                children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
-                                font: FONT,
-                                size: SZ_8,
-                              }),
-                            ],
-                          }),
-                        ],
-                      }),
-                    ],
+              new Paragraph({
+                tabStops: [{ type: TabStopType.RIGHT, position: FOOTER_TAB_TWIPS }],
+                children: [
+                  new TextRun({ text: `${data.org.name} - `, font: FONT, size: SZ_8 }),
+                  new TextRun({ text: "\t" }),
+                  new TextRun({
+                    children: ["Page ", PageNumber.CURRENT, " of ", PageNumber.TOTAL_PAGES],
+                    font: FONT,
+                    size: SZ_8,
                   }),
                 ],
-                width: { size: 100, type: WidthType.PERCENTAGE },
               }),
             ],
           }),
