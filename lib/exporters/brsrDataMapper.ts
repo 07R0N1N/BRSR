@@ -29,6 +29,8 @@ import type {
   BRSRSectionC,
   BRSRTurnoverRow,
   BRSRWomenParticipationRow,
+  SBQ10Row,
+  SBQ11Row,
   OrgRow,
 } from "@/types/brsr";
 
@@ -320,9 +322,22 @@ function mapSectionA(answers: Record<string, string>): BRSRSectionA {
   const idx11 = details.findIndex((d) => d.label.startsWith("11."));
   if (stockEx && idx11 >= 0) details.splice(idx11, 0, { label: GENERAL_LABELS["10"], value: val(stockEx) });
   else if (stockEx) details.push({ label: GENERAL_LABELS["10"], value: val(stockEx) });
-  const idx15 = details.findIndex((d) => d.label.startsWith("15."));
-  if (assurers && idx15 >= 0) details.splice(idx15, 0, { label: GENERAL_LABELS["14"], value: val(assurers) });
-  else if (assurers) details.push({ label: GENERAL_LABELS["14"], value: val(assurers) });
+
+  // Fold Q15 (assurance type) into Q14 value and override Q14 label per BRSR reference format.
+  // Q14 becomes: "Whether the company has undertaken reasonable assurance of the BRSR Core?"
+  // Q15 is removed as a standalone row.
+  const assuranceType = (answers["gen_15_assurance_type"] ?? "").trim();
+  const q14Value = [assurers, assuranceType].filter(Boolean).join("\nAssurance type: ");
+  const q15IdxBefore = details.findIndex((d) => d.label.startsWith("15."));
+  const q14Label = "14. Whether the company has undertaken reasonable assurance of the BRSR Core?";
+  if (q15IdxBefore >= 0) {
+    details.splice(q15IdxBefore, 0, { label: q14Label, value: q14Value || EMPTY });
+  } else {
+    details.push({ label: q14Label, value: q14Value || EMPTY });
+  }
+  // Remove the Q15 row that was separately added from the iteration (assurance type is now in Q14)
+  const q15IdxAfter = details.findIndex((d) => d.label.startsWith("15."));
+  if (q15IdxAfter >= 0) details.splice(q15IdxAfter, 1);
 
   const calcDisplay = runCalculations(answers);
   const answersWithCalc = { ...answers, ...Object.fromEntries(Object.entries(calcDisplay).map(([k, v]) => [k, v.replace(/%$/, "")])) };
@@ -365,6 +380,8 @@ function format11Cell(yn: string, agency: string): string {
   if (agency && agency !== "—") return `Yes – ${agency}`;
   return "Yes";
 }
+
+const PRINCIPLE_NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 function mapSectionB(answers: Record<string, string>): BRSRSectionB {
   const get = (code: string) => val(answers[code]);
@@ -414,7 +431,7 @@ function mapSectionB(answers: Record<string, string>): BRSRSectionB {
       p8 = get(`sb_${key}_p8`);
       p9 = get(`sb_${key}_p9`);
     }
-    policies.push({ question, p1, p2, p3, p4, p5, p6, p7, p8, p9 });
+    policies.push({ key, question, p1, p2, p3, p4, p5, p6, p7, p8, p9 });
   }
 
   const leadership: BRSRIndicator[] = [];
@@ -422,11 +439,34 @@ function mapSectionB(answers: Record<string, string>): BRSRSectionB {
     leadership.push({ label: `9. Committee of Board – Principle ${n}`, value: get(`sb_9_p${n}`) });
   }
 
+  const q10Performance: SBQ10Row[] = PRINCIPLE_NUMS.map((n) => ({
+    principle: `P${n}`,
+    review: get(`sb_10a_p${n}_review`),
+    freq: get(`sb_10a_p${n}_freq`),
+    desc: get(`sb_10a_p${n}`),
+  }));
+
+  const q10Compliance: SBQ10Row[] = PRINCIPLE_NUMS.map((n) => ({
+    principle: `P${n}`,
+    review: get(`sb_10b_p${n}_review`),
+    freq: get(`sb_10b_p${n}_freq`),
+    desc: get(`sb_10b_p${n}`),
+  }));
+
+  const q11Assessment: SBQ11Row[] = PRINCIPLE_NUMS.map((n) => ({
+    principle: `P${n}`,
+    yn: get(`sb_11_p${n}`),
+    agency: get(`sb_11_p${n}_agency`),
+  }));
+
   return {
     policies,
     directorStatement: get("sb_7_statement"),
     highestAuthority: get("sb_8_authority"),
     leadership,
+    q10Performance,
+    q10Compliance,
+    q11Assessment,
   };
 }
 

@@ -143,6 +143,8 @@ export type BRSRSectionA = {
 
 /** Row for Section B policies matrix (question × P1–P9) */
 export type BRSRPoliciesMatrixRow = {
+  /** Identifies which Section B question this row represents (e.g. "1a", "2", "10a"). */
+  key: string;
   question: string;
   p1: string;
   p2: string;
@@ -155,16 +157,37 @@ export type BRSRPoliciesMatrixRow = {
   p9: string;
 };
 
+/** Per-principle row for Q10 performance/compliance review tables (sb_10a/10b) */
+export type SBQ10Row = {
+  principle: string;
+  review: string;
+  freq: string;
+  desc: string;
+};
+
+/** Per-principle row for Q11 independent assessment table (sb_11) */
+export type SBQ11Row = {
+  principle: string;
+  yn: string;
+  agency: string;
+};
+
 /** Section B – Management & Process */
 export type BRSRSectionB = {
-  /** Policies matrix (sb_1a–11 × P1–P9) */
+  /** Policies matrix (sb_1a–11 × P1–P9) — kept for XLSX compatibility */
   policies: BRSRPoliciesMatrixRow[];
   /** Director statement (sb_7) */
   directorStatement: string;
   /** Highest authority (sb_8) */
   highestAuthority: string;
-  /** Leadership (sb_9 committee) */
+  /** Committee of Board per principle (sb_9_p1…p9) */
   leadership: BRSRIndicator[];
+  /** Q10(a) performance review per principle — raw fields for per-question table rendering */
+  q10Performance: SBQ10Row[];
+  /** Q10(b) compliance review per principle — raw fields for per-question table rendering */
+  q10Compliance: SBQ10Row[];
+  /** Q11 independent assessment per principle — raw fields for per-question table rendering */
+  q11Assessment: SBQ11Row[];
 };
 
 /** Principle data – Essential and Leadership indicators */

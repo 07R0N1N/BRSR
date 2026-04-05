@@ -29,6 +29,8 @@ import type {
   BRSRSectionId,
   BRSRTurnoverRow,
   BRSRWomenParticipationRow,
+  SBQ10Row,
+  SBQ11Row,
 } from "@/types/brsr";
 import { getFYLabels } from "@/lib/brsr/fyLabels";
 
@@ -175,27 +177,38 @@ function indicatorsToTable(indicators: BRSRIndicator[]): Table | null {
   });
 }
 
-function buildDetailsTable(indicators: BRSRIndicator[]): Table | null {
+/**
+ * Section A Q1–Q14 table: 3-column layout per the Eternal reference format.
+ * Column widths are equal thirds of A4 content width at 1-inch margins (~3009 DXA each).
+ */
+function buildSectionADetailsTable(indicators: BRSRIndicator[]): Table | null {
   if (indicators.length === 0) return null;
-  const headerRow = new TableRow({
-    children: [
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Particulars", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
-        width: { size: 60, type: WidthType.PERCENTAGE },
-      }),
-      new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Notes", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
-        width: { size: 40, type: WidthType.PERCENTAGE },
-      }),
-    ],
-  });
+  const COL_W = 3009; // 1/3 of 9026 twips content width, in DXA
+  const hdr = (text: string) =>
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
+      shading: { fill: TABLE_HEADER_FILL },
+      width: { size: COL_W, type: WidthType.DXA },
+    });
+  const headerRow = new TableRow({ children: [hdr("Question"), hdr("Value"), hdr("Notes")] });
   const bodyRows = indicators.map((ind, i) =>
     new TableRow({
       children: [
-        cellSerif(ind.label, i % 2 === 1),
-        cellSerif(ind.value, i % 2 === 1),
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: ind.label, size: SZ_8, font: FONT })] })],
+          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          width: { size: COL_W, type: WidthType.DXA },
+        }),
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: tv(ind.value), size: SZ_8, font: FONT })] })],
+          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          width: { size: COL_W, type: WidthType.DXA },
+        }),
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: "", size: SZ_8, font: FONT })] })],
+          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          width: { size: COL_W, type: WidthType.DXA },
+        }),
       ],
     })
   );
@@ -475,22 +488,123 @@ function buildTurnoverCombinedTable(
   });
 }
 
-function buildPoliciesMatrix(rows: BRSRPoliciesMatrixRow[]): Table | null {
-  if (rows.length === 0) return null;
-  const cols = ["Policy question", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"];
-  const keys = ["question", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"] as const;
+const PRINCIPLE_LABELS = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"] as const;
+const PRINCIPLE_KEYS = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"] as const;
+
+/**
+ * Q1 — 4-column table, P1–P9 as rows: Principle | Policy covers NGRBCs? | Board approved? | Weblink
+ * Reads keys "1a", "1b", "1c" from the policies array and transposes to principle rows.
+ */
+function buildQ1Table(policies: BRSRPoliciesMatrixRow[]): Table | null {
+  const r1a = policies.find((r) => r.key === "1a");
+  const r1b = policies.find((r) => r.key === "1b");
+  const r1c = policies.find((r) => r.key === "1c");
+  if (!r1a && !r1b && !r1c) return null;
   const headerRow = new TableRow({
-    children: cols.map((c) => headerCell(c)),
+    children: [
+      headerCell("Principle"),
+      headerCell("Policy covers NGRBCs?"),
+      headerCell("Board approved?"),
+      headerCell("Web link"),
+    ],
+  });
+  const bodyRows = PRINCIPLE_KEYS.map((pk, i) =>
+    new TableRow({
+      children: [
+        cell(PRINCIPLE_LABELS[i], i % 2 === 1),
+        cell(r1a?.[pk] ?? "", i % 2 === 1),
+        cell(r1b?.[pk] ?? "", i % 2 === 1),
+        cell(r1c?.[pk] ?? "", i % 2 === 1),
+      ],
+    })
+  );
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+}
+
+/**
+ * Q2–Q6 — one 2-column table per question, P1–P9 as rows: Principle | Answer.
+ * Pass the single matching policies row for the question key.
+ */
+function buildQ2to6Table(row: BRSRPoliciesMatrixRow | undefined, questionLabel: string): Table | null {
+  if (!row) return null;
+  const headerRow = new TableRow({
+    children: [headerCell("Principle"), headerCell(questionLabel)],
+  });
+  const bodyRows = PRINCIPLE_KEYS.map((pk, i) =>
+    new TableRow({
+      children: [cell(PRINCIPLE_LABELS[i], i % 2 === 1), cell(row[pk], i % 2 === 1)],
+    })
+  );
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+}
+
+/**
+ * Q9 — standalone 2-column table, P1–P9 as rows: Principle | Committee value.
+ * Reads from `leadership` BRSRIndicator array (sb_9_p1…p9).
+ */
+function buildQ9Table(leadership: BRSRIndicator[]): Table | null {
+  if (leadership.length === 0) return null;
+  const headerRow = new TableRow({
+    children: [headerCell("Principle"), headerCell("Committee responsible for oversight")],
+  });
+  const bodyRows = PRINCIPLE_LABELS.map((pl, i) => {
+    const ind = leadership[i];
+    return new TableRow({
+      children: [cell(pl, i % 2 === 1), cell(ind?.value ?? "", i % 2 === 1)],
+    });
+  });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+}
+
+/**
+ * Q10(a/b) — one 4-column table per sub-question, P1–P9 as rows:
+ * Principle | Review Oversight | Frequency | Description.
+ */
+function buildQ10Table(rows: SBQ10Row[]): Table | null {
+  if (rows.length === 0) return null;
+  const headerRow = new TableRow({
+    children: [
+      headerCell("Principle"),
+      headerCell("Review Oversight"),
+      headerCell("Frequency"),
+      headerCell("Description"),
+    ],
   });
   const bodyRows = rows.map((row, i) =>
     new TableRow({
-      children: keys.map((k) => cell(row[k], i % 2 === 1)),
+      children: [
+        cell(row.principle, i % 2 === 1),
+        cell(row.review, i % 2 === 1),
+        cell(row.freq, i % 2 === 1),
+        cell(row.desc, i % 2 === 1),
+      ],
     })
   );
-  return new Table({
-    rows: [headerRow, ...bodyRows],
-    width: { size: 100, type: WidthType.PERCENTAGE },
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+}
+
+/**
+ * Q11 — 3-column table, P1–P9 as rows: Principle | Assessment carried out? | Name of agency.
+ */
+function buildQ11Table(rows: SBQ11Row[]): Table | null {
+  if (rows.length === 0) return null;
+  const headerRow = new TableRow({
+    children: [
+      headerCell("Principle"),
+      headerCell("Assessment carried out?"),
+      headerCell("Name of external agency"),
+    ],
   });
+  const bodyRows = rows.map((row, i) =>
+    new TableRow({
+      children: [
+        cell(row.principle, i % 2 === 1),
+        cell(row.yn, i % 2 === 1),
+        cell(row.agency, i % 2 === 1),
+      ],
+    })
+  );
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
 }
 
 const COMPLAINTS_FY_SUBCOLS = [
@@ -573,10 +687,10 @@ export async function buildBRSRDocx(
   if (sections.includes("sectionA")) {
     children.push(sectionBar("Section A: General Disclosures"));
 
-    // I. Details
+    // I. Details (3-column: Question | Value | Notes)
     if (data.sectionA.details.length > 0) {
       children.push(subsectionTitle("I. Details of the Listed Entity"));
-      const tbl = buildDetailsTable(data.sectionA.details);
+      const tbl = buildSectionADetailsTable(data.sectionA.details);
       if (tbl) children.push(tbl);
     }
 
@@ -708,10 +822,10 @@ export async function buildBRSRDocx(
       }
     }
 
-    // VII. Complaints
+    // VII. Transparency and Disclosures Compliances
     if (data.sectionA.complaints.length > 0) {
-      children.push(sectionBar("VII. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
-      children.push(subsectionTitle("25. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
+      children.push(sectionBar("VII. Transparency and Disclosures Compliances"));
+      children.push(subsectionTitle("26. Complaints/Grievances on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct."));
       const [fy1, fy2] = getFYLabels(data.reportingYear);
       const tbl = buildComplaintsTable(data.sectionA.complaints, [fy1, fy2]);
       if (tbl) children.push(tbl);
@@ -730,22 +844,83 @@ export async function buildBRSRDocx(
   // Section B
   if (sections.includes("sectionB")) {
     children.push(heading2("Section B: Management & Process Disclosures"));
+
+    // I. Policy and management processes — per-question principle tables
     children.push(heading3("I. Policy and management processes"));
-    const policiesTbl = buildPoliciesMatrix(data.sectionB.policies);
-    if (policiesTbl) children.push(policiesTbl);
-    if (data.sectionB.directorStatement && data.sectionB.directorStatement !== "—") {
-      children.push(heading3("7. Statement by director"));
-      children.push(body(data.sectionB.directorStatement));
+
+    // Q1: 4-column (Principle | Policy covers NGRBCs? | Board approved? | Weblink)
+    const q1Tbl = buildQ1Table(data.sectionB.policies);
+    if (q1Tbl) {
+      children.push(subsectionTitle("1. Policy Details"));
+      children.push(q1Tbl);
     }
-    if (data.sectionB.highestAuthority && data.sectionB.highestAuthority !== "—") {
-      children.push(heading3("8. Highest authority"));
-      children.push(body(data.sectionB.highestAuthority));
+
+    // Q2–Q6: 2-column tables (Principle | Answer)
+    const Q2_TO_6: Array<{ key: string; label: string }> = [
+      { key: "2", label: "Answer" },
+      { key: "3", label: "Answer" },
+      { key: "4", label: "Answer" },
+      { key: "5", label: "Answer" },
+      { key: "6", label: "Answer" },
+    ];
+    for (const { key, label } of Q2_TO_6) {
+      const row = data.sectionB.policies.find((r) => r.key === key);
+      if (row) {
+        const tbl = buildQ2to6Table(row, label);
+        if (tbl) {
+          children.push(subsectionTitle(row.question));
+          children.push(tbl);
+        }
+      }
     }
-    if (data.sectionB.leadership.length > 0) {
-      children.push(heading3("9. Committee of Board"));
-      const leadershipTbl = indicatorsToTable(data.sectionB.leadership);
-      if (leadershipTbl) children.push(leadershipTbl);
+
+    // Q10(a): performance review — 4-column (Principle | Review Oversight | Frequency | Description)
+    const q10aTbl = buildQ10Table(data.sectionB.q10Performance);
+    if (q10aTbl) {
+      children.push(subsectionTitle("10(a). Review of NGRBCs – Performance vs policies"));
+      children.push(q10aTbl);
     }
+
+    // Q10(b): compliance — same structure
+    const q10bTbl = buildQ10Table(data.sectionB.q10Compliance);
+    if (q10bTbl) {
+      children.push(subsectionTitle("10(b). Compliance with statutory requirements"));
+      children.push(q10bTbl);
+    }
+
+    // Q11: independent assessment — 3-column
+    const q11Tbl = buildQ11Table(data.sectionB.q11Assessment);
+    if (q11Tbl) {
+      children.push(subsectionTitle("11. Independent assessment by external agency"));
+      children.push(q11Tbl);
+    }
+
+    // II. Governance, leadership and oversight
+    children.push(heading3("II. Governance, leadership and oversight"));
+
+    // Q7: Statement by director — always render (prose)
+    children.push(subsectionTitle("7. Statement by director responsible for the business responsibility report, highlighting ESG related challenges, targets and achievements"));
+    children.push(body(pv(data.sectionB.directorStatement)));
+
+    // Q8: Highest authority — always render (prose)
+    children.push(subsectionTitle("8. Details of the highest authority responsible for implementation and oversight of the BR policy"));
+    children.push(body(pv(data.sectionB.highestAuthority)));
+
+    // Q9: Committee of Board — standalone 2-column principle table
+    const q9Tbl = buildQ9Table(data.sectionB.leadership);
+    if (q9Tbl) {
+      children.push(subsectionTitle("9. Does the entity have a specified Committee of the Board / Director responsible for decision making on sustainability related issues?"));
+      children.push(q9Tbl);
+    }
+
+    // Section Notes
+    children.push(new Paragraph({
+      children: [new TextRun({ text: "Section Notes", bold: true, size: SZ_10, font: FONT })],
+      spacing: { before: 240, after: 120 },
+    }));
+    children.push(subsectionTitle("28. Do you have any additional details to provide on the Responsible Business Conduct policies and governance?"));
+    children.push(body(PROSE_EMPTY));
+
     children.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
@@ -782,6 +957,13 @@ export async function buildBRSRDocx(
         if (tbl) children.push(tbl);
       }
     }
+    // Section Notes block at the end of each principle
+    children.push(new Paragraph({
+      children: [new TextRun({ text: "Section Notes", bold: true, size: SZ_10, font: FONT })],
+      spacing: { before: 200, after: 100 },
+    }));
+    children.push(subsectionTitle("Do you have any additional details to provide on the responsible business conduct of your entity?"));
+    children.push(body(PROSE_EMPTY));
     children.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
