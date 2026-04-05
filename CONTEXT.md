@@ -59,9 +59,10 @@ BRSR/
 │   │   ├── accessPolicy.ts       # Pure policy: isMaster, canUseApp, redirectForIncompleteApp, etc.
 │   │   └── requireAppAccess.ts   # API route guard (builds AccessContext, returns 401/403)
 │   ├── exporters/
-│   │   ├── brsrDataMapper.ts     # mapAnswersToBRSR (answers → structured BRSR JSON)
+│   │   ├── brsrDataMapper.ts     # mapAnswersToBRSR + StructuredTable / PrincipleBlock types
 │   │   ├── brsrDocx.ts           # buildBRSRDocx
-│   │   └── brsrXlsx.ts           # buildBRSRXlsx
+│   │   ├── brsrXlsx.ts           # buildBRSRXlsx
+│   │   └── brsrDocx.test.ts     # unit tests for docx builder helpers
 │   └── brsr/
 │       ├── constants.ts           # REPORTING_YEARS, SAVE_DEBOUNCE_MS
 │       ├── questionCodes.ts       # All *_CODES arrays, getQuestionCodesForPanel, isQuestionCode
@@ -76,7 +77,7 @@ BRSR/
 │       ├── blockAccessPrefixes.ts # BLOCK_ACCESS_PREFIXES; RLS/UI block sync (see docs/prefix-sync.md)
 │       ├── visibilityUtils.ts     # isAllowed, filterByAllowed, sectionHasAnyAllowed
 │       ├── fyLabels.ts            # getFYLabelsFromReportingYear, getFYLabels
-│       └── principleBlocksConfig.ts # getStaticPrincipleBlocks (P1–5, P7–9 assignment blocks)
+│       └── principleBlocksConfig.ts # static assignment-block config by principle (P1–5, P7–9)
 ├── playwright/
 │   ├── tests/
 │   │   ├── global-setup.ts                   # Saves admin + user storageState
@@ -114,6 +115,8 @@ BRSR/
 | `user_question_assignments` | Per-user question assignments. `id`, `org_id`, `user_id`, `question_code`, `created_at`. Unique on (org_id, user_id, question_code). Created in 005. |
 | `brsr_questions` | Question metadata. `question_code` (PK), `panel_id`, `section_label`, `question_order`, `brsr_version` (default `'SEBI-2023'`), `is_active` (default `true`), `created_at`. Created in 007. |
 | `brsr_assignment_block_prefixes` | Prefix strings for `question_codes_share_assignment_block` / RLS alignment with `lib/brsr/blockAccessPrefixes.ts`. Created and seeded in 011. See `docs/prefix-sync.md`. |
+
+**Export TypeScript (not Postgres):** `types/brsr.ts` holds JSON export shapes (`BRSRExportData`, `BRSRPrinciple`, etc.). `StructuredTable` and `PrincipleBlock` are **not** defined there — they live in `lib/exporters/brsrDataMapper.ts` (moved from `types/brsr.ts` for the DOCX rebuild). `BRSRPrinciple.docxBlocks` is typed inline in `types/brsr.ts` to avoid a circular import with the mapper.
 
 ### 4.2 Migrations (run in order)
 
@@ -274,7 +277,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 - **`panels.ts`** — `PANELS` array of `{ id, label, group }`. Groups: "General Data", "Section A", "Section B", "Section C – Principles".
 - **`visibilityUtils.ts`** — `isAllowed(code, allowedSet)`, `filterByAllowed(codes, allowedSet)`, `sectionHasAnyAllowed(codes, allowedSet)`. Used in panel components for restricted-user visibility filtering.
 - **`fyLabels.ts`** — `getFYLabelsFromReportingYear(reportingYear)`, `getFYLabels(ry)`. Returns `[FY current, FY previous, FY prior]` display strings.
-- **`principleBlocksConfig.ts`** — `getStaticPrincipleBlocks(principleNum, codes)`. Static prefix-based assignment blocks for migrated principles P1–P5, P7–P9.
+- **`principleBlocksConfig.ts`** — Static prefix-based assignment blocks for migrated principles P1–P5, P7–P9; see module exports in source.
 - **`assignmentBlocks.ts`** — `AssignmentBlock` type, `GENERAL_LABELS`, `SECTION_B_LABELS`, `P6_PREFIX_LABELS`, `getAssignmentBlocksForPanel(panelId)`. Used in `AdminWorkspaceClient` and `OnboardingClient`.
 - **`principleTemplates.ts`** — `getPrincipleTemplate(principleNum)`. Raw HTML templates for P1–P9 (legacy `brsr-data-entry` style). Used by `parsePrincipleTemplateBlocks` for non-migrated flows (P6) and by `LegacyPrincipleRenderer` (unused legacy).
 
@@ -347,7 +350,8 @@ Copy `.env.local.example` to `.env.local` and set values. See README for setup s
 
 - **Supabase client**: Server components and API routes use `createClient()` from `@/lib/supabase/server` (cookie-based). Client components use `createClient()` from `@/lib/supabase/client`. Admin operations (e.g. create user, onboarding invites) use `createAdminClient()` from `@/lib/supabase/admin` with service role.
 - **Access policy**: `lib/auth/accessPolicy.ts` is a pure-function policy layer (no DB calls) used by middleware, API routes, and pages. `lib/auth/requireAppAccess.ts` is the standard API route guard that builds `AccessContext` and returns 401/403 on failure. All new API routes should use `requireAppAccess(mode)`.
-- **Exporters**: `lib/exporters/` contains `brsrDataMapper.ts` (answers → structured BRSR JSON), `brsrDocx.ts`, and `brsrXlsx.ts`. Used by `/api/export/*` routes. `brsrDataMapper.ts` returns `BRSRExportData` which includes a `BRSRSectionB` with raw `q10Performance`, `q10Compliance`, `q11Assessment` arrays and a `BRSRPrinciple.docxBlocks` optional field holding per-question `PrincipleBlock[]` for named-column DOCX rendering (P1–P5, P7–P9; P6 keeps existing subsections path). `brsrDocx.ts` exports `tv()`, `pv()`, `isRowEmpty()`, and `buildStructuredTable()` helpers; `brsrXlsx.ts` and the `/api/export/brsr` JSON endpoint are unaffected by these additions.
+- **Exporters**: `lib/exporters/` — `brsrDataMapper.ts`, `brsrDocx.ts`, `brsrXlsx.ts`, `brsrDocx.test.ts`. Used by `/api/export/*` routes.
+  - **DOCX structured output** (`brsrDataMapper.ts` + `brsrDocx.ts`): `StructuredTable` and `PrincipleBlock` are **defined and exported** from `lib/exporters/brsrDataMapper.ts` (they were moved out of `types/brsr.ts` in the DOCX rebuild). Shapes: `StructuredTable` = `{ columns: string[]; rows: (string | null)[][] }`; `PrincipleBlock` = `{ title: string; content: StructuredTable | string }` — i.e. a titled block whose body is either a named-column table or prose (built in practice via internal `tableBlock` / `proseBlock` helpers). `buildDocxBlocks` dispatches to `buildP1DocxBlocks` … `buildP9DocxBlocks` (including `buildP6DocxBlocks`: 13 essential + 8 leadership sub-sections). `brsrDocx.ts` imports `StructuredTable` and `PrincipleBlock` **from `brsrDataMapper.ts`**, not from `types/brsr.ts`. Principle section headings use `NGRBC_PRINCIPLE_TITLES` imported **directly** from `lib/brsr/questionCodes.ts` in `brsrDocx.ts`. Live DOCX rendering for P1–P9 uses `docxBlocks` only; the legacy `indicatorsToTable` path is a guarded fallback for hypothetical unmapped principles, not used for current principles. The mapper still sets the NGRBC title string on `BRSRPrinciple` for `brsrXlsx.ts` only (spreadsheet NGRBC row); `brsrDocx.ts` does not use that field. `brsrXlsx.ts` and `/api/export/brsr` JSON use the flat `essential` / `leadership` indicator arrays (and P6 `subsections` where applicable) — unchanged by DOCX block types.
 - **BRSR reference**: Question structure and codes align with `brsr-data-entry 2.html` (reference document). New panels or codes should stay in sync with that, `questionConfig.ts`, `principleBlocksConfig.ts`, `visibilityUtils.ts`, and `fyLabels.ts`.
 - **Master vs Dashboard**: Shared `AccountDropdown` lives under `app/(dashboard)/dashboard/AccountDropdown.tsx` and is imported by the Master layout for the header.
 

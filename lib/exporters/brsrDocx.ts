@@ -31,10 +31,10 @@ import type {
   BRSRWomenParticipationRow,
   SBQ10Row,
   SBQ11Row,
-  StructuredTable,
-  PrincipleBlock,
 } from "@/types/brsr";
+import type { StructuredTable, PrincipleBlock } from "@/lib/exporters/brsrDataMapper";
 import { getFYLabels } from "@/lib/brsr/fyLabels";
+import { NGRBC_PRINCIPLE_TITLES } from "@/lib/brsr/questionCodes";
 
 const MARGIN = 1440; // 1 inch in twips (72pt * 20)
 const TABLE_HEADER_FILL = "1F3864";
@@ -181,42 +181,46 @@ function indicatorsToTable(indicators: BRSRIndicator[]): Table | null {
 
 /**
  * Section A Q1–Q14 table: 3-column layout per the Eternal reference format.
- * Column widths are equal thirds of A4 content width at 1-inch margins (~3009 DXA each).
+ * Column widths sum to exactly 9026 DXA (A4 content width at 1-inch margins).
  */
 function buildSectionADetailsTable(indicators: BRSRIndicator[]): Table | null {
   if (indicators.length === 0) return null;
-  const COL_W = 3009; // 1/3 of 9026 twips content width, in DXA
-  const hdr = (text: string) =>
+  // [Question, Value, Notes] — widths sum to 9026 DXA
+  const COL_WIDTHS = [3009, 3009, 3008] as const;
+  const hdr = (text: string, w: number) =>
     new TableCell({
       children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
       shading: { fill: TABLE_HEADER_FILL },
-      width: { size: COL_W, type: WidthType.DXA },
+      width: { size: w, type: WidthType.DXA },
     });
-  const headerRow = new TableRow({ children: [hdr("Question"), hdr("Value"), hdr("Notes")] });
+  const headerRow = new TableRow({
+    children: [hdr("Question", COL_WIDTHS[0]), hdr("Value", COL_WIDTHS[1]), hdr("Notes", COL_WIDTHS[2])],
+  });
   const bodyRows = indicators.map((ind, i) =>
     new TableRow({
       children: [
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: ind.label, size: SZ_8, font: FONT })] })],
           shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
-          width: { size: COL_W, type: WidthType.DXA },
+          width: { size: COL_WIDTHS[0], type: WidthType.DXA },
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: tv(ind.value), size: SZ_8, font: FONT })] })],
           shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
-          width: { size: COL_W, type: WidthType.DXA },
+          width: { size: COL_WIDTHS[1], type: WidthType.DXA },
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: "", size: SZ_8, font: FONT })] })],
           shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
-          width: { size: COL_W, type: WidthType.DXA },
+          width: { size: COL_WIDTHS[2], type: WidthType.DXA },
         }),
       ],
     })
   );
   return new Table({
     rows: [headerRow, ...bodyRows],
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    columnWidths: [...COL_WIDTHS],
+    width: { size: 9026, type: WidthType.DXA },
   });
 }
 
@@ -505,7 +509,7 @@ function buildQ1Table(policies: BRSRPoliciesMatrixRow[]): Table | null {
   const headerRow = new TableRow({
     children: [
       headerCell("Principle"),
-      headerCell("Policy covers NGRBCs?"),
+      headerCell("Whether policy/policies cover each principle and its core elements of the NGRBCs"),
       headerCell("Board approved?"),
       headerCell("Web link"),
     ],
@@ -567,7 +571,7 @@ function buildQ10Table(rows: SBQ10Row[]): Table | null {
   const headerRow = new TableRow({
     children: [
       headerCell("Principle"),
-      headerCell("Review Oversight"),
+      headerCell("Review Undertaken"),
       headerCell("Frequency"),
       headerCell("Description"),
     ],
@@ -593,8 +597,8 @@ function buildQ11Table(rows: SBQ11Row[]): Table | null {
   const headerRow = new TableRow({
     children: [
       headerCell("Principle"),
-      headerCell("Assessment carried out?"),
-      headerCell("Name of external agency"),
+      headerCell("Has the entity carried out independent assessment/evaluation of the working of its policies"),
+      headerCell("Name of agency"),
     ],
   });
   const bodyRows = rows.map((row, i) =>
@@ -971,11 +975,12 @@ export async function buildBRSRDocx(
       sectionCHeadingAdded = true;
     }
     children.push(heading2(`Principle ${n}`));
-    if (p.ngrbcStatement) {
-      children.push(heading3(`Principle ${n}: ${p.ngrbcStatement}`));
+    const ngrbcTitle = NGRBC_PRINCIPLE_TITLES[n];
+    if (ngrbcTitle) {
+      children.push(heading3(`Principle ${n}: ${ngrbcTitle}`));
     }
     if (p.docxBlocks) {
-      // Phase 3: named-column structured blocks per question
+      // Named-column structured blocks for DOCX rendering (P1–P9)
       if (p.docxBlocks.essential.length > 0) {
         children.push(heading3("Essential Indicators"));
         for (const block of p.docxBlocks.essential) {
@@ -988,15 +993,8 @@ export async function buildBRSRDocx(
           children.push(...renderPrincipleBlock(block));
         }
       }
-    } else if (p.subsections && p.subsections.length > 0) {
-      // P6: grouped sub-sections
-      for (const sub of p.subsections) {
-        children.push(heading3(sub.label));
-        const tbl = indicatorsToTable(sub.indicators);
-        if (tbl) children.push(tbl);
-      }
     } else {
-      // Fallback: flat indicator list (P6 or any un-mapped principle)
+      // TODO: fallback for any future unmapped principle; all P1–P9 use docxBlocks
       if (p.essential.length > 0) {
         children.push(heading3("Essential Indicators"));
         const tbl = indicatorsToTable(p.essential);

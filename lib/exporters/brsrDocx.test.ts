@@ -10,8 +10,9 @@
  * Depends:  none — pure unit
  */
 import { describe, it, expect } from "vitest";
+import { TableRow } from "docx";
 import { tv, pv, isRowEmpty, buildStructuredTable, PROSE_EMPTY } from "./brsrDocx";
-import type { StructuredTable } from "@/types/brsr";
+import type { StructuredTable } from "@/lib/exporters/brsrDataMapper";
 
 describe("tv (table-cell value)", () => {
   it("returns empty string for the mapper sentinel '—'", () => {
@@ -129,10 +130,10 @@ describe("buildStructuredTable", () => {
   it("skips all-empty rows (null values) in the output", () => {
     // After skipping all-empty row, only 2 data rows should be present
     const result = buildStructuredTable(st);
-    // Table has 1 header + 2 body rows = 3 rows total
-    // Access via the internal rows property
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tableRows = (result as any).root.filter((n: any) => n.constructor?.name === "TableRow");
+    expect(result).not.toBeNull();
+    // Table has 1 header + 2 body rows = 3 TableRow instances (root also holds properties/grid)
+    const root = (result as unknown as { root: readonly unknown[] }).root;
+    const tableRows = root.filter((n): n is TableRow => n instanceof TableRow);
     expect(tableRows.length).toBe(3); // header + 2 data
   });
 });

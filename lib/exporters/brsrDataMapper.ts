@@ -32,9 +32,26 @@ import type {
   SBQ10Row,
   SBQ11Row,
   OrgRow,
-  PrincipleBlock,
-  StructuredTable,
 } from "@/types/brsr";
+
+/**
+ * A named-column table for DOCX principle rendering.
+ * `columns` are the header strings; each `rows` entry must have the same length.
+ * Null cells are rendered as blank (not "—").
+ */
+export type StructuredTable = {
+  columns: string[];
+  rows: (string | null)[][];
+};
+
+/**
+ * A single titled block inside a principle section.
+ * `content` is either a StructuredTable (multi-column) or a prose string.
+ */
+export type PrincipleBlock = {
+  title: string;
+  content: StructuredTable | string;
+};
 
 const EMPTY = "—";
 
@@ -611,8 +628,8 @@ function buildP1DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docx
       ["Segment", "No. of programmes", "Topics / Impact", "% persons covered"],
       [
         ["Board of Directors", g("p1_e1_bod_prog"), g("p1_e1_bod_topics"), g("p1_e1_bod_pct")],
-        ["Key Management Personnel (KMPs)", g("p1_e1_kmp_prog"), g("p1_e1_kmp_topics"), g("p1_e1_kmp_pct")],
-        ["Employees other than BoD/KMPs", g("p1_e1_emp_prog"), g("p1_e1_emp_topics"), g("p1_e1_emp_pct")],
+        ["Key Managerial Personnel", g("p1_e1_kmp_prog"), g("p1_e1_kmp_topics"), g("p1_e1_kmp_pct")],
+        ["Employees other than BoD and KMPs", g("p1_e1_emp_prog"), g("p1_e1_emp_topics"), g("p1_e1_emp_pct")],
         ["Workers", g("p1_e1_wrk_prog"), g("p1_e1_wrk_topics"), g("p1_e1_wrk_pct")],
       ]
     ),
@@ -1078,6 +1095,218 @@ function buildP8DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docx
   return { essential, leadership };
 }
 
+// ─── P6 (Environment) ─────────────────────────────────────────────────────────
+
+function buildP6DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
+  const g = (c: string) => av(answers, c);
+
+  const essential: PrincipleBlock[] = [
+    // E1: Energy consumption
+    tableBlock(
+      "E1. Energy consumption within the organisation",
+      ["Source / Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Renewable – Electricity (GJ)", g("p6_e1_re_el_cy"), g("p6_e1_re_el_py")],
+        ["Renewable – Fuel (GJ)", g("p6_e1_re_fuel_cy"), g("p6_e1_re_fuel_py")],
+        ["Renewable – Others (GJ)", g("p6_e1_re_oth_cy"), g("p6_e1_re_oth_py")],
+        ["Non-Renewable – Electricity (GJ)", g("p6_e1_nre_el_cy"), g("p6_e1_nre_el_py")],
+        ["Non-Renewable – Fuel (GJ)", g("p6_e1_nre_fuel_cy"), g("p6_e1_nre_fuel_py")],
+        ["Non-Renewable – Others (GJ)", g("p6_e1_nre_oth_cy"), g("p6_e1_nre_oth_py")],
+        ["Energy intensity (per rupee of turnover)", g("p6_e1_rev_cy"), g("p6_e1_rev_py")],
+        ["Energy intensity (physical metric)", g("p6_e1_int_phys_cy"), g("p6_e1_int_phys_py")],
+        ["Energy intensity (optional metric)", g("p6_e1_int_opt_cy"), g("p6_e1_int_opt_py")],
+        ["Independent assessment done?", g("p6_e1_assess_yn"), null],
+        ["Agency for assessment", g("p6_e1_assess_agency"), null],
+      ]
+    ),
+    // E2: PAT scheme
+    proseBlock("E2. Whether entity has undertaken PAT Scheme of Bureau of Energy Efficiency", g("p6_e2_pat")),
+    proseBlock("E2. PAT targets", g("p6_e2_targets")),
+    proseBlock("E2. Remedial measures for PAT compliance", g("p6_e2_remedial")),
+    // E3: Water withdrawal and consumption
+    tableBlock(
+      "E3. Water withdrawal by source (in kilolitres)",
+      ["Source", "FY Current Year", "FY Previous Year"],
+      [
+        ["Surface water", g("p6_e3_surf_cy"), g("p6_e3_surf_py")],
+        ["Groundwater", g("p6_e3_grnd_cy"), g("p6_e3_grnd_py")],
+        ["Third party water", g("p6_e3_3p_cy"), g("p6_e3_3p_py")],
+        ["Seawater / desalinated water", g("p6_e3_seawater_cy"), g("p6_e3_seawater_py")],
+        ["Others", g("p6_e3_oth_cy"), g("p6_e3_oth_py")],
+        ["Total consumption", g("p6_e3_cons_cy"), g("p6_e3_cons_py")],
+        ["Water intensity (per rupee of turnover)", g("p6_e3_rev_cy"), g("p6_e3_rev_py")],
+        ["Water intensity (physical metric)", g("p6_e3_int_phys_cy"), g("p6_e3_int_phys_py")],
+        ["Water intensity (optional metric)", g("p6_e3_int_opt_cy"), g("p6_e3_int_opt_py")],
+        ["Independent assessment done?", g("p6_e3_assess_yn"), null],
+        ["Agency for assessment", g("p6_e3_assess_agency"), null],
+      ]
+    ),
+    // E4: Water discharge
+    tableBlock(
+      "E4. Water discharge by destination (in kilolitres)",
+      ["Destination", "No treatment CY", "No treatment PY", "Treated CY", "Treated PY"],
+      [
+        ["Surface water", g("p6_e4_sw_nt_cy"), g("p6_e4_sw_nt_py"), g("p6_e4_sw_t_cy"), g("p6_e4_sw_t_py")],
+        ["Groundwater", g("p6_e4_grnd_nt_cy"), g("p6_e4_grnd_nt_py"), g("p6_e4_grnd_t_cy"), g("p6_e4_grnd_t_py")],
+        ["Seawater", g("p6_e4_sea_nt_cy"), g("p6_e4_sea_nt_py"), g("p6_e4_sea_t_cy"), g("p6_e4_sea_t_py")],
+        ["Third party destination", g("p6_e4_3p_nt_cy"), g("p6_e4_3p_nt_py"), g("p6_e4_3p_t_cy"), g("p6_e4_3p_t_py")],
+        ["Others", g("p6_e4_oth_nt_cy"), g("p6_e4_oth_nt_py"), g("p6_e4_oth_t_cy"), g("p6_e4_oth_t_py")],
+        ["Total water discharged", g("p6_e4_tot_cy"), g("p6_e4_tot_py"), null, null],
+        ["Independent assessment done?", g("p6_e4_assess_yn"), null, null, null],
+        ["Agency for assessment", g("p6_e4_assess_agency"), null, null, null],
+      ]
+    ),
+    // E5: Zero Liquid Discharge
+    proseBlock("E5. Has the entity implemented a system of Zero Liquid Discharge?", g("p6_e5_zld")),
+    proseBlock("E5. Details of Zero Liquid Discharge implementation", g("p6_e5_zld_detail")),
+    // E6: Air emissions
+    tableBlock(
+      "E6. Air emissions (Please indicate unit in the respective column)",
+      ["Pollutant", "Unit CY", "FY Current Year", "Unit PY", "FY Previous Year"],
+      [
+        ["NOx", g("p6_e6_nox_unit"), g("p6_e6_nox_cy"), g("p6_e6_nox_unit"), g("p6_e6_nox_py")],
+        ["SOx", g("p6_e6_sox_unit"), g("p6_e6_sox_cy"), g("p6_e6_sox_unit"), g("p6_e6_sox_py")],
+        ["Particulate matter (PM)", g("p6_e6_pm_unit"), g("p6_e6_pm_cy"), g("p6_e6_pm_unit"), g("p6_e6_pm_py")],
+        ["Persistent organic pollutants (POP)", g("p6_e6_pop_unit"), g("p6_e6_pop_cy"), g("p6_e6_pop_unit"), g("p6_e6_pop_py")],
+        ["Volatile organic compounds (VOC)", g("p6_e6_voc_unit"), g("p6_e6_voc_cy"), g("p6_e6_voc_unit"), g("p6_e6_voc_py")],
+        ["Hazardous air pollutants (HAP)", g("p6_e6_hap_unit"), g("p6_e6_hap_cy"), g("p6_e6_hap_unit"), g("p6_e6_hap_py")],
+        ["Others", g("p6_e6_oth_unit"), g("p6_e6_oth_cy"), g("p6_e6_oth_unit"), g("p6_e6_oth_py")],
+        ["Independent assessment done?", g("p6_e6_assess_yn"), null, null, null],
+        ["Agency for assessment", g("p6_e6_assess_agency"), null, null, null],
+      ]
+    ),
+    // E7: GHG emissions
+    tableBlock(
+      "E7. Greenhouse gas (GHG) emissions",
+      ["Metric", "Unit", "FY Current Year", "FY Previous Year"],
+      [
+        ["Scope 1 emissions", g("p6_e7_unit"), g("p6_e7_s1_cy"), g("p6_e7_s1_py")],
+        ["Scope 2 emissions", g("p6_e7_unit"), g("p6_e7_s2_cy"), g("p6_e7_s2_py")],
+        ["GHG intensity (per rupee of turnover)", g("p6_e7_unit"), g("p6_e7_rev_cy"), g("p6_e7_rev_py")],
+        ["GHG intensity (physical metric)", g("p6_e7_unit"), g("p6_e7_int_phys_cy"), g("p6_e7_int_phys_py")],
+        ["GHG intensity (optional metric)", g("p6_e7_int_opt_unit"), g("p6_e7_int_opt_cy"), g("p6_e7_int_opt_py")],
+        ["Independent assessment done?", null, g("p6_e7_assess_yn"), null],
+        ["Agency for assessment", null, g("p6_e7_assess_agency"), null],
+      ]
+    ),
+    // E8: GHG reduction initiatives
+    proseBlock("E8. Does the entity have any project related to reducing GHG emission?", g("p6_e8_ghg_yn")),
+    proseBlock("E8. GHG reduction initiative details", g("p6_e8_ghg_detail")),
+    // E9: Waste generated
+    tableBlock(
+      "E9(a). Waste generated (metric tonnes)",
+      ["Waste type", "FY Current Year", "FY Previous Year"],
+      [
+        ["Plastic waste", g("p6_e9_plast_cy"), g("p6_e9_plast_py")],
+        ["E-waste", g("p6_e9_ew_cy"), g("p6_e9_ew_py")],
+        ["Bio-medical waste", g("p6_e9_bio_cy"), g("p6_e9_bio_py")],
+        ["Construction and demolition waste", g("p6_e9_cd_cy"), g("p6_e9_cd_py")],
+        ["Battery waste", g("p6_e9_batt_cy"), g("p6_e9_batt_py")],
+        ["Radioactive waste", g("p6_e9_radio_cy"), g("p6_e9_radio_py")],
+        ["Other hazardous waste", g("p6_e9_ohaz_cy"), g("p6_e9_ohaz_py")],
+        ["Other non-hazardous waste", g("p6_e9_onh_cy"), g("p6_e9_onh_py")],
+        ["Waste intensity (per rupee of turnover)", g("p6_e9_rev_cy"), g("p6_e9_rev_py")],
+        ["Waste intensity (physical metric)", g("p6_e9_int_phys_cy"), g("p6_e9_int_phys_py")],
+        ["Waste intensity (optional metric)", g("p6_e9_int_opt_cy"), g("p6_e9_int_opt_py")],
+      ]
+    ),
+    tableBlock(
+      "E9(b). Waste recovery (metric tonnes)",
+      ["Recovery method", "FY Current Year", "FY Previous Year"],
+      [
+        ["Recycling", g("p6_e9_rec_recy_cy"), g("p6_e9_rec_recy_py")],
+        ["Re-using", g("p6_e9_rec_reuse_cy"), g("p6_e9_rec_reuse_py")],
+        ["Other recovery operations", g("p6_e9_rec_oth_cy"), g("p6_e9_rec_oth_py")],
+      ]
+    ),
+    tableBlock(
+      "E9(c). Waste disposal (metric tonnes)",
+      ["Disposal method", "FY Current Year", "FY Previous Year"],
+      [
+        ["Incineration", g("p6_e9_disp_inc_cy"), g("p6_e9_disp_inc_py")],
+        ["Landfilling", g("p6_e9_disp_land_cy"), g("p6_e9_disp_land_py")],
+        ["Other disposal operations", g("p6_e9_disp_oth_cy"), g("p6_e9_disp_oth_py")],
+        ["Independent assessment done?", g("p6_e9_assess_yn"), null],
+        ["Agency for assessment", g("p6_e9_assess_agency"), null],
+      ]
+    ),
+    // E10: Waste management practices
+    proseBlock("E10. Details of waste management practices adopted", g("p6_e10_waste")),
+    // E11: Env assessments (dynamic rows)
+    tableBlock(
+      "E11. Details of environmental impact assessments undertaken",
+      ["Location / facility", "Type of assessment", "Assessment conducted?", "Corrective action taken"],
+      dynamicRows(answers, "p6_e11_rowcount", "p6_e11_row", ["loc", "type", "yn", "correct"])
+    ),
+    // E12: Environmental compliance notifications (dynamic rows)
+    tableBlock(
+      "E12. Environmental compliance — notifications / directives",
+      ["Notification / directive", "Date", "Relevant to entity?", "Public disclosure", "Web link"],
+      dynamicRows(answers, "p6_e12_rowcount", "p6_e12_row", ["notif", "date", "ind", "pub", "link"])
+    ),
+    // E13: Non-compliance (dynamic rows)
+    proseBlock("E13. Are there any non-compliances in environmental laws?", g("p6_e13_comp")),
+    tableBlock(
+      "E13. Non-compliance details",
+      ["Applicable law / regulation", "Details of non-compliance", "Fines / penalties", "Corrective action"],
+      dynamicRows(answers, "p6_e13_rowcount", "p6_e13_row", ["law", "detail", "fines", "correct"])
+    ),
+  ];
+
+  const leadership: PrincipleBlock[] = [
+    // L1: Water bodies / land adjacent
+    tableBlock(
+      "L1. Water withdrawal, consumption and discharge in areas of water stress (in kilolitres)",
+      ["Metric", "FY Current Year", "FY Previous Year"],
+      [
+        ["Total area (acres)", g("p6_l1_area_cy"), g("p6_l1_area_py")],
+        ["Total withdrawal", g("p6_l1_with_cy"), g("p6_l1_with_py")],
+        ["Total consumption", g("p6_l1_cons_cy"), g("p6_l1_cons_py")],
+        ["Total discharge", g("p6_l1_disp_cy"), g("p6_l1_disp_py")],
+        ["Independent assessment done?", g("p6_l1_assess_yn"), null],
+        ["Agency for assessment", g("p6_l1_assess_agency"), null],
+      ]
+    ),
+    // L2: Scope 3 emissions
+    tableBlock(
+      "L2. Scope 3 GHG emissions",
+      ["Metric", "Unit", "FY Current Year", "FY Previous Year"],
+      [
+        ["Scope 3 total", g("p6_l2_unit"), g("p6_l2_s3_cy"), g("p6_l2_s3_py")],
+        ["GHG intensity (optional metric)", g("p6_l2_int_opt_unit"), g("p6_l2_int_cy"), g("p6_l2_int_py")],
+        ["Independent assessment done?", null, g("p6_l2_assess_yn"), null],
+        ["Agency for assessment", null, g("p6_l2_assess_agency"), null],
+      ]
+    ),
+    // L3: Biodiversity
+    proseBlock("L3. Biodiversity conservation initiatives and significant biodiversity impacts", g("p6_l3_bio")),
+    // L4: Environmental projects (dynamic rows)
+    tableBlock(
+      "L4. Details of environmental initiatives/projects",
+      ["Initiative", "Details", "Outcome", "Corrective action"],
+      dynamicRows(answers, "p6_l4_rowcount", "p6_l4_row", ["init", "detail", "outcome", "correct"])
+    ),
+    // L5: Business continuity
+    proseBlock("L5. Does the entity have a business continuity and disaster management plan?", g("p6_l5_yn")),
+    proseBlock("L5. Business continuity plan details", g("p6_l5_bcp")),
+    // L6: Waste recovered value
+    proseBlock("L6. Disclose the value of recovered and re-used materials used in manufacturing", g("p6_l6_value")),
+    // L7: Renewable energy %
+    proseBlock("L7. Percentage of inputs sourced sustainably", g("p6_l7_pct")),
+    // L8: GHG credit procurement
+    tableBlock(
+      "L8. GHG credits / carbon offsets",
+      ["Metric", "Value"],
+      [
+        ["GHG credits generated", g("p6_l8_generated")],
+        ["GHG credits procured", g("p6_l8_procured")],
+      ]
+    ),
+  ];
+
+  return { essential, leadership };
+}
+
 // ─── P9 (Consumers) ───────────────────────────────────────────────────────────
 
 function buildP9DocxBlocks(answers: Record<string, string>): BRSRPrinciple["docxBlocks"] {
@@ -1131,7 +1360,7 @@ function buildDocxBlocks(answers: Record<string, string>, n: number): BRSRPrinci
     case 3: return buildP3DocxBlocks(answers);
     case 4: return buildP4DocxBlocks(answers);
     case 5: return buildP5DocxBlocks(answers);
-    // P6 keeps the existing subsections path (complex autofill structure)
+    case 6: return buildP6DocxBlocks(answers);
     case 7: return buildP7DocxBlocks(answers);
     case 8: return buildP8DocxBlocks(answers);
     case 9: return buildP9DocxBlocks(answers);
