@@ -1,0 +1,60 @@
+---
+description: Where documentation lives; single source of truth per topic
+alwaysApply: true
+---
+
+# Documentation structure
+
+One question, one place. Never duplicate documentation across files.
+
+## Where each type of doc lives
+
+| Question | Location |
+|----------|----------|
+| What files/tables/routes exist? | CONTEXT.md (only here) |
+| Why was this architecture chosen? | docs/adr/ (Architecture Decision Records) |
+| How do I run the app / tests? | README.md or playwright/README.md |
+| How should AI build new features? | .cursor/rules/*.mdc (this folder) |
+| What is the question code naming convention? | docs/question-codes.md (stub) + docs/question-structure.md (ledger) |
+| What is the prefix sync contract? | docs/prefix-sync.md |
+| Why does this complex function work this way? | Inline @doc comment in the file itself |
+
+## Rules
+
+- **CONTEXT.md** documents what exists — structure, tables, routes, files. It does not explain why decisions were made. That goes in `docs/adr/`.
+
+- **.cursor/rules/** documents how to build. It does not duplicate what already exists in CONTEXT.md. Reference CONTEXT.md by section number rather than restating its content.
+
+- **README.md** covers setup and running the app only. No architecture, no API docs, no rule explanations. **A single navigation sentence** pointing readers to CONTEXT.md or other docs is allowed; restating content from another doc is not.
+
+- **docs/** is for decisions and contracts that outlive any single file:
+  - **docs/adr/** — one file per significant architecture decision. Format: ## Context / ## Decision / ## Consequences. Create an ADR when: choosing a new library, changing the RLS pattern, adding a new access tier, or making a breaking schema change.
+  - **docs/question-codes.md** — naming conventions for question codes, panel prefixes, and the relationship between `questionCodes.ts` and `brsr_questions` table. Update when adding a new panel or prefix family (stub exists; fill TODOs when those areas change).
+  - **docs/prefix-sync.md** — the four-way sync contract between `blockAccessPrefixes.ts`, migration 010 inline array, migration 011 seed, and the test prefix count. Canonical checklist for adding a new assignment block.
+
+- **Inline @doc comments** belong on functions/modules where the *why* is non-obvious and not covered by the above docs. Mandatory for:
+  - `blockAccessPrefixes.ts` — explain the prefix contract and the four files that must stay in sync
+  - `can_access_question()` and `question_codes_share_assignment_block()` SQL — explain the 3-tier logic (master / admin / user) inline in the migration file where they are defined
+  - `flowGeneralDataToP6.ts` — explain the business rule that drives the autofill (not just what it does, but why P6 gets it)
+  - Any function where the correct behaviour differs meaningfully from what the type signature implies
+
+- Do not write @doc comments on straightforward utility functions — `isAllowed()`, `getFYLabels()`, `runCalculations()` are self-evident from their signatures. Comments there add noise, not signal.
+
+## When to create a new doc
+
+- New panel added → update CONTEXT.md §3, §8.2; update docs/question-codes.md
+- New assignment block prefix → follow docs/prefix-sync.md checklist
+- Schema change → update CONTEXT.md §4; create docs/adr/NNN-description.md
+- New access rule → update CONTEXT.md §5; create ADR if it changes the pattern
+- New script → update CONTEXT.md §10 and README.md scripts section
+
+## Before merging
+
+Before merging any PR that adds a file, route, table, or migration: run `npm run audit:context` and follow the prompt it prints.
+
+## What not to do
+
+- Do not put architecture rationale in README.md — it gets stale and nobody reads it for that purpose.
+- Do not put setup instructions in CONTEXT.md — that belongs in README.
+- Do not explain .cursor/rules content inside CONTEXT.md — they are separate documents with separate audiences (AI vs humans).
+- Do not create a docs/decisions.md megafile — one ADR per decision, dated and numbered, so the history is traceable.

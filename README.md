@@ -2,6 +2,8 @@
 
 Phase 1: Login, Master Dashboard, Roles & Visibility.
 
+For routes, database tables, and API inventory, see **CONTEXT.md** at the repo root.
+
 ## Setup
 
 1. **Supabase**: Create a project at [supabase.com](https://supabase.com). In SQL Editor, run in order:

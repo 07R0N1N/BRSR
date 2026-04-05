@@ -1,4 +1,16 @@
 /**
+ * @testfile
+ * Suite:    E2E — full panel visibility checklist (all principles)
+ * Breaker:  VISIBILITY
+ * Covers:   Every panel renders correctly for admin and restricted user.
+ *            Questions not assigned to a restricted user are absent from DOM.
+ *            Broad regression guard — catches visibility breakage from panel
+ *            refactors, new question codes, or visibility rule changes.
+ * Run:      npx playwright test panel-checklist
+ * Depends:  Same as dynamic-row-visibility.spec.ts
+ */
+
+/**
  * Panel Visibility Checklist
  * ─────────────────────────────────────────────────────────────────────────────
  * For every panel, this spec:

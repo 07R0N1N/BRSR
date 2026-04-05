@@ -1,3 +1,15 @@
+/**
+ * @testfile
+ * Suite:    Access policy — onboarding and role gates
+ * Breaker:  VISIBILITY
+ * Covers:   canUseApp, redirectForIncompleteApp, isMaster and related
+ *            pure policy functions. Role + onboarding state combinations
+ *            must route to the correct destination (dashboard / onboarding /
+ *            login / master). Regression guard for incorrect redirects.
+ * Run:      npx vitest run test/accessPolicy.test.ts
+ * Depends:  none — pure unit, no DB
+ */
+
 import { describe, expect, it } from "vitest";
 import {
   canAccessAssignmentEndpoints,

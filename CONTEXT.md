@@ -1,24 +1,15 @@
 # BRSR Data Collection — Codebase Context
 
-This document gives all context needed to understand and work on the codebase: purpose, stack, database, auth, routes, APIs, and BRSR questionnaire logic.
+Inventory of the system as built: structure, stack, database, auth, routes, APIs, and questionnaire wiring. For business context, regulatory framing, and delivery phase history, see **`docs/adr/001-project-scope.md`**.
 
 ---
 
 ## 1. Project overview
 
-**BRSR** = Business Responsibility and Sustainability Reporting (India). This app is an internal data-collection platform for BRSR questionnaires.
-
-- **Master area** (`/master`): Super-admin. Manages organizations, users, roles, and question visibility. Role slug: `master`.
-- **Onboarding** (`/onboarding`): First-time setup for a new org. Admins complete a multi-step wizard (create org, invite team, configure question assignments, launch). Non-admin users see a "pending" screen until the admin finishes onboarding.
-- **Dashboard** (`/dashboard`): Org users. Fill the BRSR questionnaire (General Data, Section A/B/C, Principles 1–9) per organization and reporting year. Includes per-user question assignments (admin assigns specific codes to users) and BRSR export (DOCX/XLSX/JSON). Roles: `admin`, `user` (and custom).
-- **Auth**: Email/password via Supabase Auth. Post-login redirect by role (master → `/master`, others → `/` where onboarding gate applies).
-
-**Phases**
-
-- **Phase 1**: Login, Master dashboard (orgs, users, roles, visibility), RLS.
-- **Phase 2a**: Questionnaire UI, answers storage, calculations, General Data → Principle 6 autofill.
-
-The codebase now also includes onboarding (multi-step org setup wizard), BRSR export (DOCX/XLSX/JSON), per-user question assignments with completion tracking, and the `brsr_questions` metadata table — functionality beyond the original Phase 2a scope.
+- **Master** (`/master`): Organizations, users, roles, BRSR question visibility. System role slug: `master`.
+- **Onboarding** (`/onboarding`): Admin-led org setup wizard; non-admins see pending until `organizations.onboarding_complete`.
+- **Dashboard** (`/dashboard`): Questionnaire (General Data, Section A/B/C, Principles 1–9), per-user assignments, BRSR export. Org roles include `admin`, `user`, and custom slugs.
+- **Auth**: Supabase email/password; middleware and `accessPolicy` gate routes by role and onboarding (see §5–§6).
 
 ---
 
@@ -82,6 +73,7 @@ BRSR/
 │       ├── assignmentBlocks.ts    # AssignmentBlock, getAssignmentBlocksForPanel, label maps
 │       ├── principleTemplates.ts  # Raw HTML templates for P1–P9
 │       ├── flowGeneralDataToP6.ts # General Data → Principle 6 autofill
+│       ├── blockAccessPrefixes.ts # BLOCK_ACCESS_PREFIXES; RLS/UI block sync (see docs/prefix-sync.md)
 │       ├── visibilityUtils.ts     # isAllowed, filterByAllowed, sectionHasAnyAllowed
 │       ├── fyLabels.ts            # getFYLabelsFromReportingYear, getFYLabels
 │       └── principleBlocksConfig.ts # getStaticPrincipleBlocks (P1–5, P7–9 assignment blocks)
@@ -94,7 +86,7 @@ BRSR/
 │       ├── admin.json
 │       └── user.json
 ├── playwright.config.ts           # Playwright config (4 projects; workers=1 for serial)
-├── supabase/migrations/           # SQL migrations (001 → 008)
+├── supabase/migrations/           # SQL migrations (001 → 011)
 ├── scripts/
 │   ├── seed-master.ts             # Create first Master user
 │   ├── seed-brsr-questions.ts     # Seed brsr_questions table
@@ -121,6 +113,7 @@ BRSR/
 | `answers` | Questionnaire answers. `org_id`, `reporting_year`, `question_code`, `value`, `updated_by`, `updated_at`. Unique on (org_id, reporting_year, question_code). |
 | `user_question_assignments` | Per-user question assignments. `id`, `org_id`, `user_id`, `question_code`, `created_at`. Unique on (org_id, user_id, question_code). Created in 005. |
 | `brsr_questions` | Question metadata. `question_code` (PK), `panel_id`, `section_label`, `question_order`, `brsr_version` (default `'SEBI-2023'`), `is_active` (default `true`), `created_at`. Created in 007. |
+| `brsr_assignment_block_prefixes` | Prefix strings for `question_codes_share_assignment_block` / RLS alignment with `lib/brsr/blockAccessPrefixes.ts`. Created and seeded in 011. See `docs/prefix-sync.md`. |
 
 ### 4.2 Migrations (run in order)
 
@@ -161,6 +154,15 @@ BRSR/
    - Updates any blank org names to `'Unnamed Organization'`.
    - Adds CHECK constraint: `length(trim(name)) > 0`.
 
+9. **009_rename_normal_role_to_user.sql**
+   - Renames system role Normal → User (`slug` `user`); same row id for FK integrity.
+
+10. **010_can_access_question_dynamic_rows.sql**
+    - Replaces `question_codes_share_assignment_block` with prefix-based matching so dynamic row codes share access with their block; inline `ARRAY[...]` must stay aligned with `lib/brsr/blockAccessPrefixes.ts` until 011.
+
+11. **011_brsr_assignment_block_prefixes.sql**
+    - Creates `brsr_assignment_block_prefixes`, seeds prefixes (same set as `BLOCK_ACCESS_PREFIXES`), redefines `question_codes_share_assignment_block` to read from the table.
+
 ### 4.3 RLS summary
 
 - **organizations**: Master = full CRUD; Admin = UPDATE own org (006); others = SELECT only own org (`current_user_org_id()`).
@@ -170,6 +172,7 @@ BRSR/
 - **answers**: After 005, all operations use `can_access_question(org_id, question_code)` — master always; admin if same org; User-role accounts only if assigned that code in `user_question_assignments`.
 - **user_question_assignments**: SELECT for master, admin (same org), or own rows. INSERT/UPDATE/DELETE for master or admin (same org).
 - **brsr_questions**: SELECT for all authenticated users.
+- **brsr_assignment_block_prefixes**: SELECT for authenticated users (reference data for prefix logic).
 
 ---
 
@@ -315,6 +318,8 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 | `E2E_USER_EMAIL` | For Playwright E2E | Email of a `user`-role account in the same org. |
 | `E2E_USER_PASSWORD` | For Playwright E2E | Password for the user account. |
 | `PLAYWRIGHT_BASE_URL` | No (default `http://127.0.0.1:3000`) | Override base URL for E2E tests. |
+| `E2E_MASTER_EMAIL` / `E2E_MASTER_PASSWORD` | No | Optional; used by `npm run test:rls` for the master cross-org scenario. |
+| `SUPABASE_RLS_INTEGRATION` | No | Set to `1` only when running `npm run test:rls` (not needed for normal `npm test`). |
 
 Copy `.env.local.example` to `.env.local` and set values. See README for setup steps.
 
@@ -326,12 +331,15 @@ Copy `.env.local.example` to `.env.local` and set values. See README for setup s
 - **`npm run build`** / **`npm run start`** — Production build and start.
 - **`npm run seed:master`** — Create first Master user: `npm run seed:master -- <email> <password>`. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 - **`npm run seed:questions`** — Seed `brsr_questions` table from code. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY`.
-- **`npm run test`** / **`npm run test:watch`** — Run unit tests with Vitest (one-shot / watch mode).
+- **`npm run test`** / **`npm run test:watch`** — Run unit tests with Vitest (one-shot / watch mode). Includes `test/**/*.test.ts` and `lib/**/*.test.ts` (e.g. `lib/brsr/blockAccessPrefixes.test.ts`).
+- **`npm run test:rls`** — RLS integration tests against live Supabase (`SUPABASE_RLS_INTEGRATION=1` + same Supabase/E2E env as below). See `supabase/tests/rls-dynamic-rows.test.ts`.
 - **`npm run test:e2e`** — Run all Playwright E2E tests (headless Chromium). Requires `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_USER_EMAIL`, `E2E_USER_PASSWORD` in `.env.local`.
 - **`npm run test:e2e -- --project=panel-checklist`** — Run only the panel-by-panel visibility checklist (admin assigns via API → user verifies per panel, Essential/Leadership separately).
 - **`npm run test:e2e -- --project=user-visibility`** — Run only the user-context smoke tests.
+- **`npm run test:e2e -- --project=dynamic-rows`** — P8 dynamic-row / restricted-user save regression (`playwright/tests/dynamic-row-visibility.spec.ts`).
 - **`npm run test:e2e:ui`** — Open Playwright UI mode for interactive debugging.
 - **`npm run lint`** — Next.js lint.
+- **`npm run audit:context`** — Prints reminder to run the CONTEXT audit in Cursor Composer before merge; see also `docs/prefix-sync.md` for prefix checklist.
 
 ---
 
@@ -343,4 +351,4 @@ Copy `.env.local.example` to `.env.local` and set values. See README for setup s
 - **BRSR reference**: Question structure and codes align with `brsr-data-entry 2.html` (reference document). New panels or codes should stay in sync with that, `questionConfig.ts`, `principleBlocksConfig.ts`, `visibilityUtils.ts`, and `fyLabels.ts`.
 - **Master vs Dashboard**: Shared `AccountDropdown` lives under `app/(dashboard)/dashboard/AccountDropdown.tsx` and is imported by the Master layout for the header.
 
-This file is the single place for full codebase context; README remains the quick setup guide.
+This file is the inventory of what exists. Setup steps: **README.md**. E2E details: **playwright/README.md**. Question-code layout: **docs/question-structure.md**. Prefix sync: **docs/prefix-sync.md**. Why key access decisions exist: **docs/adr/** (e.g. prefix-based RLS: `docs/adr/002-prefix-based-access.md`).

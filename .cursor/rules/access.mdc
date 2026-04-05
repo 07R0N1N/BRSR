@@ -1,0 +1,22 @@
+---
+description: API route guards, requireAppAccess, and admin client usage
+alwaysApply: true
+---
+
+# API access
+
+## `requireAppAccess`
+
+- **All new API routes** should use `requireAppAccess(mode)` from `@/lib/auth/requireAppAccess` after authentication patterns used elsewhere.
+- **Modes** (`lib/auth/requireAppAccess.ts`):
+  - `"data"` — answers, exports, assignment-stats, assignments/me: requires completed onboarding (or master).
+  - `"assignments"` — GET/PUT `/api/assignments`: also allows admin mid-onboarding (org exists, not launched).
+- On success, use `access.supabase`, `access.user`, and `access.ctx` (`AccessContext`: `roleSlug`, `orgId`, `onboardingComplete`).
+
+## `createAdminClient`
+
+- Use for operations that need the **service role**: Master user creation, seeds, onboarding user invites, and similar server-only tasks. Never expose the service role key to the client.
+
+## `app/api/visibility/route.ts` note
+
+- The route calls `requireAppAccess("data")` then performs a **second** `profiles` query to read `roles.slug` for master/admin checks. Prefer using **`access.ctx.roleSlug`** (and extending the guard if a dedicated mode is needed) instead of redundant profile fetches when adding or refactoring similar routes.

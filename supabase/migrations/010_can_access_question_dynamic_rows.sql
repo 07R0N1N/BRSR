@@ -19,6 +19,23 @@ AS $$
   );
 $$;
 
+-- @doc ACCESS TIERS
+-- This function implements a 3-tier access model for answer rows:
+--
+--   Master  → always true (full access across all orgs)
+--   Admin   → true if the answer's org_id matches the admin's org
+--   User    → true only if the question_code (or a code sharing an
+--             assignment block prefix) is in their user_question_assignments
+--
+-- "Sharing a prefix" is delegated to question_codes_share_assignment_block(),
+-- which reads from brsr_assignment_block_prefixes (added in migration 011).
+-- This handles dynamic row codes (e.g. p8_e1_row2_name) that differ from
+-- the assigned base code (p8_e1_name) but belong to the same block.
+--
+-- If you change access logic here, also update:
+--   lib/brsr/blockAccessPrefixes.ts (client-side mirror)
+--   docs/adr/002-prefix-based-access.md (decision record)
+
 CREATE OR REPLACE FUNCTION public.can_access_question(target_org_id UUID, target_question_code TEXT)
 RETURNS BOOLEAN
 LANGUAGE plpgsql

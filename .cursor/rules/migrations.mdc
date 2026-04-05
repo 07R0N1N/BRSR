@@ -1,0 +1,20 @@
+---
+description: Supabase migrations, RLS, and can_access_question alignment
+alwaysApply: false
+globs:
+  - "supabase/migrations/**"
+---
+
+# Migrations
+
+## `answers` RLS
+
+- **`can_access_question(target_org_id, target_question_code)`** gates `answers` policies (from migration `005` onward). Changes to assignment or prefix logic must keep **Postgres** (`can_access_question` / `question_codes_share_assignment_block`) aligned with **`lib/brsr/blockAccessPrefixes.ts`** and the UI (see `docs/prefix-sync.md` and ADR `docs/adr/002-prefix-based-access.md`).
+
+## Editing policy
+
+- **Do not edit existing migration files** that may already be applied in deployed or shared databases. Add a **new** forward migration for fixes or schema changes.
+
+## Documentation
+
+- When a migration changes schema, tables, or RLS behavior, update **CONTEXT.md** (§4 and related sections) in the **same commit** so the inventory stays accurate.

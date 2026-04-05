@@ -1,0 +1,128 @@
+---
+description: Vitest unit tests and Playwright E2E layout and expectations
+alwaysApply: false
+globs:
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+  - "playwright/**"
+---
+
+# Testing
+
+## Test documentation standards
+
+These rules apply whenever a new test file is created or an existing test file is modified.
+
+### @testfile header (mandatory on every test file)
+
+Every test file must open with this comment block as its very first lines, before any imports:
+
+```
+/**
+ * @testfile
+ * Suite:    [short name]
+ * Breaker:  [VISIBILITY | DATA SAFETY | BOTH | N/A]
+ * Covers:   [the business rule this test protects — plain English,
+ *            not the function name. What would silently break if
+ *            this test did not exist?]
+ * Run:      [exact command to run this file in isolation]
+ * Depends:  [required env vars / seed state / auth setup, or
+ *            "none — pure unit"]
+ */
+```
+
+Breaker values:
+
+- **VISIBILITY** — protects against unauthorized users seeing or editing questions not assigned to them
+- **DATA SAFETY** — protects against answer data being lost, overwritten, or silently dropped
+- **BOTH** — covers both breakers
+- **N/A** — utility or config test with no direct breaker coverage
+
+Do not write a `@testfile` block that says "covers: tests the X function" — that describes the implementation, not the business rule.
+
+- **Correct:** "Covers: restricted users cannot write to answer codes outside their assigned blocks, even via direct API call"
+- **Incorrect:** "Covers: tests can_access_question()"
+
+### Regression comment (mandatory when a test was written after a bug)
+
+If a test was written because a bug was found and fixed, add this comment inside the relevant `describe()` block, immediately after the opening brace:
+
+```
+// Regression: [what broke, in one sentence] — [date or PR if known]
+```
+
+Example from this codebase:
+
+```
+// Regression: add-record produced visible but non-editable inputs for
+// restricted users — fixed in migrations 010/011 (prefix-based access)
+```
+
+This comment must stay permanently — do not remove it when the bug feels "old". It explains why the test exists.
+
+### docs/testing.md index (mandatory when adding a new test file)
+
+When a new test file is created, add a row to the table in `docs/testing.md`. The table has columns: File | Type | Breaker | What it covers | Run command.
+
+Do not create a test file without updating this table. If `docs/testing.md` does not exist, create it using the structure defined in `docs/testing.md` (read it first).
+
+### describe() and it() naming
+
+`describe()` labels name the scenario or role under test, not the function:
+
+- **Correct:** `describe('restricted user — dynamic rows')`
+- **Incorrect:** `describe('isQuestionCodeAllowedForRestrictedUser')`
+
+`it()` / `test()` labels state the condition and expected outcome:
+
+- **Correct:** `it('allows row2 code when base prefix is assigned')`
+- **Incorrect:** `it('prefix check works')`
+
+**Pattern:** `[subject] [condition] → [expected outcome]`
+
+The test name must be readable as a sentence without the `describe` prefix.
+
+### Known gaps section in docs/testing.md
+
+`docs/testing.md` contains a `## Known gaps` section.
+
+- When you add a test that covers a previously listed gap, remove it from that section.
+- When you identify a new untested scenario involving either breaker, add it to that section with one line describing the risk.
+
+Do not leave the Known gaps section empty — if all gaps are covered, write "No known gaps at this time" so the section is explicitly confirmed, not accidentally omitted.
+
+### What not to do
+
+- Do not write `@testfile` blocks that describe implementation details instead of business rules
+- Do not create test files without the `@testfile` header
+- Do not write regression tests without the `// Regression:` comment
+- Do not add a test file without updating `docs/testing.md`
+- Do not use generic `describe` labels like `'unit tests'` or `'utils'`
+- Do not mark a gap as covered in `docs/testing.md` unless a test actually exercises the scenario end-to-end
+
+## Vitest (unit)
+
+- Co-located tests: **`lib/**/*.test.ts`** (e.g. `lib/brsr/blockAccessPrefixes.test.ts`). Shared tests: **`test/*.test.ts`** (e.g. `test/accessPolicy.test.ts`).
+- Run: `npm run test` / `npm run test:watch` (CONTEXT.md §10).
+- See ## Test documentation standards → describe() and it() naming above.
+
+## RLS integration (optional)
+
+- **`supabase/tests/rls-dynamic-rows.test.ts`** — Postgres RLS vs prefix access; **skipped** unless `SUPABASE_RLS_INTEGRATION=1` and `.env.local` has Supabase + E2E credentials.
+- Run: `npm run test:rls`
+
+## Areas with little or no unit coverage today
+
+- Most of `lib/brsr/` beyond `blockAccessPrefixes` (e.g. `calcEngine.ts`, `flowGeneralDataToP6.ts`, exporters under `lib/exporters/`), most `app/` routes and panels, and middleware — add tests when touching critical logic.
+
+## Playwright (E2E)
+
+- Config: `playwright.config.ts`. Tests live in **`playwright/tests/`** (see `playwright/README.md`).
+- **Separation**: E2E covers flows and visibility; keep **deterministic unit tests** in Vitest for pure helpers (prefix/access policy).
+- **Regression:** `dynamic-row-visibility.spec.ts` (project **`dynamic-rows`**) — restricted user + P8 multi-row save path.
+- **Env**: `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_USER_EMAIL`, `E2E_USER_PASSWORD`, optional `PLAYWRIGHT_BASE_URL` (CONTEXT.md §9).
+- **Auth**: `global-setup.ts` writes `playwright/.auth/admin.json` and `user.json` (gitignored).
+
+## Exporters
+
+- When adding or changing DOCX/XLSX generation, prefer **snapshot or fixture tests** for stable structural output if the change is easy to regress; today there are no dedicated exporter tests — treat that as debt when modifying `lib/exporters/`.

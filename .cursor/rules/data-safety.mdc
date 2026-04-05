@@ -1,0 +1,16 @@
+---
+description: Priority order for data integrity, assignments, visibility, and prefix sync
+alwaysApply: true
+---
+
+# Data safety (priority order)
+
+When changes conflict, resolve in this order:
+
+1. **Data safety (highest)** — Do not corrupt or silently drop questionnaire answers. `answers` is one row per `(org_id, reporting_year, question_code)`; values are strings. Loads and saves go through `/api/answers` with debounced POST (see CONTEXT.md §8.1). Preserve upsert semantics and RLS expectations on `answers`.
+
+2. **Question ledger (second)** — `brsr_questions` and `lib/brsr/questionCodes.ts` (and related config) define which codes exist and how they are ordered. Schema seeds and UI must stay consistent with that ledger.
+
+3. **Question access / visibility (third)** — Restricted users see and save only codes allowed by `user_question_assignments`, `brsr_questions_visibility`, and RLS via `can_access_question`. UI filtering (`visibilityUtils`, hooks) must align with server enforcement.
+
+4. **Prefix sync** — Assignment blocks use prefix-based “same block” logic in TypeScript and Postgres. Any new block prefix must follow the four-way checklist in `docs/prefix-sync.md` (`blockAccessPrefixes.ts`, migrations 010/011 as applicable, and `test/blockAccessPrefixes.test.ts`).

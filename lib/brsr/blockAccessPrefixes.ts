@@ -1,8 +1,3 @@
-/**
- * Longest-prefix-first list for “same assignment block” as admin UI uses (blockAllowed / showBlock).
- * Must stay in sync with `supabase/migrations/011_brsr_assignment_block_prefixes.sql` (seed + RLS).
- */
-
 import { GENERAL_LABELS, P6_PREFIX_LABELS, SECTION_B_LABELS } from "./assignmentBlocks";
 import { getAllMigratedPrincipleAssignmentPrefixes } from "./principleBlocksConfig";
 
@@ -48,6 +43,23 @@ function buildBlockAccessPrefixes(): string[] {
     "gdata_",
   ]);
 }
+
+/**
+ * @doc PREFIX SYNC CONTRACT
+ *
+ * This file is one of four places that must encode identical prefix lists.
+ * A mismatch causes restricted users to silently lose write access to
+ * dynamic row codes (e.g. p8_e1_row2_name) even when the base code is assigned.
+ *
+ * The four locations — all must be updated together:
+ *   1. BLOCK_ACCESS_PREFIXES constant in this file (client-side check)
+ *   2. Inline array in supabase/migrations/010_can_access_question_dynamic_rows.sql
+ *   3. Seed rows in supabase/migrations/011_brsr_assignment_block_prefixes.sql
+ *   4. Prefix count assertion in lib/brsr/blockAccessPrefixes.test.ts
+ *
+ * Before adding a new prefix: read docs/prefix-sync.md for the full checklist.
+ * The test enforces count parity — a mismatch will fail CI.
+ */
 
 /** Ordered longest-first for correct prefix matching (e.g. p7_e1b_ before p7_e1_). */
 export const BLOCK_ACCESS_PREFIXES: readonly string[] = buildBlockAccessPrefixes();

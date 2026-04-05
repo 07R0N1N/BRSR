@@ -55,6 +55,14 @@ export default defineConfig({
         storageState: "playwright/.auth/user.json",
       },
     },
+
+    // ── Dynamic row / prefix access regression (admin + user contexts in spec) ──
+    {
+      name: "dynamic-rows",
+      testMatch: /dynamic-row-visibility\.spec\.ts/,
+      dependencies: ["auth-setup"],
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
   webServer: {
     command: "npm run dev",

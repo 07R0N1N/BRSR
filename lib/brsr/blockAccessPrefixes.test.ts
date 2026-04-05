@@ -1,3 +1,16 @@
+/**
+ * @testfile
+ * Suite:    Block access prefix matching
+ * Breaker:  VISIBILITY
+ * Covers:   Restricted users can edit dynamic row codes (e.g. p8_e1_row2_name)
+ *            when the base block prefix is assigned — not just the exact code.
+ *            Regression guard for the add-record bug (row2 was editable in UI
+ *            but saves were blocked by exact-match RLS check).
+ *            Also enforces four-way prefix sync between TS, migrations, and test.
+ * Run:      npx vitest run lib/brsr/blockAccessPrefixes.test.ts
+ * Depends:  none — pure unit, no DB
+ */
+
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -6,7 +19,7 @@ import {
   computeAllowedBlockPrefixes,
   isQuestionCodeAllowedForRestrictedUser,
   questionCodesShareAssignmentBlock,
-} from "@/lib/brsr/blockAccessPrefixes";
+} from "./blockAccessPrefixes";
 
 describe("questionCodesShareAssignmentBlock", () => {
   it("treats identical codes as same block", () => {
@@ -69,6 +82,31 @@ describe("isQuestionCodeAllowedForRestrictedUser", () => {
         );
       }
     }
+  });
+
+  it("allows row2 code when base code prefix is assigned (dynamic row regression)", () => {
+    const assigned = new Set(["p8_e1_name", "p8_e1_notif"]);
+    expect(isQuestionCodeAllowedForRestrictedUser("p8_e1_row2_name", assigned)).toBe(true);
+    expect(isQuestionCodeAllowedForRestrictedUser("p8_e1_row3_link", assigned)).toBe(true);
+  });
+
+  it("blocks codes from a different block even on same principle", () => {
+    const assigned = new Set(["p8_e1_name"]);
+    expect(isQuestionCodeAllowedForRestrictedUser("p8_e2_row0_name", assigned)).toBe(false);
+  });
+
+  it("blocks codes from unassigned principles entirely", () => {
+    const assigned = new Set(["p8_e1_name"]);
+    expect(isQuestionCodeAllowedForRestrictedUser("p6_e1_rev_cy", assigned)).toBe(false);
+  });
+
+  it("allows exact match (original row1 behavior still works)", () => {
+    const assigned = new Set(["p8_e1_name"]);
+    expect(isQuestionCodeAllowedForRestrictedUser("p8_e1_name", assigned)).toBe(true);
+  });
+
+  it("returns false for empty assigned set", () => {
+    expect(isQuestionCodeAllowedForRestrictedUser("p8_e1_name", new Set())).toBe(false);
   });
 });
 

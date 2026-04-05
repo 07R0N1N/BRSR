@@ -1,0 +1,27 @@
+---
+description: Panel and dashboard hook conventions for the questionnaire UI
+alwaysApply: false
+globs:
+  - "app/**/panels/**"
+  - "app/**/hooks/**"
+---
+
+# Panels and hooks
+
+## Data flow
+
+- Panels receive `values: AnswersState`, `onChange(questionCode, value)`, and where needed `calcDisplay` from `runCalculations`. Restricted users: pass `allowedSet` from assignments; use `isAllowed` / `filterByAllowed` / `sectionHasAnyAllowed` from `visibilityUtils` (see CONTEXT.md §8.5).
+
+## Imports from `lib/brsr`
+
+- Prefer **`@/lib/brsr/types`** for `AnswersState` and shared types.
+- Import **`questionConfig`** (barrel) or specific modules (`questionCodes`, `visibilityUtils`, etc.) as existing panels do — avoid pulling server-only or unrelated modules into client panels.
+- **`InlinePct`** (from `components/CalcCell.tsx`) is the supported pattern for small inline percentage displays where a full `CalcCell` table cell is not appropriate.
+
+## Size and structure
+
+- If a panel file grows past **~150 lines**, extract subcomponents or table sections into colocated files under the same `panels/` directory to keep each file readable.
+
+## Styling
+
+- Follow `.brsr-dark` / Tailwind patterns used in `PanelGeneralData`, `QuestionnaireShell`, and `globals.css` for consistency.

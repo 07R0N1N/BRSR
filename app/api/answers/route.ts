@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { requireAppAccess } from "@/lib/auth/requireAppAccess";
 
+function isAnswersRlsForbidden(error: { code?: string; message?: string }): boolean {
+  const code = error.code ?? "";
+  const msg = (error.message ?? "").toLowerCase();
+  return (
+    code === "42501" ||
+    msg.includes("row-level security") ||
+    msg.includes("permission denied")
+  );
+}
+
 export async function GET(request: Request) {
   const access = await requireAppAccess("data");
   if (!access.ok) return access.response;
@@ -61,6 +71,9 @@ export async function POST(request: Request) {
     ignoreDuplicates: false,
   });
   if (error) {
+    if (isAnswersRlsForbidden(error)) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
   return NextResponse.json({ ok: true });

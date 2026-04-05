@@ -1,0 +1,37 @@
+---
+description: Ownership and rules for lib/brsr questionnaire config and calculations
+alwaysApply: false
+globs:
+  - "lib/brsr/**"
+---
+
+# `lib/brsr/` ownership
+
+`questionConfig.ts` is a re-export barrel. Edit the underlying files directly:
+
+- **`constants.ts`** — `REPORTING_YEARS`, `SAVE_DEBOUNCE_MS`.
+- **`questionCodes.ts`** — All `*_CODES` arrays per panel; `NGRBC_PRINCIPLE_TITLES`; `P6_AUTOFILL_REV_IDS`, `P6_AUTOFILL_REV_PPP_IDS`; `getQuestionCodesForPanel(panelId)`, `ALL_QUESTION_CODES`, `isQuestionCode(code)`.
+- **`calcRules.ts`** — `CALC_RULES` array (`pct`, `sum`, `formula` rules with `outputId` and decimals). Used for read-only calc cells across all panels.
+- **`panels.ts`** — `PANELS` array of `{ id, label, group }`. Groups: "General Data", "Section A", "Section B", "Section C – Principles".
+- **`visibilityUtils.ts`** — `isAllowed(code, allowedSet)`, `filterByAllowed(codes, allowedSet)`, `sectionHasAnyAllowed(codes, allowedSet)`. Used in panel components for restricted-user visibility filtering.
+- **`fyLabels.ts`** — `getFYLabelsFromReportingYear(reportingYear)`, `getFYLabels(ry)`. Returns `[FY current, FY previous, FY prior]` display strings.
+- **`principleBlocksConfig.ts`** — `getStaticPrincipleBlocks(principleNum, codes)`. Static prefix-based assignment blocks for migrated principles P1–P5, P7–P9.
+- **`assignmentBlocks.ts`** — `AssignmentBlock` type, `GENERAL_LABELS`, `SECTION_B_LABELS`, `P6_PREFIX_LABELS`, `getAssignmentBlocksForPanel(panelId)`. Used in `AdminWorkspaceClient` and `OnboardingClient`.
+- **`blockAccessPrefixes.ts`** — Prefix list and helpers for assignment-block access; must stay in sync with migrations and tests (see `docs/prefix-sync.md`).
+- **`principleTemplates.ts`** — `getPrincipleTemplate(principleNum)`. Raw HTML templates for P1–P9 (legacy `brsr-data-entry` style). Used by `parsePrincipleTemplateBlocks` for non-migrated flows (P6) and by `LegacyPrincipleRenderer` (unused legacy). **Treat template strings as frozen unless deliberately migrating markup** — wide HTML edits risk breaking question id binding and exports.
+
+## Calculation engine
+
+- **`runCalculations(values: AnswersState)`** in `calcEngine.ts` applies `CALC_RULES` and returns output id → formatted string. Uses a safe formula parser (no `eval`).
+
+## General Data → Principle 6
+
+- **`flowGeneralDataToPrinciple6(values)`** in `flowGeneralDataToP6.ts` copies turnover/PPP-related General Data into P6 codes for intensity reporting. Used when General Data changes in the dashboard; merged into answers and saved (CONTEXT.md §8.4).
+
+## Legacy
+
+- **`LegacyPrincipleRenderer.tsx`** — HTML-template renderer. **Unused — legacy code; not imported by any file.** Do not extend for new work; prefer native `PanelPrincipleN` components.
+
+## Question codes
+
+- New codes belong in `questionCodes.ts` and related config; keep alignment with `brsr_questions` seeds and RLS/assignment behavior (CONTEXT.md §4, §8.2).

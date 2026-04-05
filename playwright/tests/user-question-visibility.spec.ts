@@ -1,4 +1,17 @@
 /**
+ * @testfile
+ * Suite:    E2E — user question visibility smoke tests
+ * Breaker:  VISIBILITY
+ * Covers:   Under describe "User dashboard visibility (smoke)": `dashboard loads without error`;
+ *            `empty state — no panels shown and correct message` (skips if user has assignments);
+ *            `with assignments — restricted banner and panel buttons appear`;
+ *            `clicking a visible panel button navigates to that panel`.
+ *            User storageState only — no admin API; behavior adapts to existing DB assignments.
+ * Run:      npx playwright test user-question-visibility
+ * Depends:  Same as dynamic-row-visibility.spec.ts
+ */
+
+/**
  * User Question Visibility — standalone user-context smoke tests.
  * These run with the user's saved storageState (no admin interaction).
  * They verify whatever assignment state already exists in the DB, so

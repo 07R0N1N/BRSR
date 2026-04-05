@@ -10,8 +10,21 @@ const REV_PPP_CY = P6_AUTOFILL_REV_PPP_IDS.slice(0, 4);
 const REV_PPP_PY = P6_AUTOFILL_REV_PPP_IDS.slice(4, 8);
 
 /**
- * When General Data turnover/PPP change, compute the 16 P6 revenue and rev_ppp values.
- * Returns a partial AnswersState to merge: only keys that should be updated (non-empty).
+ * @doc AUTOFILL BUSINESS RULE
+ *
+ * BRSR Principle 6 requires revenue and revenue-per-PPP figures that mirror
+ * the General Data section. Rather than asking users to enter them twice,
+ * this function derives the P6 values automatically whenever General Data
+ * turnover or PPP fields change.
+ *
+ * Source fields (General Data):  gdata_turnover_cy, gdata_turnover_py,
+ *                                 gdata_ppp_cy, gdata_ppp_py
+ * Target fields (Principle 6):   p6_rev_*, p6_rev_ppp_* (see P6_AUTOFILL_REV_IDS,
+ *                                 P6_AUTOFILL_REV_PPP_IDS in questionCodes.ts)
+ *
+ * The result is merged into AnswersState and saved — these values appear
+ * in the DB as regular answers, indistinguishable from user-entered ones.
+ * Do not add additional cross-panel autofill here — create a new flow file.
  */
 export function flowGeneralDataToPrinciple6(values: AnswersState): Partial<AnswersState> {
   const turnoverCy = (values["gdata_turnover_cy"] ?? "").trim();

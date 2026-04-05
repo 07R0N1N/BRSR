@@ -12,7 +12,9 @@
     "seed:master": "tsx scripts/seed-master.ts",
     "seed:questions": "tsx scripts/seed-brsr-questions.ts",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:rls": "SUPABASE_RLS_INTEGRATION=1 vitest run --config vitest.rls.config.ts",
+    "audit:context": "echo 'Run the CONTEXT audit prompt in Cursor Composer (Opus) before merging. See docs/prefix-sync.md for the prefix checklist.'"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
