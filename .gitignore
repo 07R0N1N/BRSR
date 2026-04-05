@@ -10,6 +10,20 @@
 /playwright-report/
 /blob-report/
 playwright/.auth/
+playwright/results.json
+
+# cursor (local / ephemeral)
+.cursor/debug*.log
+.cursor/plans/
+
+# microsoft office lock files
+**/~$*
+
+# editor / os
+.idea/
+*.swp
+*.swo
+Thumbs.db
 
 # next.js
 /.next/
