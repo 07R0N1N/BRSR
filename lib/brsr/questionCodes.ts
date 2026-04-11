@@ -375,7 +375,6 @@ const P6_EXTENDED_CODES = [
   "p6_e4_3p_nt_cy", "p6_e4_3p_nt_py", "p6_e4_3p_t_cy", "p6_e4_3p_t_py", "p6_e4_3p_t_level_cy", "p6_e4_3p_t_level_py",
   "p6_e4_oth_nt_cy", "p6_e4_oth_nt_py", "p6_e4_oth_t_cy", "p6_e4_oth_t_py", "p6_e4_oth_t_level_cy", "p6_e4_oth_t_level_py",
   "p6_e4_oth_cy", "p6_e4_oth_py",
-  "p6_e4_tot_cy", "p6_e4_tot_py",
   "p6_e4_assess_yn", "p6_e4_assess_agency",
   "p6_e5_zld", "p6_e5_zld_detail",
   "p6_e6_applicable",

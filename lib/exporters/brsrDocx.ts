@@ -15,6 +15,8 @@ import {
   Footer,
   PageNumber,
   TabStopType,
+  ShadingType,
+  BorderStyle,
 } from "docx";
 import type {
   BRSRExportData,
@@ -36,18 +38,27 @@ import type { StructuredTable, PrincipleBlock } from "@/lib/exporters/brsrDataMa
 import { getFYLabels } from "@/lib/brsr/fyLabels";
 import { NGRBC_PRINCIPLE_TITLES } from "@/lib/brsr/questionCodes";
 
-const MARGIN = 1440; // 1 inch in twips (72pt * 20)
-const TABLE_HEADER_FILL = "1F3864";
-const TABLE_ALT_FILL = "F2F7FF";
-const SECTION_BAR_FILL = "36454F";
+/**
+ * Page margins matched to Eternal Limited reference document.
+ * Top/bottom = 0.75in (1080 DXA), left/right = 1in (1440 DXA).
+ */
+const MARGIN_TB = 1080; // 0.75 inch top/bottom
+const MARGIN_LR = 1440; // 1 inch left/right
+/** Light blue fill used for section bars, table headers, and alternating rows — from Eternal reference. */
+const SECTION_BAR_FILL = "E3F2FD";
+const TABLE_HEADER_FILL = "E3F2FD";
+const TABLE_ALT_FILL = "E3F2FD";
 const FONT = "Arial";
-const SZ_12 = 12 * 2; // section heading
-const SZ_10 = 10 * 2; // subheading
-const SZ_8 = 8 * 2; // questions + table items
+const SZ_10 = 10 * 2; // section / principle headings (matches Eternal's ~29 sz=20 occurrences)
+const SZ_8 = 8 * 2;   // all body text, table labels, subsection headings
+/** Cell padding matched to Eternal: 0.05in = 72 DXA on each side. */
+const CELL_MARGIN_DXA = 72;
+/** Table border definition matched to Eternal: single, auto colour, sz=4. */
+const TBL_BORDER = { style: BorderStyle.SINGLE, size: 4, color: "auto" } as const;
 
 /** Sentinel emitted by brsrDataMapper for unanswered fields. */
 const MAPPER_EMPTY = "—";
-/** Footer tab stop: A4 content width at 1-inch margins (11906 − 2×1440 twips). */
+/** Footer tab stop: A4 content width at 1-inch left/right margins (11906 − 2×1440 twips). */
 const FOOTER_TAB_TWIPS = 9026;
 
 /** Unanswered value for prose/narrative contexts. */
@@ -81,94 +92,117 @@ export function isRowEmpty(vals: (string | null | undefined)[]): boolean {
 
 function heading1(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, bold: true, size: SZ_12, font: FONT })],
-    spacing: { after: 240 },
+    children: [new TextRun({ text, bold: true, size: SZ_10, font: FONT })],
+    spacing: { after: 80 },
   });
 }
 
 function heading2(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, bold: true, size: SZ_12, font: FONT })],
-    spacing: { after: 200 },
+    children: [new TextRun({ text, bold: true, size: SZ_10, font: FONT })],
+    spacing: { after: 80 },
   });
 }
 
 function heading3(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, bold: true, size: SZ_10, font: FONT })],
-    spacing: { after: 160 },
+    children: [new TextRun({ text, bold: true, size: SZ_8, font: FONT })],
+    spacing: { after: 60 },
   });
 }
 
 function body(text: string) {
   return new Paragraph({
     children: [new TextRun({ text, size: SZ_8, font: FONT })],
-    spacing: { after: 120 },
+    spacing: { after: 60 },
   });
 }
 
 function bodySerif(text: string) {
   return new Paragraph({
     children: [new TextRun({ text, size: SZ_8, font: FONT })],
-    spacing: { after: 120 },
+    spacing: { after: 60 },
   });
 }
 
+/**
+ * Section bar: light blue fill with bold dark text, matched to Eternal reference.
+ * Spacing kept tight to reduce vertical bloat.
+ */
 function sectionBar(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, bold: true, color: "FFFFFF", size: SZ_12, font: FONT })],
-    shading: { fill: SECTION_BAR_FILL },
-    spacing: { before: 200, after: 160 },
+    children: [new TextRun({ text, bold: true, size: SZ_10, font: FONT })],
+    shading: { type: ShadingType.CLEAR, fill: SECTION_BAR_FILL, color: "auto" },
+    spacing: { before: 100, after: 80 },
   });
 }
 
 function subsectionTitle(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, bold: true, size: SZ_10, font: FONT })],
-    spacing: { before: 180, after: 120 },
+    children: [new TextRun({ text, bold: true, size: SZ_8, font: FONT })],
+    spacing: { before: 80, after: 60 },
   });
 }
 
 function subHeading(text: string) {
   return new Paragraph({
-    children: [new TextRun({ text, size: SZ_10, font: FONT })],
-    spacing: { before: 120, after: 80 },
+    children: [new TextRun({ text, size: SZ_8, font: FONT })],
+    spacing: { before: 60, after: 40 },
   });
 }
+
+const CM = { top: CELL_MARGIN_DXA, bottom: CELL_MARGIN_DXA, left: CELL_MARGIN_DXA, right: CELL_MARGIN_DXA } as const;
 
 function cellSerif(text: string, shaded?: boolean) {
   return new TableCell({
     children: [new Paragraph({ children: [new TextRun({ text: tv(text), size: SZ_8, font: FONT })] })],
-    shading: shaded ? { fill: TABLE_ALT_FILL } : undefined,
+    shading: shaded ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
+    margins: CM,
   });
 }
 
+/** Shared border spec applied to every table — matched to Eternal reference (single, auto, sz=4). */
+const TBL_BORDERS = {
+  top: TBL_BORDER,
+  bottom: TBL_BORDER,
+  left: TBL_BORDER,
+  right: TBL_BORDER,
+  insideH: TBL_BORDER,
+  insideV: TBL_BORDER,
+} as const;
+
 function indicatorsToTable(indicators: BRSRIndicator[]): Table | null {
-  if (indicators.length === 0) return null;
+  // 1A: filter empty rows so pre-allocated all-empty rows don't bloat the output
+  const filtered = indicators.filter((ind) => !isRowEmpty([ind.value]));
+  if (filtered.length === 0) return null;
   const headerRow = new TableRow({
     children: [
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Indicator", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: "Indicator", bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         width: { size: 60, type: WidthType.PERCENTAGE },
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Value", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: "Value", bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         width: { size: 40, type: WidthType.PERCENTAGE },
+        margins: CM,
       }),
     ],
   });
-  const bodyRows = indicators.map((ind, i) =>
+  const bodyRows = filtered.map((ind, i) =>
     new TableRow({
       children: [
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: ind.label, size: SZ_8, font: FONT })] })],
-          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
+          margins: CM,
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: tv(ind.value), size: SZ_8, font: FONT })] })],
-          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
+          margins: CM,
         }),
       ],
     })
@@ -176,6 +210,7 @@ function indicatorsToTable(indicators: BRSRIndicator[]): Table | null {
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -189,9 +224,10 @@ function buildSectionADetailsTable(indicators: BRSRIndicator[]): Table | null {
   const COL_WIDTHS = [3009, 3009, 3008] as const;
   const hdr = (text: string, w: number) =>
     new TableCell({
-      children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-      shading: { fill: TABLE_HEADER_FILL },
+      children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: SZ_8, font: FONT })] })],
+      shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
       width: { size: w, type: WidthType.DXA },
+      margins: CM,
     });
   const headerRow = new TableRow({
     children: [hdr("Question", COL_WIDTHS[0]), hdr("Value", COL_WIDTHS[1]), hdr("Notes", COL_WIDTHS[2])],
@@ -201,18 +237,21 @@ function buildSectionADetailsTable(indicators: BRSRIndicator[]): Table | null {
       children: [
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: ind.label, size: SZ_8, font: FONT })] })],
-          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
           width: { size: COL_WIDTHS[0], type: WidthType.DXA },
+          margins: CM,
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: tv(ind.value), size: SZ_8, font: FONT })] })],
-          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
           width: { size: COL_WIDTHS[1], type: WidthType.DXA },
+          margins: CM,
         }),
         new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: "", size: SZ_8, font: FONT })] })],
-          shading: i % 2 === 1 ? { fill: TABLE_ALT_FILL } : undefined,
+          shading: i % 2 === 1 ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
           width: { size: COL_WIDTHS[2], type: WidthType.DXA },
+          margins: CM,
         }),
       ],
     })
@@ -221,20 +260,23 @@ function buildSectionADetailsTable(indicators: BRSRIndicator[]): Table | null {
     rows: [headerRow, ...bodyRows],
     columnWidths: [...COL_WIDTHS],
     width: { size: 9026, type: WidthType.DXA },
+    borders: TBL_BORDERS,
   });
 }
 
 function cell(text: string, shaded?: boolean) {
   return new TableCell({
     children: [new Paragraph({ children: [new TextRun({ text: tv(text), size: SZ_8, font: FONT })] })],
-    shading: shaded ? { fill: TABLE_ALT_FILL } : undefined,
+    shading: shaded ? { type: ShadingType.CLEAR, fill: TABLE_ALT_FILL, color: "auto" } : undefined,
+    margins: CM,
   });
 }
 
 function headerCell(text: string) {
   return new TableCell({
-    children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-    shading: { fill: TABLE_HEADER_FILL },
+    children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: SZ_8, font: FONT })] })],
+    shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
+    margins: CM,
   });
 }
 
@@ -257,6 +299,7 @@ function buildProductsTable(
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -281,6 +324,7 @@ function buildHoldingTable(rows: BRSRHoldingRow[]): Table | null {
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -299,6 +343,7 @@ function buildMaterialTable(rows: BRSRMaterialRow[]): Table | null {
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -318,6 +363,7 @@ function buildOpsLocationsTable(rows: BRSROpsLocationRow[], useSerif?: boolean):
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -340,6 +386,7 @@ function buildMarketsTable(indicators: BRSRIndicator[]): Table | null {
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -358,6 +405,7 @@ function buildEmployeeTable(rows: BRSREmployeeRow[]): Table | null {
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -384,6 +432,7 @@ function buildWomenParticipationTable(rows: BRSRWomenParticipationRow[]): Table 
   return new Table({
     rows: [headerRow, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -410,22 +459,26 @@ function buildTurnoverCombinedTable(
       new TableCell({
         children: [new Paragraph({ children: [new TextRun({ text: "", size: SZ_8, font: FONT })] })],
         rowSpan: 2,
-        shading: { fill: TABLE_HEADER_FILL },
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[0], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[0], bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         columnSpan: 2,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[1], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[1], bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         columnSpan: 2,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[2], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[2], bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         columnSpan: 2,
+        margins: CM,
       }),
     ],
   });
@@ -491,6 +544,7 @@ function buildTurnoverCombinedTable(
   return new Table({
     rows: [headerRow1, headerRow2, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -524,7 +578,7 @@ function buildQ1Table(policies: BRSRPoliciesMatrixRow[]): Table | null {
       ],
     })
   );
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -541,7 +595,7 @@ function buildQ2to6Table(row: BRSRPoliciesMatrixRow | undefined, questionLabel: 
       children: [cell(PRINCIPLE_LABELS[i], i % 2 === 1), cell(row[pk], i % 2 === 1)],
     })
   );
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -559,7 +613,7 @@ function buildQ9Table(leadership: BRSRIndicator[]): Table | null {
       children: [cell(pl, i % 2 === 1), cell(ind?.value ?? "", i % 2 === 1)],
     });
   });
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -586,7 +640,7 @@ function buildQ10Table(rows: SBQ10Row[]): Table | null {
       ],
     })
   );
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -610,7 +664,7 @@ function buildQ11Table(rows: SBQ11Row[]): Table | null {
       ],
     })
   );
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -628,7 +682,7 @@ export function buildStructuredTable(st: StructuredTable): Table | null {
       children: row.map((v) => cell(v ?? "", i % 2 === 1)),
     })
   );
-  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE } });
+  return new Table({ rows: [headerRow, ...bodyRows], width: { size: 100, type: WidthType.PERCENTAGE }, borders: TBL_BORDERS });
 }
 
 /**
@@ -660,29 +714,34 @@ function buildComplaintsTable(
   const headerRow1 = new TableRow({
     children: [
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Stakeholder group", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: "Stakeholder group", bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         rowSpan: 2,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Grievance Redressal Mechanism in place", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: "Grievance Redressal Mechanism in place", bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         rowSpan: 2,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: "Web-link for grievance redress policy", bold: true, color: "FFFFFF", size: SZ_8, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: "Web-link for grievance redress policy", bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         rowSpan: 2,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[0], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[0], bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         columnSpan: 3,
+        margins: CM,
       }),
       new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[1], bold: true, color: "FFFFFF", size: SZ_10, font: FONT })] })],
-        shading: { fill: TABLE_HEADER_FILL },
+        children: [new Paragraph({ children: [new TextRun({ text: fyLabels[1], bold: true, size: SZ_8, font: FONT })] })],
+        shading: { type: ShadingType.CLEAR, fill: TABLE_HEADER_FILL, color: "auto" },
         columnSpan: 3,
+        margins: CM,
       }),
     ],
   });
@@ -710,6 +769,7 @@ function buildComplaintsTable(
   return new Table({
     rows: [headerRow1, headerRow2, ...bodyRows],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: TBL_BORDERS,
   });
 }
 
@@ -952,14 +1012,6 @@ export async function buildBRSRDocx(
       children.push(q9Tbl);
     }
 
-    // Section Notes
-    children.push(new Paragraph({
-      children: [new TextRun({ text: "Section Notes", bold: true, size: SZ_10, font: FONT })],
-      spacing: { before: 240, after: 120 },
-    }));
-    children.push(subsectionTitle("28. Do you have any additional details to provide on the Responsible Business Conduct policies and governance?"));
-    children.push(body(PROSE_EMPTY));
-
     children.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
@@ -1006,13 +1058,6 @@ export async function buildBRSRDocx(
         if (tbl) children.push(tbl);
       }
     }
-    // Section Notes block at the end of each principle
-    children.push(new Paragraph({
-      children: [new TextRun({ text: "Section Notes", bold: true, size: SZ_10, font: FONT })],
-      spacing: { before: 200, after: 100 },
-    }));
-    children.push(subsectionTitle("Do you have any additional details to provide on the responsible business conduct of your entity?"));
-    children.push(body(PROSE_EMPTY));
     children.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
@@ -1022,10 +1067,10 @@ export async function buildBRSRDocx(
         properties: {
           page: {
             margin: {
-              top: MARGIN,
-              right: MARGIN,
-              bottom: MARGIN,
-              left: MARGIN,
+              top: MARGIN_TB,
+              right: MARGIN_LR,
+              bottom: MARGIN_TB,
+              left: MARGIN_LR,
             },
           },
         },

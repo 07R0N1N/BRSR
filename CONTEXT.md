@@ -166,6 +166,11 @@ BRSR/
 11. **011_brsr_assignment_block_prefixes.sql**
     - Creates `brsr_assignment_block_prefixes`, seeds prefixes (same set as `BLOCK_ACCESS_PREFIXES`), redefines `question_codes_share_assignment_block` to read from the table.
 
+12. **012_remove_p6_e4_tot_calc_codes.sql**
+    - Removes `p6_e4_tot_cy` and `p6_e4_tot_py` from `answers` and `brsr_questions`.
+    - These codes were incorrectly registered as user-input codes in `questionCodes.ts`; they are calc-only outputs (sum of 10 P6 E4 discharge sub-components) rendered via `calcDisplay` in the panel and computed by `runCalculations` in the exporter. No user-entered data exists for them.
+    - Companion change: removed from `P6_EXTENDED_CODES` in `lib/brsr/questionCodes.ts`. Calc rules in `calcRules.ts` are unchanged.
+
 ### 4.3 RLS summary
 
 - **organizations**: Master = full CRUD; Admin = UPDATE own org (006); others = SELECT only own org (`current_user_org_id()`).
