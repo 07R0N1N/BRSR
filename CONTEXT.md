@@ -225,7 +225,7 @@ Pure-function policy layer used by middleware, API routes (`requireAppAccess`), 
 
 | Path | Who | Description |
 |------|-----|--------------|
-| `/` | All | Server component: auth + profile + onboarding check. Redirects to `/login`, `/master`, `/onboarding`, or `/dashboard`. |
+| `/` | All | Guests: public marketing landing (`LandingPage`). Authenticated: redirect by role/onboarding to `/master`, `/onboarding`, or `/dashboard`. |
 | `/login` | All | Login form; post-login redirect by role. |
 | `/onboarding` | Admin / Non-master | Multi-step onboarding wizard (admin: create org, invite team, configure assignments, launch). Non-admin with incomplete onboarding sees "pending" screen. Redirects to `/dashboard` once complete. |
 | `/dashboard` | Non-master | Dashboard layout + questionnaire (org from profile). Requires `onboarding_complete`. Header includes `ExportButton`. |

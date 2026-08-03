@@ -12,7 +12,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // scroll-smooth: enables animated scrolling for in-page anchor links
+    // (e.g. marketing landing's "#about", "#tools", "#contact"). Applied on
+    // <html> because that's the actual scrolling element for the document —
+    // it has no effect when only applied to an inner wrapper div.
+    <html lang="en" className="scroll-smooth scroll-pt-[88px]">
       <body className="antialiased">{children}</body>
     </html>
   );
