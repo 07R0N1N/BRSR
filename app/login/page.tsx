@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -48,6 +49,26 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0f12] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,#1e293b,#0a0f12)]">
       <div className="w-full max-w-md space-y-6 rounded-xl border border-[#334155] bg-[#1a202c] p-8 shadow-lg">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-400 transition-colors hover:text-gray-200"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to homepage
+        </Link>
         <div className="flex flex-col items-center gap-3">
           <span className="text-3xl leading-none" aria-hidden>📊</span>
           <h1 className="text-center text-2xl font-semibold text-white">

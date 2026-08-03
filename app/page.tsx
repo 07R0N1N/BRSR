@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { canUseApp, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
+import LandingPage from "@/app/(marketing)/components/LandingPage";
+
+export const metadata: Metadata = {
+  title: "BRSR Central — BRSR reporting software for Indian listed companies",
+  description:
+    "BRSR Central builds practical software for Business Responsibility and Sustainability Reporting. Collect, validate and export your BRSR disclosures without spreadsheets.",
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -8,8 +16,9 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Guests see the public marketing landing (no redirect to /login).
   if (!user) {
-    redirect("/login");
+    return <LandingPage />;
   }
 
   const { data: profile } = await supabase

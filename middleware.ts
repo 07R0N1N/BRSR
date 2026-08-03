@@ -35,13 +35,15 @@ export async function middleware(request: NextRequest) {
   const isOnboarding = path === "/onboarding" || path.startsWith("/onboarding/");
   const isRoot = path === "/";
 
+  // Guests may view the public landing at "/". All other matched routes still require auth
+  // (except "/login", which stays reachable so they can sign in).
   if (!user) {
-    if (!isLogin) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
+    if (isRoot || isLogin) {
+      return supabaseResponse;
     }
-    return supabaseResponse;
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
   const profileRes = await supabase

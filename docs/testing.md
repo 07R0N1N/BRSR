@@ -11,6 +11,12 @@
 | `playwright/tests/dynamic-row-visibility.spec.ts` | Playwright E2E | BOTH | P8 restricted-user DOM, edit + reload persistence, +ADD path, forbidden POST for unassigned code. | `npx playwright test dynamic-row-visibility` |
 | `playwright/tests/panel-checklist.spec.ts` | Playwright E2E | VISIBILITY | Sidebar + question-block visibility for every panel; admin sees all panels; multi-panel assignment. | `npx playwright test panel-checklist` |
 | `playwright/tests/user-question-visibility.spec.ts` | Playwright E2E | VISIBILITY | User-only smoke: dashboard load, empty vs assigned shell, first-panel click (adaptive to DB state). | `npx playwright test user-question-visibility` |
+<<<<<<< Updated upstream
+=======
+| `playwright/tests/auth-and-access.spec.ts` | Playwright E2E | VISIBILITY | Admin and user land correctly after login; onboarding gate blocks /dashboard until complete; restricted user cannot reach admin-workspace; guests may visit `/` (marketing) and `/login`, other matched routes still redirect to `/login`. | `npx playwright test auth-and-access` |
+| `playwright/tests/assignment-visibility.spec.ts` | Playwright E2E | VISIBILITY | Restricted user sees exactly the panels matching their assignments; add/remove cycles update sidebar; direct API POST for unassigned code returns 403. | `npx playwright test assignment-visibility` |
+| `playwright/tests/data-save-reliability.spec.ts` | Playwright E2E | DATA SAFETY | Answer values persist across reload, panel navigation, rapid successive edits, and multiple fields; regression guard for debounce surviving panel unmount. | `npx playwright test data-save-reliability` |
+>>>>>>> Stashed changes
 
 ## The two breakers
 
