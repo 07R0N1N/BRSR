@@ -56,7 +56,7 @@ export default function Hero() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
             <span className="ml-2.5 flex-1 rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-[#7f8db0]">
-              yourdomain.in/dashboard
+              brsr.co.in/dashboard
             </span>
           </div>
           <div className="grid min-h-[310px] grid-cols-[130px_minmax(0,1fr)]">

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const COMPANY = "BRSR Central";
-export const CONTACT_EMAIL = "hello@yourdomain.in";
+export const CONTACT_EMAIL = "hello@brsr.co.in";
 
 export function Wrap({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`mx-auto w-full max-w-[1180px] px-6 ${className}`}>{children}</div>;
