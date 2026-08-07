@@ -33,6 +33,8 @@ const TOOLS = [
       "Board-ready charts, straight out of your own data",
     ],
     cta: { href: "#contact", label: "Join the early access list", primary: false },
+    previewTag: "Preview available",
+    previewCta: { href: "/benchmarking-preview.html", label: "See a preview" },
     icon: (
       <>
         <path d="M3 3v18h18" />
@@ -83,7 +85,14 @@ export default function ToolsSection() {
                     {tool.icon}
                   </svg>
                 </span>
-                <Pill tone={tool.pill.tone}>{tool.pill.label}</Pill>
+                <div className="flex items-center gap-1.5">
+                  <Pill tone={tool.pill.tone}>{tool.pill.label}</Pill>
+                  {tool.previewTag ? (
+                    <span className="inline-block whitespace-nowrap rounded-full border border-[#c9d6ff] bg-white px-2 py-0.5 text-[10.5px] font-semibold text-[#2f5bff]">
+                      {tool.previewTag}
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <h3 className="text-xl font-bold text-[#0d1526]">{tool.title}</h3>
               <p className="mt-2.5 text-[15.5px] leading-relaxed text-[#3d4761]">{tool.body}</p>
@@ -95,10 +104,21 @@ export default function ToolsSection() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-auto border-t border-[#eef1f6] pt-[22px]">
+              <div className="mt-auto flex flex-col gap-2.5 border-t border-[#eef1f6] pt-[22px]">
                 <a href={tool.cta.href} className={tool.cta.primary ? `${btnPrimary()} w-full` : `${btnOutline()} w-full`}>
                   {tool.cta.label}
                 </a>
+                {tool.previewCta ? (
+                  <a
+                    href={tool.previewCta.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full items-center justify-center gap-1.5 text-[14.5px] font-semibold text-[#2f5bff] hover:underline"
+                  >
+                    {tool.previewCta.label}
+                    <span aria-hidden>↗</span>
+                  </a>
+                ) : null}
               </div>
             </article>
           ))}
