@@ -6,7 +6,7 @@ export default function QuoteSection() {
       <Wrap className="mx-auto max-w-[860px] text-center">
         <Eyebrow className="justify-center">Why this matters</Eyebrow>
         <blockquote className="text-[clamp(21px,2.6vw,28px)] font-semibold leading-[1.45] tracking-[-0.02em] text-[#0d1526]">
-          “Sustainability is no longer about doing less harm. It's about doing more good.”
+          “Sustainability is no longer about doing less harm. It&apos;s about doing more good.”
         </blockquote>
         <p className="mt-[22px] text-[14.5px] text-[#6b7690]">
           Jochen Zeitz, former CEO · PUMA
