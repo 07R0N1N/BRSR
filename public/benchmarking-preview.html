@@ -1290,8 +1290,11 @@ document.querySelectorAll('select').forEach(enhanceSelect);
 
 /* ============================================================
    2. Keep your place across a refresh
-   State lives in the URL hash, so a reload, a bookmark and a shared link all
-   land on the same view. localStorage is the fallback when the hash is empty.
+   State is persisted in localStorage only. We deliberately do NOT mirror it
+   into location.hash / history — the address bar stays at
+   /benchmarking-preview.html while the user clicks around the tool.
+   A hash present on first load is still read once (for old bookmarks), then
+   cleared so it doesn't linger in the bar.
    ============================================================ */
 const SEL_IDS = [...document.querySelectorAll('select')].map(s => s.id).filter(Boolean);
 const STORE = 'brsr-benchmarking-view';
@@ -1310,7 +1313,7 @@ function saveState(){
   if (selected.length) p.set('sel', selected.join(','));
   const q = $('company-search'); if (q && q.value) p.set('q', q.value);
   const str = p.toString();
-  history.replaceState(null, '', '#' + str);
+  // URL sync disabled — do not write '#' + str into the address bar.
   try { localStorage.setItem(STORE, str); } catch (e) {}
 }
 
@@ -1385,6 +1388,8 @@ window.addEventListener('hashchange', () => {
 let booted = applyState(location.hash.slice(1));
 if (!booted) { try { booted = applyState(localStorage.getItem(STORE) || ''); } catch (e) {} }
 if (!booted) { refreshSectorFilter(); applyIntensityMode(); renderCompany(); saveState(); }
+// Drop any inbound hash so the address bar stays at /benchmarking-preview.html
+if (location.hash) history.replaceState(null, '', location.pathname + location.search);
 
 </script>
 </body>
