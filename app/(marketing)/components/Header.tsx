@@ -24,7 +24,7 @@ function NavLink({
   );
 }
 
-export default function Header() {
+export default function Header({ onOpenDemo }: { onOpenDemo: () => void }) {
   const [stuck, setStuck] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -184,9 +184,13 @@ export default function Header() {
             </svg>
             Sign in
           </Link>
-          <a href="#contact" className={`${btnPrimary()} hidden lg:inline-flex`}>
+          <button
+            type="button"
+            onClick={() => onOpenDemo()}
+            className={`${btnPrimary()} hidden lg:inline-flex`}
+          >
             Request a demo
-          </a>
+          </button>
         </div>
 
         <button

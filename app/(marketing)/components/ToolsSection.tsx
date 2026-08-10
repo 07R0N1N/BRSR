@@ -13,7 +13,8 @@ const TOOLS = [
       "Multi-year: carry last year forward, don’t retype it",
       "One-click export for your annual report",
     ],
-    cta: { href: "#contact", label: "Request a demo", primary: true },
+    // openModal: true opens DemoRequestModal; Benchmarking keeps its #contact anchor.
+    cta: { href: "#contact", label: "Request a demo", primary: true, openModal: true as const },
     icon: (
       <>
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -49,12 +50,19 @@ const TOOLS = [
     future: true,
     body: "This slot is deliberately empty. Assurance readiness, supplier data collection, a board dashboard — the roadmap is shaped by what our clients keep running into.",
     items: ["Tell us what your reporting cycle actually breaks on"],
-    cta: { href: "#contact", label: "Suggest a tool", primary: false },
+    // openSuggest: true opens SuggestToolModal instead of navigating to #contact.
+    cta: { href: "#contact", label: "Suggest a tool", primary: false, openSuggest: true as const },
     icon: <path d="M12 5v14M5 12h14" />,
   },
 ];
 
-export default function ToolsSection() {
+export default function ToolsSection({
+  onOpenDemo,
+  onSuggestTool,
+}: {
+  onOpenDemo: () => void;
+  onSuggestTool: () => void;
+}) {
   return (
     <section id="tools" className="border-y border-[#eef1f6] bg-[#f5f7fb] py-16 lg:py-24">
       <Wrap>
@@ -105,9 +113,27 @@ export default function ToolsSection() {
                 ))}
               </ul>
               <div className="mt-auto flex flex-col gap-2.5 border-t border-[#eef1f6] pt-[22px]">
-                <a href={tool.cta.href} className={tool.cta.primary ? `${btnPrimary()} w-full` : `${btnOutline()} w-full`}>
-                  {tool.cta.label}
-                </a>
+                {"openSuggest" in tool.cta && tool.cta.openSuggest ? (
+                  <button
+                    type="button"
+                    onClick={onSuggestTool}
+                    className={tool.cta.primary ? `${btnPrimary()} w-full` : `${btnOutline()} w-full`}
+                  >
+                    {tool.cta.label}
+                  </button>
+                ) : "openModal" in tool.cta && tool.cta.openModal ? (
+                  <button
+                    type="button"
+                    onClick={onOpenDemo}
+                    className={tool.cta.primary ? `${btnPrimary()} w-full` : `${btnOutline()} w-full`}
+                  >
+                    {tool.cta.label}
+                  </button>
+                ) : (
+                  <a href={tool.cta.href} className={tool.cta.primary ? `${btnPrimary()} w-full` : `${btnOutline()} w-full`}>
+                    {tool.cta.label}
+                  </a>
+                )}
                 {tool.previewCta ? (
                   <a
                     href={tool.previewCta.href}

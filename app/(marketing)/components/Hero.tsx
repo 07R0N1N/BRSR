@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { COMPANY, Eyebrow, Wrap, btnGhostDark, btnPrimaryLg } from "./shared";
 
-export default function Hero() {
+export default function Hero({ onOpenDemo }: { onOpenDemo: () => void }) {
   return (
     <section
       id="top"
@@ -29,9 +29,13 @@ export default function Hero() {
             disclosure — Sections A, B and C, all nine NGRBC principles, in the format your filing needs.
           </p>
           <div className="mt-[34px] flex flex-wrap gap-3">
-            <a href="#contact" className={`${btnPrimaryLg()} flex-1 justify-center sm:flex-none`}>
+            <button
+              type="button"
+              onClick={() => onOpenDemo()}
+              className={`${btnPrimaryLg()} flex-1 justify-center sm:flex-none`}
+            >
               Request a demo
-            </a>
+            </button>
             <a href="#tools" className={`${btnGhostDark()} flex-1 justify-center sm:flex-none`}>
               See what we build
             </a>

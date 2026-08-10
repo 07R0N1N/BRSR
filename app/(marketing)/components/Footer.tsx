@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { BrandMark, COMPANY, CONTACT_EMAIL, Pill, Wrap } from "./shared";
 
-export default function Footer() {
+export default function Footer({
+  onOpenDemo,
+  onSuggestTool,
+}: {
+  onOpenDemo: () => void;
+  onSuggestTool: () => void;
+}) {
   const year = new Date().getFullYear();
 
   return (
@@ -33,9 +39,13 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-[#a9b6d0] no-underline transition hover:text-white">
+                <button
+                  type="button"
+                  onClick={onSuggestTool}
+                  className="text-[#a9b6d0] no-underline transition hover:text-white"
+                >
                   Suggest a tool
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -67,9 +77,13 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-[#a9b6d0] no-underline transition hover:text-white">
+                <button
+                  type="button"
+                  onClick={onOpenDemo}
+                  className="text-[#a9b6d0] no-underline transition hover:text-white"
+                >
                   Request a demo
-                </a>
+                </button>
               </li>
               <li>
                 <Link href="/login" className="text-[#a9b6d0] no-underline transition hover:text-white">
