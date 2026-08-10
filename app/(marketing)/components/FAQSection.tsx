@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: "Is our data secure?",
-    a: "Access is restricted per user and per company, and your disclosures are never pooled with anyone else’s or used for any purpose other than producing your report. [Add your specific hosting, encryption and backup details here before this page goes live.]",
+    a: "Data is hosted on Supabase (managed PostgreSQL) with the app running on Vercel. Every organization's data is isolated at the database level — access is scoped per user and per company, so no organization can see another's data. Production access is limited to our core team only. Have specific security or compliance questions? Reach out and we'll walk you through it.",
   },
   {
     q: "How do we get started?",
