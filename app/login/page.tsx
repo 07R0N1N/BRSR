@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -19,8 +20,8 @@ export default function LoginPage() {
     setLoading(true);
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: username,
-      password,
+      email: normalizeEmail(username),
+      password: normalizePassword(password),
     });
     if (signInError) {
       setLoading(false);

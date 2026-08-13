@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
 import { NextResponse } from "next/server";
 
 type UserEntry = {
@@ -51,8 +52,8 @@ export async function POST(request: Request) {
   const results: { email: string; ok: boolean; error?: string; user_id?: string }[] = [];
 
   for (const entry of entries) {
-    const email = entry.email?.trim();
-    const password = entry.password;
+    const email = normalizeEmail(entry.email);
+    const password = normalizePassword(entry.password);
     const displayName = entry.display_name?.trim() || null;
 
     if (!email || !password) {

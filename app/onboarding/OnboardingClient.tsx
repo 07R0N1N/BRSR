@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { REPORTING_YEARS } from "@/lib/brsr/constants";
 import { PANELS } from "@/lib/brsr/questionConfig";
 import { getAssignmentBlocksForPanel } from "@/lib/brsr/assignmentBlocks";
+import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
 import type { PanelId } from "@/lib/brsr/types";
 
 type OrgData = {
@@ -329,8 +330,8 @@ function StepInviteTeam({
       const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
       return {
         name: nameIdx !== -1 ? (cols[nameIdx] ?? "") : "",
-        email: cols[emailIdx] ?? "",
-        password: cols[passIdx] ?? "",
+        email: normalizeEmail(cols[emailIdx]),
+        password: normalizePassword(cols[passIdx]),
       };
     }).filter((e) => e.email);
   }
@@ -380,8 +381,8 @@ function StepInviteTeam({
     if (valid.length === 0) { setSubmitError("Add at least one team member"); return; }
     setLoading(true);
     const payload = valid.map((e) => ({
-      email: e.email.trim(),
-      password: e.password,
+      email: normalizeEmail(e.email),
+      password: normalizePassword(e.password),
       display_name: e.name.trim() || null,
     }));
     const res = await fetch("/api/onboarding/users", {

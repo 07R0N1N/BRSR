@@ -7,16 +7,12 @@
 | `lib/exporters/brsrDocx.test.ts` | Vitest unit | N/A | `tv()`, `pv()`, `isRowEmpty()`, `buildStructuredTable()` — empty sentinel handling and all-empty dynamic-row filtering in BRSR DOCX output. | `npx vitest run lib/exporters/brsrDocx.test.ts` |
 | `lib/brsr/blockAccessPrefixes.test.ts` | Vitest unit | VISIBILITY | Prefix-based access matches RLS/UI so dynamic row codes save when the block is assigned; migration 011 array stays in sync with TS. | `npx vitest run lib/brsr/blockAccessPrefixes.test.ts` |
 | `test/accessPolicy.test.ts` | Vitest unit | VISIBILITY | Role + onboarding combinations gate app use and redirects (master / admin / user). | `npx vitest run test/accessPolicy.test.ts` |
+| `lib/auth/normalize.test.ts` | Vitest unit | N/A | Email is always trim+lowercase and password is trim-only (case preserved) across every user-creation and login path. | `npx vitest run lib/auth/normalize.test.ts` |
 | `supabase/tests/rls-dynamic-rows.test.ts` | Vitest RLS integration | BOTH | Postgres RLS on `answers` for dynamic row codes; restricted vs admin vs master. | `SUPABASE_RLS_INTEGRATION=1 npx vitest run --config vitest.rls.config.ts supabase/tests/rls-dynamic-rows.test.ts` |
 | `playwright/tests/dynamic-row-visibility.spec.ts` | Playwright E2E | BOTH | P8 restricted-user DOM, edit + reload persistence, +ADD path, forbidden POST for unassigned code. | `npx playwright test dynamic-row-visibility` |
 | `playwright/tests/panel-checklist.spec.ts` | Playwright E2E | VISIBILITY | Sidebar + question-block visibility for every panel; admin sees all panels; multi-panel assignment. | `npx playwright test panel-checklist` |
 | `playwright/tests/user-question-visibility.spec.ts` | Playwright E2E | VISIBILITY | User-only smoke: dashboard load, empty vs assigned shell, first-panel click (adaptive to DB state). | `npx playwright test user-question-visibility` |
-<<<<<<< Updated upstream
-=======
 | `playwright/tests/auth-and-access.spec.ts` | Playwright E2E | VISIBILITY | Admin and user land correctly after login; onboarding gate blocks /dashboard until complete; restricted user cannot reach admin-workspace; guests may visit `/` (marketing) and `/login`, other matched routes still redirect to `/login`. | `npx playwright test auth-and-access` |
-| `playwright/tests/assignment-visibility.spec.ts` | Playwright E2E | VISIBILITY | Restricted user sees exactly the panels matching their assignments; add/remove cycles update sidebar; direct API POST for unassigned code returns 403. | `npx playwright test assignment-visibility` |
-| `playwright/tests/data-save-reliability.spec.ts` | Playwright E2E | DATA SAFETY | Answer values persist across reload, panel navigation, rapid successive edits, and multiple fields; regression guard for debounce surviving panel unmount. | `npx playwright test data-save-reliability` |
->>>>>>> Stashed changes
 
 ## The two breakers
 
@@ -125,3 +121,4 @@ Load `.env.local` via the test file’s `dotenv` + run from repo root. If the fl
 - **Save failure rollback** — when `POST /api/answers` fails, no test asserts the input reverts to the last saved value; risk of UI/db mismatch.
 - **`lib/brsr/calcEngine.ts` / `CALC_RULES`** — no Vitest coverage beyond indirect UI; risk of wrong display-only totals.
 - **Next.js middleware / most `app/api/*` routes** — no automated tests; risk of auth or validation drift.
+- **Planned Playwright specs (referenced in an earlier version of this index, not yet written):** `playwright/tests/assignment-visibility.spec.ts`, `playwright/tests/data-save-reliability.spec.ts`.

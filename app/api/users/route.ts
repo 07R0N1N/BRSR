@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -20,8 +21,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const body = await request.json();
-  const email = (body.email as string)?.trim();
-  const password = body.password as string;
+  const email = normalizeEmail(body.email as string | undefined);
+  const password = normalizePassword(body.password as string | undefined);
   let org_id = (body.org_id as string | null) || null;
   const role_id = body.role_id as string;
   if (!email || !password || !role_id) {
