@@ -35,25 +35,29 @@ Inventory of the system as built: structure, stack, database, auth, routes, APIs
 BRSR/
 ├── app/
 │   ├── (dashboard)/dashboard/
-│   │   ├── hooks/                # Custom React hooks (useAnswers, useAssignments, useAssignmentStats)
+│   │   ├── hooks/                # Custom React hooks (useAnswers, useAssignments, useAssignmentStats,
+│   │   │                         #   useAssignmentCoverage, useOrgUsers)
 │   │   ├── panels/               # PanelGeneralData, PanelGeneral, PanelSectionB, PanelPrinciple,
 │   │   │                         #   PanelPrinciple1–9 (per-principle JSX),
 │   │   │                         #   LegacyPrincipleRenderer (unused — legacy)
-│   │   ├── admin-workspace/      # AdminWorkspaceClient
+│   │   ├── admin-workspace/      # AdminWorkspaceClient, ManageUsersPanel, ThemeWrapper,
+│   │   │                         #   ThemeToggleButton, shared.tsx (style tokens + AvatarChip)
 │   │   └── QuestionnaireShell.tsx
 │   ├── (master)/master/           # Master layout, nav, orgs/users/roles/visibility
 │   ├── onboarding/                # Onboarding wizard (layout, page, OnboardingClient)
 │   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility,
-│   │                              #   assignments, assignment-stats, export, onboarding)
+│   │                              #   assignments, assignment-coverage, assignment-stats, export, onboarding)
+│   ├── fonts/inter/               # Self-hosted Inter (woff2) for Admin Workspace
 │   ├── login/                     # Login page
 │   ├── layout.tsx, page.tsx       # Root layout; / redirects by role + onboarding status
-│   └── globals.css                # BRSR dark theme (.brsr-dark)
+│   └── globals.css                # BRSR dark theme (.brsr-dark); Admin Workspace tokens (.admin-workspace-theme)
 ├── components/
 │   ├── QuestionInput.tsx          # Shared text input bound to a question code
 │   ├── CalcCell.tsx               # CalcCell (read-only calc display) + InlinePct
 │   ├── ExportButton.tsx           # Opens export modal
 │   └── ExportModal.tsx            # Format/section picker, triggers /api/export/generate
 ├── lib/
+│   ├── hooks/                     # useBulkUserInvite (shared: onboarding invite step + admin-workspace Manage Users)
 │   ├── supabase/                  # createClient (server), client, admin
 │   ├── auth/
 │   │   ├── accessPolicy.ts       # Pure policy: isMaster, canUseApp, redirectForIncompleteApp, etc.
@@ -71,7 +75,7 @@ BRSR/
 │       ├── questionConfig.ts      # Re-export barrel (preserves existing import paths)
 │       ├── calcEngine.ts          # runCalculations()
 │       ├── types.ts               # AnswersState, PanelId, CalcRule
-│       ├── assignmentBlocks.ts    # AssignmentBlock, getAssignmentBlocksForPanel, label maps
+│       ├── assignmentBlocks.ts    # AssignmentBlock, BLOCK_DEPARTMENTS, getAssignmentBlocksForPanel, label maps
 │       ├── principleTemplates.ts  # Raw HTML templates for P1–P9
 │       ├── flowGeneralDataToP6.ts # General Data → Principle 6 autofill
 │       ├── blockAccessPrefixes.ts # BLOCK_ACCESS_PREFIXES; RLS/UI block sync (see docs/prefix-sync.md)
@@ -82,6 +86,7 @@ BRSR/
 │   ├── tests/
 │   │   ├── global-setup.ts                   # Saves admin + user storageState
 │   │   ├── panel-checklist.spec.ts           # Full panel-by-panel visibility checklist
+│   │   ├── admin-unassigned-blocks.spec.ts   # Org-wide unassigned-blocks filter (A→B)
 │   │   └── user-question-visibility.spec.ts  # User-only smoke tests
 │   └── .auth/                                # Saved auth state (gitignored)
 │       ├── admin.json
@@ -229,7 +234,7 @@ Pure-function policy layer used by middleware, API routes (`requireAppAccess`), 
 | `/login` | All | Login form; post-login redirect by role. |
 | `/onboarding` | Admin / Non-master | Multi-step onboarding wizard (admin: create org, invite team, configure assignments, launch). Non-admin with incomplete onboarding sees "pending" screen. Redirects to `/dashboard` once complete. |
 | `/dashboard` | Non-master | Dashboard layout + questionnaire (org from profile). Requires `onboarding_complete`. Header includes `ExportButton`. |
-| `/dashboard/admin-workspace` | Admin | Admin workspace: completion stats per user, per-user question assignment management. |
+| `/dashboard/admin-workspace` | Admin | Admin workspace, three tabs: Analytics (completion stats per user), Assign (per-user question assignment), Manage Users (add/remove team members). |
 | `/master` | Master | Master layout; overview with stat cards. |
 | `/master/organizations` | Master | List/create/delete organizations. |
 | `/master/users` | Master | List/create/delete users; assign org and role. |
@@ -249,13 +254,14 @@ Dashboard uses a single shell (`QuestionnaireShell`) with sidebar panels: Genera
 | `/api/assignments` | GET, PUT | `requireAppAccess("assignments")` + admin/master | GET: list org users + assignments (`?user_id=`, `?org_id=`). PUT: replace a user's assigned question codes. |
 | `/api/assignments/me` | GET | `requireAppAccess("data")` | Current user's assigned codes → `{ mode: "all"\|"restricted", question_codes }`. |
 | `/api/assignment-stats` | GET | `requireAppAccess("data")` + admin/master | Per-user completion stats for a reporting year (`?reporting_year=`, `?org_id=`). |
+| `/api/assignment-coverage` | GET | `requireAppAccess("assignments")` + admin/master | Distinct question codes assigned to anyone in the org (`?reporting_year=`, `?org_id=`). Assignments are org-scoped (no year column); year is echoed for workspace context. |
 | `/api/export/brsr` | GET | `requireAppAccess("data")` + admin/master | Mapped BRSR JSON export (`?orgId=`, `?year=`). |
 | `/api/export/generate` | POST | Same as export/brsr | Generate DOCX/XLSX/JSON download (body: `orgId`, `year`, `format`, `sections`). PDF → 501. |
 | `/api/onboarding/organization` | POST | Auth + admin (no org yet) | Create organization and link to admin's profile. |
-| `/api/onboarding/users` | POST | Auth + admin (has org) | Bulk invite users to org. |
+| `/api/onboarding/users` | POST | Auth + admin (has org) | Bulk invite users to org. Also called from Admin Workspace's Manage Users tab (not onboarding-only) via `useBulkUserInvite`. |
 | `/api/onboarding/launch` | POST | Auth + admin (has org) | Set `onboarding_complete = true` on org. |
 | `/api/organizations` | PATCH, POST, DELETE | Master (POST/DELETE); admin/master (PATCH) | POST: create org. DELETE: delete org by id. PATCH: update org fields (admin own org only). |
-| `/api/users` | POST, DELETE | Master | Create user (email, password, org_id, role_id); delete user. Uses service role for create. |
+| `/api/users` | POST, DELETE | POST: Master. DELETE: Master (any org) or `requireAppAccess("assignments")` admin (own org only) | POST: create user (email, password, org_id, role_id); service role. DELETE: remove a user; blocks deleting master/admin or self; admin path additionally blocks cross-org deletes. |
 | `/api/roles` | POST, DELETE | Master | Create custom role (name, slug); delete role (API blocks system role delete). |
 | `/api/visibility` | POST | Master/Admin | Insert `brsr_questions_visibility` row (role_id, section, principle_no, question_code). |
 
@@ -283,7 +289,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 - **`visibilityUtils.ts`** — `isAllowed(code, allowedSet)`, `filterByAllowed(codes, allowedSet)`, `sectionHasAnyAllowed(codes, allowedSet)`. Used in panel components for restricted-user visibility filtering.
 - **`fyLabels.ts`** — `getFYLabelsFromReportingYear(reportingYear)`, `getFYLabels(ry)`. Returns `[FY current, FY previous, FY prior]` display strings.
 - **`principleBlocksConfig.ts`** — Static prefix-based assignment blocks for migrated principles P1–P5, P7–P9; see module exports in source.
-- **`assignmentBlocks.ts`** — `AssignmentBlock` type, `GENERAL_LABELS`, `SECTION_B_LABELS`, `P6_PREFIX_LABELS`, `getAssignmentBlocksForPanel(panelId)`. Used in `AdminWorkspaceClient` and `OnboardingClient`.
+- **`assignmentBlocks.ts`** — `AssignmentBlock` type, `BLOCK_DEPARTMENTS` (display-only department tags; not used for RLS), `GENERAL_LABELS`, `SECTION_B_LABELS`, `P6_PREFIX_LABELS`, `getAssignmentBlocksForPanel(panelId)`. Used in `AdminWorkspaceClient` and `OnboardingClient`.
 - **`principleTemplates.ts`** — `getPrincipleTemplate(principleNum)`. Raw HTML templates for P1–P9 (legacy `brsr-data-entry` style). Used by `parsePrincipleTemplateBlocks` for non-migrated flows (P6) and by `LegacyPrincipleRenderer` (unused legacy).
 
 ### 8.3 Calculation engine (`lib/brsr/calcEngine.ts`)
@@ -301,6 +307,8 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
   - `useAnswers` — loads and debounce-saves answers; respects `allowedSet` (from `user_question_assignments`); exposes `answers`, `loading`, `saving`, `onChange`.
   - `useAssignmentStats` — fetches completion statistics for the Admin Workspace.
   - `useAssignments` — loads, toggles, and saves per-user question assignments.
+  - `useAssignmentCoverage` — org-wide assigned question codes for the Admin Workspace unassigned-blocks filter.
+  - `useOrgUsers` — org roster for the Manage Users tab; reuses GET `/api/assignments` (no `user_id`), so it is the same assignable-user list as the Assign tab, not a second source.
 - **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`. Panels use `isAllowed` from `visibilityUtils.ts` to filter inputs for restricted users.
 - **Principle panel** (`PanelPrinciple.tsx`): Orchestrator with essential/leadership tabs and a per-principle notes field (`p{n}_notes`). Imports `PanelPrinciple1.tsx` through `PanelPrinciple9.tsx`:
   - `PanelPrinciple1.tsx` … `PanelPrinciple9.tsx` — 9 individual JSX files, each exporting `PNEssentialContent` and `PNLeadershipContent`. All principles are now native JSX components.
@@ -310,7 +318,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
   - `CalcCell.tsx` — `CalcCell` (read-only display of `calcDisplay[code]`) and `InlinePct` (inline percentage from two values).
   - `ExportButton.tsx` — Opens `ExportModal`; used in dashboard header.
   - `ExportModal.tsx` — Format picker (DOCX/XLSX/JSON; PDF disabled), section selector, triggers `/api/export/generate` download.
-- **Theme**: Dark theme via `.brsr-dark` in `globals.css` (inputs, tables, labels, borders). Header/sidebar use `#1a202c`, content `#0a0f12`, borders `#334155`.
+- **Theme**: Dashboard questionnaire uses `.brsr-dark` in `globals.css` (inputs, tables, labels, borders). Admin Workspace uses scoped `.admin-workspace-theme` tokens (not `:root`) and self-hosted Inter in `app/fonts/inter/`.
 
 ---
 

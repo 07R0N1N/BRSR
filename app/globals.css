@@ -2,6 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Admin Workspace theme toggle — CSS variables scoped to
+   `.admin-workspace-theme` only (see AdminWorkspaceThemeWrapper.tsx),
+   never to `:root`, so nothing outside /dashboard/admin-workspace can
+   read or collide with these names. Values are ported 1:1 from
+   Archive 1/workflow-mockup/admin-assign-tier1.html's `:root` (light)
+   and `:root[data-theme="dark"]` (dark) blocks.
+
+   --sans is applied as font-family on this wrapper. --font-inter is set
+   by the self-hosted Inter (next/font/local) on AdminWorkspaceThemeWrapper —
+   see ThemeWrapper.tsx for why it's local instead of next/font/google. */
+.admin-workspace-theme {
+  font-family: var(--sans);
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f1f3f9;
+  --surface-3: #eef1f8;
+  --border: #e4e7f0;
+  --border-soft: #edeff6;
+  --ink: #0d1526;
+  --text: #4b5468;
+  --text-muted: #8a93a6;
+  --brand: #2f5bff;
+  --brand-600: #1e42d6;
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --teal: #0fb5a0;
+  --teal-50: #e6f8f4;
+  --teal-300: #5eead4;
+  --amber: #d97706;
+  --amber-50: #fff4e5;
+  --amber-100: #fde9c9;
+  --amber-border: #fce3bd;
+  --red: #dc2626;
+  --actionbar-bg: var(--ink);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 24px 48px -12px rgba(15, 23, 42, 0.28);
+  --sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.admin-workspace-theme[data-theme="dark"] {
+  --bg: #0b0f1a;
+  --surface: #141a2b;
+  --surface-2: #1b2236;
+  --surface-3: #212a41;
+  --border: #2a3350;
+  --border-soft: #232b42;
+  --ink: #f3f5fa;
+  --text: #c3c9dc;
+  --text-muted: #8993b4;
+  --brand: #6d8cff;
+  --brand-600: #8aa4ff;
+  --brand-50: rgba(109, 140, 255, 0.16);
+  --brand-100: rgba(109, 140, 255, 0.26);
+  --teal: #2dd4bf;
+  --teal-50: rgba(45, 212, 191, 0.16);
+  --teal-300: #5eead4;
+  --amber: #f5a742;
+  --amber-50: rgba(245, 167, 66, 0.14);
+  --amber-100: rgba(245, 167, 66, 0.24);
+  --amber-border: rgba(245, 167, 66, 0.35);
+  --red: #f87171;
+  --actionbar-bg: #1f273d;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.65);
+}
+
+/*
+  Scoped restyle of the shared AccountDropdown on Admin Workspace only.
+  AccountDropdown.tsx keeps its dark-dashboard classes (Master header);
+  these selectors override them to the mock .account pill + light/dark tokens.
+  --account-initial is set on the wrapper in page.tsx (quoted letter).
+
+  Both wrapper divs (`.admin-workspace-account` from page.tsx, and
+  AccountDropdown's own `.relative` div) are plain block elements around the
+  inline-flex button, so the button sits in an anonymous line box subject to
+  default `vertical-align: baseline` — that adds a few px of "strut" space
+  above it, shifting it down relative to the header's other flex siblings
+  (e.g. ThemeToggleButton, which has no such wrapper). Making both wrappers
+  flex containers collapses that line box so the button is centered exactly
+  like every other header control, without touching AccountDropdown.tsx.
+*/
+.admin-workspace-theme .admin-workspace-account,
+.admin-workspace-theme .admin-workspace-account > div {
+  display: flex;
+  align-items: center;
+}
+.admin-workspace-theme .admin-workspace-account > div > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  padding: 5px 12px 5px 5px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: none;
+}
+.admin-workspace-theme .admin-workspace-account > div > button:hover {
+  background: var(--surface-2);
+}
+.admin-workspace-theme .admin-workspace-account > div > button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--brand-50);
+}
+.admin-workspace-theme .admin-workspace-account > div > button > span:first-child {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand);
+  font-size: 0;
+  line-height: 0;
+  color: #fff;
+}
+.admin-workspace-theme .admin-workspace-account > div > button > span:first-child::after {
+  content: var(--account-initial);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+}
+.admin-workspace-theme .admin-workspace-account > div > button > span:last-child {
+  color: var(--text);
+  font-size: 10px;
+  opacity: 0.7;
+}
+.admin-workspace-theme .admin-workspace-account [role="menu"] {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-sm);
+}
+.admin-workspace-theme .admin-workspace-account [role="menu"] a,
+.admin-workspace-theme .admin-workspace-account [role="menu"] button {
+  color: var(--text);
+  font-size: 13px;
+}
+.admin-workspace-theme .admin-workspace-account [role="menu"] a:hover,
+.admin-workspace-theme .admin-workspace-account [role="menu"] button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
 /* BRSR dashboard dark theme – content area */
 .brsr-dark {
   color: #e2e8f0;
