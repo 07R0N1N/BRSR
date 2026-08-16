@@ -36,6 +36,8 @@ export interface TestContext {
   org: TestOrg;
   admin: TestUser;
   user?: TestUser;
+  /** Extra factory users (e.g. a second assignable user). Cleaned up with the context. */
+  extraUsers?: TestUser[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -519,6 +521,12 @@ async function cleanupTestContext(ctx: TestContext): Promise<void> {
   if (ctx.user) {
     await attempt(`deleteUser(user ${ctx.user.userId})`, () =>
       supabase.auth.admin.deleteUser(ctx.user!.userId)
+    );
+  }
+
+  for (const extra of ctx.extraUsers ?? []) {
+    await attempt(`deleteUser(extra ${extra.userId})`, () =>
+      supabase.auth.admin.deleteUser(extra.userId)
     );
   }
 

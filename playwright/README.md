@@ -26,7 +26,7 @@ The config starts `npm run dev` automatically unless a server is already running
 |-------------------|--------|
 | `auth-setup`      | Runs `global-setup.ts`; writes `playwright/.auth/admin.json` and `user.json` (gitignored). |
 | `panel-checklist` | Admin assigns via API; user verifies panels (depends on `auth-setup`). |
-| `admin`           | Matches `admin-*.spec.ts` (add specs under `playwright/tests/` when needed). |
+| `admin`           | Matches `admin-*.spec.ts` (`admin-unassigned-blocks.spec.ts`, `admin-manage-users.spec.ts`). Factory-isolated (no saved admin storageState). |
 | `user-visibility` | Matches `user-*.spec.ts`; uses saved user storage state. |
 | `dynamic-rows`    | `dynamic-row-visibility.spec.ts` — restricted user + Principle 8 multi-row saves. |
 

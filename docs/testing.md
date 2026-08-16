@@ -13,6 +13,8 @@
 | `playwright/tests/panel-checklist.spec.ts` | Playwright E2E | VISIBILITY | Sidebar + question-block visibility for every panel; admin sees all panels; multi-panel assignment. | `npx playwright test panel-checklist` |
 | `playwright/tests/user-question-visibility.spec.ts` | Playwright E2E | VISIBILITY | User-only smoke: dashboard load, empty vs assigned shell, first-panel click (adaptive to DB state). | `npx playwright test user-question-visibility` |
 | `playwright/tests/auth-and-access.spec.ts` | Playwright E2E | VISIBILITY | Admin and user land correctly after login; onboarding gate blocks /dashboard until complete; restricted user cannot reach admin-workspace; guests may visit `/` (marketing) and `/login`, other matched routes still redirect to `/login`. | `npx playwright test auth-and-access` |
+| `playwright/tests/admin-unassigned-blocks.spec.ts` | Playwright E2E | VISIBILITY | Admin Workspace “Show only unassigned blocks” is org-wide: assigning a block to User A hides it for User B without a reload. | `npx playwright test admin-unassigned-blocks` |
+| `playwright/tests/admin-manage-users.spec.ts` | Playwright E2E | VISIBILITY | Admin Workspace Manage Users tab: admin adds a team member (shared bulk-invite endpoint) and removes them again via the new admin-scoped DELETE `/api/users` path. | `npx playwright test admin-manage-users` |
 
 ## The two breakers
 
@@ -33,6 +35,8 @@ Restricted users see only assigned question codes. Dynamic rows share the same *
 - **`dynamic-row-visibility.spec.ts`** (E2E) — Assigned **p8_e1** visible/editable; **p8_e2** absent from DOM; API forbidden path.
 - **`panel-checklist.spec.ts`** (E2E) — Every **panel-*** sidebar entry and **qblock-*** in-panel filtering for admin vs restricted user.
 - **`user-question-visibility.spec.ts`** (E2E) — Smoke on real user session: empty state vs restricted banner and panel buttons.
+- **`admin-unassigned-blocks.spec.ts`** (E2E) — Assigning a block to User A hides it for User B when “Show only unassigned blocks” is on (org-wide coverage, not per selected user).
+- **`admin-manage-users.spec.ts`** (E2E) — Admin can add and remove a team member from Admin Workspace without Master; exercises the admin-scoped DELETE `/api/users` own-org guard.
 
 ## Running the tests
 

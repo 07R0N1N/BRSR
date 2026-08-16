@@ -250,8 +250,8 @@ test.describe("Route protection", () => {
     await TestFactory.loginAs(page, ctx.admin);
     await page.goto("/dashboard/admin-workspace");
     await expect(page).toHaveURL(/admin-workspace/, { timeout: 10_000 });
-    // Heading rendered in admin-workspace/page.tsx line 57:
-    // <h1 className="text-lg font-semibold text-white">Admin Workspace</h1>
+    // Heading rendered in admin-workspace/page.tsx:
+    // <h1 className="text-[17px] font-bold text-[var(--ink)]">Admin Workspace</h1>
     await expect(
       page.getByRole("heading", { name: "Admin Workspace" })
     ).toBeVisible({ timeout: 8_000 });

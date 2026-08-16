@@ -35,14 +35,12 @@ export default defineConfig({
     },
 
     // ── Admin workspace standalone tests ────────────────────────────────────
+    // No auth-setup / storageState: these specs create their own org via
+    // TestFactory and log in as that admin (see admin-unassigned-blocks.spec.ts).
     {
       name: "admin",
       testMatch: /admin-.*\.spec\.ts/,
-      dependencies: ["auth-setup"],
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "playwright/.auth/admin.json",
-      },
+      use: { ...devices["Desktop Chrome"] },
     },
 
     // ── User visibility standalone tests ────────────────────────────────────
