@@ -10,7 +10,7 @@ alwaysApply: true
 - **All new API routes** should use `requireAppAccess(mode)` from `@/lib/auth/requireAppAccess` after authentication patterns used elsewhere.
 - **Modes** (`lib/auth/requireAppAccess.ts`):
   - `"data"` — answers, exports, assignment-stats, assignments/me: requires completed onboarding (or master).
-  - `"assignments"` — GET/PUT `/api/assignments`: also allows admin mid-onboarding (org exists, not launched).
+  - `"assignments"` — GET/PUT `/api/assignments`, GET `/api/assignment-coverage`, DELETE `/api/users` (admin path): Admin Workspace tier; also allows admin mid-onboarding (org exists, not launched).
 - On success, use `access.supabase`, `access.user`, and `access.ctx` (`AccessContext`: `roleSlug`, `orgId`, `onboardingComplete`).
 
 ## `createAdminClient`

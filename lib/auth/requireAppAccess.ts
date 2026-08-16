@@ -13,7 +13,9 @@ export type AppAccessMode = "data" | "assignments";
 /**
  * Enforces onboarding gate for API routes. Master always passes.
  * - `data`: answers, exports, assignment-stats, assignments/me — requires completed onboarding (or master).
- * - `assignments`: GET/PUT /api/assignments — also allows admin mid-onboarding (org exists, not launched).
+ * - `assignments`: GET/PUT /api/assignments, GET /api/assignment-coverage,
+ *   DELETE /api/users (admin path) — the Admin Workspace tier; also allows
+ *   admin mid-onboarding (org exists, not launched).
  */
 export async function requireAppAccess(mode: AppAccessMode = "data"): Promise<
   | { ok: true; supabase: Awaited<ReturnType<typeof createClient>>; user: User; ctx: AccessContext }
