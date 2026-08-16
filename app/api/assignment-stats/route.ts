@@ -30,10 +30,15 @@ export async function GET(request: Request) {
 
   const [{ data: users, error: usersError }, { data: assignments, error: assignmentsError }, { data: answers, error: answersError }] =
     await Promise.all([
+      // `roles!inner(slug)` + `neq("roles.slug", "admin")` excludes the admin's own profile at
+      // the query level: an admin's "assigned_count" would otherwise be every question code in
+      // the system (since admins can see/save everything), which is not a real assignment and
+      // would misleadingly dominate the per-user completion stats.
       supabase
         .from("profiles")
-        .select("id, email, display_name")
+        .select("id, email, display_name, roles!inner(slug)")
         .eq("org_id", targetOrgId)
+        .neq("roles.slug", "admin")
         .order("email"),
       supabase
         .from("user_question_assignments")

@@ -34,10 +34,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Organization not available" }, { status: 400 });
   }
 
+  // `roles!inner(slug)` + `neq("roles.slug", "admin")` matches page.tsx and
+  // assignment-stats: admins already see every code, so they are not assignable.
   const { data: users, error: usersError } = await supabase
     .from("profiles")
-    .select("id, email, display_name, roles(slug)")
+    .select("id, email, display_name, roles!inner(slug)")
     .eq("org_id", targetOrgId)
+    .neq("roles.slug", "admin")
     .order("email");
   if (usersError) {
     return NextResponse.json({ error: usersError.message }, { status: 400 });

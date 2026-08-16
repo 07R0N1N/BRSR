@@ -48,6 +48,18 @@ export function useAssignments(selectedUserId: string) {
     });
   }, []);
 
+  /** Add or remove codes without toggling. Does not save — Confirm still owns PUT. */
+  const applyBlockSelection = useCallback((questionCodes: string[], selected: boolean) => {
+    setSelectedCodes((prev) => {
+      const next = new Set(prev);
+      for (const code of questionCodes) {
+        if (selected) next.add(code);
+        else next.delete(code);
+      }
+      return next;
+    });
+  }, []);
+
   const confirmAssignments = useCallback(
     async (onSuccess?: () => void) => {
       if (!selectedUserId) return;
@@ -76,5 +88,5 @@ export function useAssignments(selectedUserId: string) {
     [selectedCodes, selectedUserId]
   );
 
-  return { selectedCodes, loading, saving, error, success, toggleBlock, confirmAssignments };
+  return { selectedCodes, loading, saving, error, success, toggleBlock, applyBlockSelection, confirmAssignments };
 }
