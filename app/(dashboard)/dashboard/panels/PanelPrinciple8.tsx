@@ -169,8 +169,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             const pubVal = getYesNoValue(values, pubCode);
 
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {n1 > 1 && i > 0 && (
                     <button
@@ -185,7 +185,7 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                     </button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div>
                     <label className="block text-xs text-gray-500">Name and brief details of the project</label>
                     {inp(nameCode, values, onChange)}
@@ -277,8 +277,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
         </h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: n2 }, (_, i) => (
-            <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+            <details key={i} open className="dynamic-row-card rounded">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                 <span>Record {i + 1}</span>
                 {n2 > 1 && i > 0 && (
                   <button
@@ -293,7 +293,7 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                   </button>
                 )}
               </summary>
-              <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+              <div className="space-y-3 border-t px-3 py-3">
                 <div>
                   <label className="block text-xs text-gray-500">Name of Project for which R&amp;R is ongoing</label>
                   {inp(`p8_e2_row${i}_name`, values, onChange)}
@@ -536,14 +536,14 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
             const impactCode = i === 0 ? "p8_l1_impact" : `p8_l1_row${i}_impact`;
             const actionCode = i === 0 ? "p8_l1_action" : `p8_l1_row${i}_action`;
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {nL1 > 1 && i > 0 && (
                     <button type="button" onClick={(e) => { e.preventDefault(); removeRowL1(i); }} className="text-xs text-red-500 hover:text-red-700">Remove</button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div>
                     <label className="block text-xs text-gray-500">Details of negative social impact identified</label>
                     {inp(impactCode, values, onChange)}
@@ -571,14 +571,14 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
         </h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: nL2 }, (_, i) => (
-            <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+            <details key={i} open className="dynamic-row-card rounded">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                 <span>Record {i + 1}</span>
                 {nL2 > 1 && i > 0 && (
                   <button type="button" onClick={(e) => { e.preventDefault(); removeRowL2(i); }} className="text-xs text-red-500 hover:text-red-700">Remove</button>
                 )}
               </summary>
-              <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+              <div className="space-y-3 border-t px-3 py-3">
                 <div><label className="block text-xs text-gray-500">State</label>{inp(`p8_l2_row${i}_state`, values, onChange)}</div>
                 <div><label className="block text-xs text-gray-500">Aspirational District</label>{inp(`p8_l2_row${i}_dist`, values, onChange)}</div>
                 <div><label className="block text-xs text-gray-500">Amount spent (in INR)</label>{inp(`p8_l2_row${i}_amt`, values, onChange, "INR")}</div>
@@ -625,14 +625,14 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
             const benCode = `p8_l4_row${i}_ben`;
             const ownVal = (v: string) => { const x = values[v] ?? ""; return x === "Y" || x === "y" ? "Yes" : x === "N" || x === "n" ? "No" : x; };
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {nL4 > 1 && i > 0 && (
                     <button type="button" onClick={(e) => { e.preventDefault(); removeRowL4(i); }} className="text-xs text-red-500 hover:text-red-700">Remove</button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div><label className="block text-xs text-gray-500">Intellectual Property based on traditional knowledge</label>{inp(`p8_l4_row${i}_ip`, values, onChange)}</div>
                   <div>
                     <label className="block text-xs text-gray-500">Owned/Acquired</label>
@@ -667,14 +667,14 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
             const briefCode = i === 0 ? "p8_l5_brief" : `p8_l5_row${i}_brief`;
             const actionCode = i === 0 ? "p8_l5_action" : `p8_l5_row${i}_action`;
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {nL5 > 1 && i > 0 && (
                     <button type="button" onClick={(e) => { e.preventDefault(); removeRowL5(i); }} className="text-xs text-red-500 hover:text-red-700">Remove</button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div><label className="block text-xs text-gray-500">Name of authority</label>{inp(authCode, values, onChange)}</div>
                   <div><label className="block text-xs text-gray-500">Brief of the Case</label>{inp(briefCode, values, onChange)}</div>
                   <div><label className="block text-xs text-gray-500">Corrective action taken</label>{inp(actionCode, values, onChange)}</div>
@@ -690,14 +690,14 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
         <h3 className="text-sm font-semibold text-teal-400">6. Details of beneficiaries of CSR Projects.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: nL6 }, (_, i) => (
-            <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+            <details key={i} open className="dynamic-row-card rounded">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                 <span>Record {i + 1}</span>
                 {nL6 > 1 && i > 0 && (
                   <button type="button" onClick={(e) => { e.preventDefault(); removeRowL6(i); }} className="text-xs text-red-500 hover:text-red-700">Remove</button>
                 )}
               </summary>
-              <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+              <div className="space-y-3 border-t px-3 py-3">
                 <div><label className="block text-xs text-gray-500">CSR Project</label>{inp(`p8_l6_row${i}_proj`, values, onChange)}</div>
                 <div><label className="block text-xs text-gray-500">No. of persons benefitted from CSR Projects</label>{inp(`p8_l6_row${i}_num`, values, onChange)}</div>
                 <div><label className="block text-xs text-gray-500">% of beneficiaries from vulnerable and marginalized groups</label>{pctInp(`p8_l6_row${i}_pct`, values, onChange)}</div>

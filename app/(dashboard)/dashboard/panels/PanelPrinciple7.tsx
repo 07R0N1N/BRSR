@@ -213,8 +213,8 @@ export function P7LeadershipContent({ values, onChange, allowedSet }: Props) {
             const publicVal = getPublicValue(values, rowKey);
 
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {n > 1 && i > 0 && (
                     <button
@@ -229,7 +229,7 @@ export function P7LeadershipContent({ values, onChange, allowedSet }: Props) {
                     </button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div>
                     <label className="block text-xs text-gray-500">Public policy advocated</label>
                     {inp(`${rowKey}_policy`, values, onChange)}

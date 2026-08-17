@@ -560,8 +560,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             const correctCode = `p6_e11_row${i}_correct`;
             const ynVal = getYesNoValue(values, ynCode);
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {n11 > 1 && i > 0 && (
                     <button
@@ -585,7 +585,7 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                     </button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div>
                     <label className="block text-xs text-gray-400">Location of operations/offices</label>
                     {inp(locCode, values, onChange)}
@@ -635,8 +635,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             const indVal = getYesNoValue(values, indCode);
             const pubVal = getYesNoValue(values, pubCode);
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {n12 > 1 && i > 0 && (
                     <button
@@ -660,7 +660,7 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                     </button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div>
                     <label className="block text-xs text-gray-400">Name and Brief of the project</label>
                     {inp(nameCode, values, onChange)}
@@ -730,8 +730,8 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                 const finesCode = `p6_e13_row${i}_fines`;
                 const correctCode = `p6_e13_row${i}_correct`;
                 return (
-                  <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                    <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#334155]">
+                  <details key={i} open className="dynamic-row-card rounded">
+                    <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                       <span>Record {i + 1}</span>
                       {n13 > 1 && i > 0 && (
                         <button
@@ -755,7 +755,7 @@ export function P6EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                         </button>
                       )}
                     </summary>
-                    <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                    <div className="space-y-3 border-t px-3 py-3">
                       <div>
                         <label className="block text-xs text-gray-400">Specify the law/regulation/guidelines which was not complied with</label>
                         {inp(lawCode, values, onChange)}
@@ -842,8 +842,8 @@ export function P6LeadershipContent({
           {Array.from({ length: nL1 }, (_, i) => {
             const r = `p6_l1_row${i}`;
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {nL1 > 1 && i > 0 && (
                     <button type="button" onClick={(e) => {
@@ -867,7 +867,7 @@ export function P6LeadershipContent({
                     }} className="text-xs text-red-400 hover:text-red-300">Remove</button>
                   )}
                 </summary>
-                <div className="space-y-4 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-4 border-t px-3 py-3">
                   <div><label className="block text-xs text-gray-400">a. Name of the area</label>{inp(`${r}_area`, values, onChange, "Enter name of area")}</div>
                   <div><label className="block text-xs text-gray-400">b. Nature of operations</label>{inp(`${r}_nature`, values, onChange, "Nature of operations")}</div>
                   <div>
@@ -1009,14 +1009,14 @@ export function P6LeadershipContent({
           {Array.from({ length: nL4 }, (_, i) => {
             const r = `p6_l4_row${i}`;
             return (
-              <details key={i} open className="rounded border border-[#475569] bg-[#1e293b]">
-                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#334155]">
+              <details key={i} open className="dynamic-row-card rounded">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-medium text-gray-700">
                   <span>Record {i + 1}</span>
                   {nL4 > 1 && i > 0 && (
                     <button type="button" onClick={(e) => { e.preventDefault(); if (nL4 <= 1) return; for (let j = i; j < nL4 - 1; j++) { for (const f of P6_L4_FIELDS) onChange(`p6_l4_row${j}_${f}`, values[`p6_l4_row${j + 1}_${f}`] ?? ""); } for (const f of P6_L4_FIELDS) onChange(`p6_l4_row${nL4 - 1}_${f}`, ""); onChange("p6_l4_rowcount", String(nL4 - 1)); }} className="text-xs text-red-400 hover:text-red-300">Remove</button>
                   )}
                 </summary>
-                <div className="space-y-3 border-t border-[#334155] px-3 py-3">
+                <div className="space-y-3 border-t px-3 py-3">
                   <div><label className="block text-xs text-gray-400">Initiative Undertaken</label>{inp(`${r}_init`, values, onChange)}</div>
                   <div><label className="block text-xs text-gray-400">Details of the initiative (Web-link, if any, may be provided along-with summary)</label><textarea value={values[`${r}_detail`] ?? ""} onChange={(e) => onChange(`${r}_detail`, e.target.value)} placeholder="Enter Text" rows={3} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></div>
                   <div><label className="block text-xs text-gray-400">Outcome of the initiative</label><textarea value={values[`${r}_outcome`] ?? ""} onChange={(e) => onChange(`${r}_outcome`, e.target.value)} placeholder="Enter Text" rows={2} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></div>
