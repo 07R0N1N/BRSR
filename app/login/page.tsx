@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
-import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
+import { AppThemeWrapper, useAppTheme } from "@/components/theme/AppThemeWrapper";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
+import { BrandMark } from "@/app/(marketing)/components/shared";
 
 function LoginForm() {
+  const { theme } = useAppTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,11 +52,24 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4">
-      <div className="absolute right-6 top-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg)] px-4">
+      {/* Soft brand glow behind the card — same radial treatment as Hero/CTA
+          (inline style: Tailwind arbitrary bg-[radial-gradient(...),var(--bg)]
+          drops the fallback colour; see CTA.tsx). Opacity stays low so this
+          stays a wash, not a second theme. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(700px 420px at 50% 50%, var(--brand), transparent 62%)",
+          opacity: 0.16,
+        }}
+      />
+      <div className="absolute right-6 top-6 z-[1]">
         <ThemeToggleButton />
       </div>
-      <div className="w-full max-w-md space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] p-8 shadow-[var(--shadow-lg)]">
+      <div className="relative z-[1] w-full max-w-md space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] p-8 shadow-[var(--shadow-lg)]">
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--ink)]"
@@ -76,7 +91,7 @@ function LoginForm() {
           Back to homepage
         </Link>
         <div className="flex flex-col items-center gap-3">
-          <span className="text-3xl leading-none" aria-hidden>📊</span>
+          <BrandMark size={48} onDark={theme === "dark"} />
           <h1 className="text-center text-[22px] font-bold text-[var(--ink)]">
             BRSR Data Collection
           </h1>
