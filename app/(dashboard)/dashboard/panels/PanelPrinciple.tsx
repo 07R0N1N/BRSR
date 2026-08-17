@@ -40,7 +40,7 @@ function TabBar({
     { key: "leadership", label: "Leadership indicators", has: hasLeadership },
   ];
   return (
-    <div className="mt-4 flex gap-2 border-b border-gray-200">
+    <div className="mt-4 inline-flex w-fit gap-1 rounded-full bg-[var(--surface-3)] p-1">
       {tabs.map(({ key, label, has }) =>
         has ? (
           <button
@@ -48,10 +48,10 @@ function TabBar({
             type="button"
             data-testid={`tab-${key}`}
             onClick={() => onChange(key)}
-            className={`border-b-2 px-3 py-2 text-sm font-medium capitalize ${
+            className={`rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold ${
               activeTab === key
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "bg-[var(--surface)] text-[var(--brand)] shadow-[var(--shadow-sm)]"
+                : "text-[var(--text-muted)] hover:text-[var(--ink)]"
             }`}
           >
             {label}
@@ -165,7 +165,7 @@ export function PanelPrinciple({
         hasEssential={hasEssential}
         hasLeadership={hasLeadership}
       />
-      <div className="mt-6 space-y-8">
+      <div className="app-qblocks mt-6 space-y-3.5">
         {((activeTab === "essential" && !hasEssential) ||
           (activeTab === "leadership" && !hasLeadership)) ? (
           <p

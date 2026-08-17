@@ -40,22 +40,28 @@ BRSR/
 │   │   ├── panels/               # PanelGeneralData, PanelGeneral, PanelSectionB, PanelPrinciple,
 │   │   │                         #   PanelPrinciple1–9 (per-principle JSX),
 │   │   │                         #   LegacyPrincipleRenderer (unused — legacy)
-│   │   ├── admin-workspace/      # AdminWorkspaceClient, ManageUsersPanel, ThemeWrapper,
-│   │   │                         #   ThemeToggleButton, shared.tsx (style tokens + AvatarChip)
+│   │   ├── admin-workspace/      # AdminWorkspaceClient, ManageUsersPanel,
+│   │   │                         #   shared.tsx (style tokens + AvatarChip)
 │   │   └── QuestionnaireShell.tsx
 │   ├── (master)/master/           # Master layout, nav, orgs/users/roles/visibility
 │   ├── onboarding/                # Onboarding wizard (layout, page, OnboardingClient)
 │   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility,
 │   │                              #   assignments, assignment-coverage, assignment-stats, export, onboarding)
-│   ├── fonts/inter/               # Self-hosted Inter (woff2) for Admin Workspace
-│   ├── login/                     # Login page
+│   ├── fonts/inter/               # Self-hosted Inter (woff2) for the app-wide theme
+│   ├── login/                     # Login page (wrapped in AppThemeWrapper)
 │   ├── layout.tsx, page.tsx       # Root layout; / redirects by role + onboarding status
-│   └── globals.css                # BRSR dark theme (.brsr-dark); Admin Workspace tokens (.admin-workspace-theme)
+│   └── globals.css                # `.app-theme` tokens (Admin Workspace, Dashboard, Login);
+│                                   #   `.app-panels` var-driven dashboard content overrides;
+│                                   #   `.brsr-dark` (Master layout only, always-dark hex)
 ├── components/
 │   ├── QuestionInput.tsx          # Shared text input bound to a question code
+│   ├── QuestionChrome.tsx         # Per-question card shell (title + actions slot; future notes/files)
 │   ├── CalcCell.tsx               # CalcCell (read-only calc display) + InlinePct
 │   ├── ExportButton.tsx           # Opens export modal
-│   └── ExportModal.tsx            # Format/section picker, triggers /api/export/generate
+│   ├── ExportModal.tsx            # Format/section picker, triggers /api/export/generate
+│   └── theme/                     # AppThemeWrapper (theme state + scoped `.app-theme` wrapper,
+│                                   #   self-hosted Inter), ThemeToggleButton — shared by
+│                                   #   Admin Workspace, Dashboard, and Login
 ├── lib/
 │   ├── hooks/                     # useBulkUserInvite (shared: onboarding invite step + admin-workspace Manage Users)
 │   ├── supabase/                  # createClient (server), client, admin
@@ -302,7 +308,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 
 ### 8.5 Dashboard UI
 
-- **QuestionnaireShell** (`QuestionnaireShell.tsx`): Reporting year selector; sidebar with panel list (active state); renders panel by `activePanel`. Data loading/saving is delegated to `hooks/useAnswers.ts`.
+- **QuestionnaireShell** (`QuestionnaireShell.tsx`): Top nav card (`data-testid="sidebar"`) instead of a left sidebar. **Admin** (`canViewAll`): group pills (General Data / Section A / Section B / Principles) then P1–P9 when Principles is active. **Contributor** (restricted `allowedSet`): title “My questions”, only assigned section chips, `restricted-banner` helper. Reporting year via `reporting-year-value`. Renders panel by `activePanel`. Data loading/saving is delegated to `hooks/useAnswers.ts`.
 - **Custom hooks** (`hooks/`):
   - `useAnswers` — loads and debounce-saves answers; respects `allowedSet` (from `user_question_assignments`); exposes `answers`, `loading`, `saving`, `onChange`.
   - `useAssignmentStats` — fetches completion statistics for the Admin Workspace.
@@ -310,15 +316,17 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
   - `useAssignmentCoverage` — org-wide assigned question codes for the Admin Workspace unassigned-blocks filter.
   - `useOrgUsers` — org roster for the Manage Users tab; reuses GET `/api/assignments` (no `user_id`), so it is the same assignable-user list as the Assign tab, not a second source.
 - **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`. Panels use `isAllowed` from `visibilityUtils.ts` to filter inputs for restricted users.
-- **Principle panel** (`PanelPrinciple.tsx`): Orchestrator with essential/leadership tabs and a per-principle notes field (`p{n}_notes`). Imports `PanelPrinciple1.tsx` through `PanelPrinciple9.tsx`:
+- **Principle panel** (`PanelPrinciple.tsx`): Orchestrator with Essential/Leadership **pill tabs** (Admin Workspace style) and a per-principle notes field (`p{n}_notes`). Question blocks sit in `.app-qblocks` so `qblock-*` wrappers get card chrome from CSS. Imports `PanelPrinciple1.tsx` through `PanelPrinciple9.tsx`:
   - `PanelPrinciple1.tsx` … `PanelPrinciple9.tsx` — 9 individual JSX files, each exporting `PNEssentialContent` and `PNLeadershipContent`. All principles are now native JSX components.
   - `LegacyPrincipleRenderer.tsx` — HTML-template renderer (dynamic rows, calc display, input binding). **Unused — legacy code; not imported by any file.**
 - **Shared components** (`components/`):
   - `QuestionInput.tsx` — Reusable `<input>` bound to a question code.
+  - `QuestionChrome.tsx` — Per-question card shell (title + actions slot + children) for future notes/attachments/authorship; principle cards today are mostly CSS on `qblock-*`.
   - `CalcCell.tsx` — `CalcCell` (read-only display of `calcDisplay[code]`) and `InlinePct` (inline percentage from two values).
   - `ExportButton.tsx` — Opens `ExportModal`; used in dashboard header.
   - `ExportModal.tsx` — Format picker (DOCX/XLSX/JSON; PDF disabled), section selector, triggers `/api/export/generate` download.
-- **Theme**: Dashboard questionnaire uses `.brsr-dark` in `globals.css` (inputs, tables, labels, borders). Admin Workspace uses scoped `.admin-workspace-theme` tokens (not `:root`) and self-hosted Inter in `app/fonts/inter/`.
+- **Theme**: One scoped CSS-variable system, `.app-theme` (`globals.css`, never `:root`), shared by Admin Workspace, Dashboard, and Login via `components/theme/AppThemeWrapper.tsx` + `ThemeToggleButton.tsx` (self-hosted Inter, `app/fonts/inter/`; light/dark persisted to one shared `localStorage` key). The Dashboard's 13 panel files (`PanelGeneralData.tsx`, `PanelPrinciple1–9.tsx`, etc.) still use plain Tailwind utility classes for structure (not rewritten to `var(--...)` directly); `.app-panels` in `globals.css` retargets those exact class names to the same `var(--...)` tokens so panel content themes without per-file JSX changes. `.brsr-dark` (hardcoded hex, always-dark) remains only for the Master layout, which is not wrapped in `.app-theme`.
+- **Mock** (design reference, not shipped): `Archive 1/workflow-mockup/dashboard-topbar-mock.html` — admin vs contributor top-bar layout.
 
 ---
 

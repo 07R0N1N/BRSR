@@ -116,39 +116,39 @@ export function ExportModal({
       aria-modal="true"
       aria-labelledby="export-modal-title"
     >
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#334155] bg-[#1a202c] shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#334155] px-4 py-3">
-          <h2 id="export-modal-title" className="text-lg font-semibold text-white">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-md)] border border-[var(--border-soft)] bg-[var(--surface)] shadow-[var(--shadow-lg)]">
+        <div className="flex items-center justify-between border-b border-[var(--border-soft)] px-4 py-3">
+          <h2 id="export-modal-title" className="text-lg font-bold text-[var(--ink)]">
             Export BRSR Report
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-[var(--radius-sm)] p-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
             aria-label="Close"
           >
             ✕
           </button>
         </div>
         <div className="space-y-4 px-4 py-4">
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-[var(--text)]">
             {orgName} — {year}
           </p>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">
+            <label className="mb-2 block text-sm font-medium text-[var(--text)]">
               Format
             </label>
             <div className="flex flex-wrap gap-2">
               {FORMATS.map((f) => (
                 <label
                   key={f.id}
-                  className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors ${
+                  className={`flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] border px-3 py-2 text-sm transition-colors ${
                     f.available
                       ? format === f.id
-                        ? "border-teal-500 bg-teal-500/20 text-teal-300"
-                        : "border-[#334155] bg-[#0f172a] text-gray-300 hover:border-[#475569]"
-                      : "cursor-not-allowed border-[#334155] bg-[#0f172a]/50 text-gray-500"
+                        ? "border-[var(--teal)] bg-[var(--teal-50)] text-[var(--teal)]"
+                        : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--text-muted)]"
+                      : "cursor-not-allowed border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-muted)]"
                   }`}
                 >
                   <input
@@ -162,7 +162,7 @@ export function ExportModal({
                   />
                   {f.label}
                   {"note" in f && f.note && (
-                    <span className="text-xs text-gray-500">({f.note})</span>
+                    <span className="text-xs text-[var(--text-muted)]">({f.note})</span>
                   )}
                 </label>
               ))}
@@ -171,21 +171,21 @@ export function ExportModal({
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-300">
+              <label className="text-sm font-medium text-[var(--text)]">
                 Sections to include
               </label>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={selectAll}
-                  className="text-xs text-teal-400 hover:underline"
+                  className="text-xs font-semibold text-[var(--teal)] hover:underline"
                 >
                   All
                 </button>
                 <button
                   type="button"
                   onClick={deselectAll}
-                  className="text-xs text-gray-400 hover:underline"
+                  className="text-xs font-semibold text-[var(--text-muted)] hover:underline"
                 >
                   None
                 </button>
@@ -197,10 +197,10 @@ export function ExportModal({
                   key={s.id}
                   type="button"
                   onClick={() => toggleSection(s.id)}
-                  className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                     sections.has(s.id)
-                      ? "bg-teal-500/30 text-teal-200 ring-1 ring-teal-500/50"
-                      : "bg-[#0f172a] text-gray-500 ring-1 ring-[#334155] hover:ring-[#475569]"
+                      ? "bg-[var(--teal-50)] text-[var(--teal)] ring-1 ring-[var(--teal)]"
+                      : "bg-[var(--surface-2)] text-[var(--text-muted)] ring-1 ring-[var(--border)] hover:ring-[var(--text-muted)]"
                   }`}
                 >
                   {s.label}
@@ -210,7 +210,7 @@ export function ExportModal({
           </div>
 
           {error && (
-            <p className="rounded bg-red-500/20 px-3 py-2 text-sm text-red-300">
+            <p className="rounded-[var(--radius-sm)] bg-[var(--amber-50)] px-3 py-2 text-sm font-semibold text-[var(--red)]">
               {error}
             </p>
           )}
@@ -219,7 +219,7 @@ export function ExportModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-[#334155] px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/5"
+              className="rounded-[var(--radius-sm)] border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition-colors hover:bg-[var(--surface-2)]"
             >
               Cancel
             </button>
@@ -227,7 +227,7 @@ export function ExportModal({
               type="button"
               onClick={handleGenerate}
               disabled={loading}
-              className="flex items-center gap-2 rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--teal)] px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90 disabled:opacity-60"
             >
               {loading ? (
                 <>

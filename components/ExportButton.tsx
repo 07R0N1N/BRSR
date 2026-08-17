@@ -19,7 +19,7 @@ export function ExportButton({
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className="flex items-center gap-1.5 rounded-md border border-[#334155] bg-[#0f172a] px-3 py-1.5 text-xs text-gray-300 transition-colors hover:border-teal-500/50 hover:bg-teal-500/10 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+        className="flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-semibold text-[var(--text)] transition-colors hover:border-[var(--teal)] hover:bg-[var(--teal-50)] hover:text-[var(--teal)] focus:outline-none focus:shadow-[0_0_0_3px_var(--brand-50)]"
       >
         <span aria-hidden>📥</span>
         Export BRSR
