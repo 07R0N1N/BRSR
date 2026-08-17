@@ -1,9 +1,17 @@
+import type { CSSProperties } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { canUseApp, isMaster, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
 import { AccountDropdown } from "./AccountDropdown";
 import { ExportButton } from "@/components/ExportButton";
 import { QuestionnaireShell } from "./QuestionnaireShell";
+import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
+
+function accountInitial(email: string | undefined): string {
+  const ch = (email ?? "A").trim().charAt(0);
+  return /[a-z]/i.test(ch) ? ch.toUpperCase() : "A";
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -68,15 +76,20 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f12]">
-      <header className="border-b border-[#334155] bg-[#1a202c]">
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-0.5">
-            <div className="flex items-center gap-2">
-              <span className="text-xl leading-none" aria-hidden>📊</span>
-              <h1 className="text-lg font-semibold text-white">BRSR Data Collection</h1>
+    <AppThemeWrapper>
+      {/*
+        Same floating-pill header pattern as Admin Workspace's page.tsx —
+        see that file's comment for why it's a rounded, inset pill instead
+        of an edge-to-edge bar.
+      */}
+      <header className="mx-auto max-w-[1400px] px-7 pt-7 max-[900px]:px-4 max-[900px]:pt-4">
+        <div className="flex h-[68px] items-center justify-between rounded-full border border-[var(--border)] bg-[var(--surface)] px-7 max-[900px]:px-4">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl leading-none" aria-hidden>📊</span>
+            <div className="flex flex-col">
+              <h1 className="text-[17px] font-bold leading-tight text-[var(--ink)]">BRSR Data Collection</h1>
+              <span className="text-[11px] leading-tight text-[var(--text-muted)]">{orgName ?? "—"}</span>
             </div>
-            <span className="text-xs text-gray-300/70">{orgName ?? "—"}</span>
           </div>
           <div className="flex items-center gap-3">
             {orgId && (
@@ -86,11 +99,17 @@ export default async function DashboardPage() {
                 orgName={orgName ?? "BRSR"}
               />
             )}
-            <AccountDropdown email={user.email} roleSlug={roleSlug} />
+            <ThemeToggleButton />
+            <div
+              className="app-account"
+              style={{ "--account-initial": `"${accountInitial(user.email)}"` } as CSSProperties}
+            >
+              <AccountDropdown email={user.email} roleSlug={roleSlug} />
+            </div>
           </div>
         </div>
       </header>
-      <main className="flex min-h-[calc(100vh-4rem)] flex-col">
+      <main className="mx-auto flex min-h-[calc(100vh-100px)] max-w-[1400px] flex-col px-7 py-7 max-[900px]:px-4">
         {orgId ? (
           <QuestionnaireShell
             orgId={orgId}
@@ -99,9 +118,9 @@ export default async function DashboardPage() {
             allowedQuestionCodes={allowedQuestionCodes}
           />
         ) : (
-          <p className="px-6 py-6 text-gray-400">No organization assigned. Contact your administrator.</p>
+          <p className="text-[var(--text-muted)]">No organization assigned. Contact your administrator.</p>
         )}
       </main>
-    </div>
+    </AppThemeWrapper>
   );
 }

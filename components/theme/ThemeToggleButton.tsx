@@ -3,10 +3,10 @@
 /**
  * Icon-button treatment ported from the mock's `#theme-toggle` (see
  * Archive 1/workflow-mockup/admin-assign-tier1.html) — same sun/moon SVGs,
- * same swap-on-click behavior. Must render inside AdminWorkspaceThemeWrapper.
+ * same swap-on-click behavior. Must render inside AppThemeWrapper.
  */
 
-import { useAdminWorkspaceTheme } from "./ThemeWrapper";
+import { useAppTheme } from "./AppThemeWrapper";
 
 function SunIcon() {
   return (
@@ -26,14 +26,14 @@ function MoonIcon() {
 }
 
 export function ThemeToggleButton() {
-  const { theme, toggleTheme } = useAdminWorkspaceTheme();
+  const { theme, toggleTheme } = useAppTheme();
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      className="flex h-[34px] w-[34px] items-center justify-center rounded-full border border-[var(--border)] text-[var(--text)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
+      className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full border border-[var(--border)] text-[var(--text)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
     >
       {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>

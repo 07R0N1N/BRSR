@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
+import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 
-export default function LoginPage() {
+function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,11 +50,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0f12] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,#1e293b,#0a0f12)]">
-      <div className="w-full max-w-md space-y-6 rounded-xl border border-[#334155] bg-[#1a202c] p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4">
+      <div className="absolute right-6 top-6">
+        <ThemeToggleButton />
+      </div>
+      <div className="w-full max-w-md space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] p-8 shadow-[var(--shadow-lg)]">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-400 transition-colors hover:text-gray-200"
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--ink)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,16 +77,16 @@ export default function LoginPage() {
         </Link>
         <div className="flex flex-col items-center gap-3">
           <span className="text-3xl leading-none" aria-hidden>📊</span>
-          <h1 className="text-center text-2xl font-semibold text-white">
+          <h1 className="text-center text-[22px] font-bold text-[var(--ink)]">
             BRSR Data Collection
           </h1>
         </div>
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-[var(--text-muted)]">
           Sign in to your account
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="username" className="block text-sm font-medium text-[var(--text)]">
               Username
             </label>
             <input
@@ -92,12 +97,12 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-[#334155] bg-[#0a0f12] px-3 py-2 text-white placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="mt-1 block w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[var(--ink)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_var(--brand-50)]"
               placeholder="Your sign-in name"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="password" className="block text-sm font-medium text-[var(--text)]">
               Password
             </label>
             <div className="relative mt-1">
@@ -107,12 +112,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="block w-full rounded-md border border-[#334155] bg-[#0a0f12] py-2 pl-3 pr-10 text-white placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="block w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] py-2 pl-3 pr-10 text-[var(--ink)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_var(--brand-50)]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-gray-400 transition-colors hover:bg-white/10 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--radius-sm)] p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -130,14 +135,14 @@ export default function LoginPage() {
             </div>
           </div>
           {error && (
-            <p className="rounded-md bg-red-500/10 px-3 py-2 text-sm text-red-400" role="alert">
+            <p className="rounded-[var(--radius-sm)] bg-[var(--amber-50)] px-3 py-2 text-sm font-semibold text-[var(--red)]" role="alert">
               {error}
             </p>
           )}
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#1a202c] disabled:opacity-60 disabled:pointer-events-none"
+            className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--brand)] px-3 py-2.5 text-sm font-bold text-white shadow-[var(--shadow-sm)] hover:bg-[var(--brand-600)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -149,10 +154,18 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-xs text-[var(--text-muted)]">
           Forgot password? Contact your administrator.
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <AppThemeWrapper>
+      <LoginForm />
+    </AppThemeWrapper>
   );
 }

@@ -3,7 +3,7 @@
  * Workspace tabs (AdminWorkspaceClient, ManageUsersPanel). Kept in one file
  * so the color system and avatar styling stay identical across tabs instead
  * of drifting — see AdminWorkspaceClient's color-system comment for the
- * `.admin-workspace-theme` variable meanings.
+ * `.app-theme` variable meanings.
  */
 
 export type UserOption = {

@@ -2,17 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Admin Workspace theme toggle — CSS variables scoped to
-   `.admin-workspace-theme` only (see AdminWorkspaceThemeWrapper.tsx),
-   never to `:root`, so nothing outside /dashboard/admin-workspace can
-   read or collide with these names. Values are ported 1:1 from
-   Archive 1/workflow-mockup/admin-assign-tier1.html's `:root` (light)
-   and `:root[data-theme="dark"]` (dark) blocks.
+/* App theme toggle — CSS variables scoped to `.app-theme` only (see
+   components/theme/AppThemeWrapper.tsx), never to `:root`, so nothing
+   outside a wrapped surface can read or collide with these names. Values
+   are ported 1:1 from Archive 1/workflow-mockup/admin-assign-tier1.html's
+   `:root` (light) and `:root[data-theme="dark"]` (dark) blocks. Originally
+   scoped to Admin Workspace only; shared by Login and the Dashboard
+   questionnaire too so all three read one token set instead of drifting.
 
    --sans is applied as font-family on this wrapper. --font-inter is set
-   by the self-hosted Inter (next/font/local) on AdminWorkspaceThemeWrapper —
-   see ThemeWrapper.tsx for why it's local instead of next/font/google. */
-.admin-workspace-theme {
+   by the self-hosted Inter (next/font/local) on AppThemeWrapper — see
+   that file for why it's local instead of next/font/google. */
+.app-theme {
   font-family: var(--sans);
   --bg: #f6f7fb;
   --surface: #ffffff;
@@ -45,7 +46,7 @@
   --sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-.admin-workspace-theme[data-theme="dark"] {
+.app-theme[data-theme="dark"] {
   --bg: #0b0f1a;
   --surface: #141a2b;
   --surface-2: #1b2236;
@@ -74,26 +75,28 @@
 }
 
 /*
-  Scoped restyle of the shared AccountDropdown on Admin Workspace only.
-  AccountDropdown.tsx keeps its dark-dashboard classes (Master header);
-  these selectors override them to the mock .account pill + light/dark tokens.
-  --account-initial is set on the wrapper in page.tsx (quoted letter).
+  Scoped restyle of the shared AccountDropdown wherever it's rendered inside
+  `.app-theme` (Admin Workspace, Dashboard). AccountDropdown.tsx keeps its
+  dark-dashboard classes as its own defaults (still used unstyled on the
+  Master header, which is not wrapped in `.app-theme`); these selectors
+  override them to the mock .account pill + light/dark tokens.
+  --account-initial is set on the wrapper in each page.tsx (quoted letter).
 
-  Both wrapper divs (`.admin-workspace-account` from page.tsx, and
-  AccountDropdown's own `.relative` div) are plain block elements around the
-  inline-flex button, so the button sits in an anonymous line box subject to
-  default `vertical-align: baseline` — that adds a few px of "strut" space
-  above it, shifting it down relative to the header's other flex siblings
-  (e.g. ThemeToggleButton, which has no such wrapper). Making both wrappers
-  flex containers collapses that line box so the button is centered exactly
+  Both wrapper divs (`.app-account` from page.tsx, and AccountDropdown's
+  own `.relative` div) are plain block elements around the inline-flex
+  button, so the button sits in an anonymous line box subject to default
+  `vertical-align: baseline` — that adds a few px of "strut" space above
+  it, shifting it down relative to the header's other flex siblings (e.g.
+  ThemeToggleButton, which has no such wrapper). Making both wrappers flex
+  containers collapses that line box so the button is centered exactly
   like every other header control, without touching AccountDropdown.tsx.
 */
-.admin-workspace-theme .admin-workspace-account,
-.admin-workspace-theme .admin-workspace-account > div {
+.app-theme .app-account,
+.app-theme .app-account > div {
   display: flex;
   align-items: center;
 }
-.admin-workspace-theme .admin-workspace-account > div > button {
+.app-theme .app-account > div > button {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -106,14 +109,14 @@
   font-weight: 500;
   box-shadow: none;
 }
-.admin-workspace-theme .admin-workspace-account > div > button:hover {
+.app-theme .app-account > div > button:hover {
   background: var(--surface-2);
 }
-.admin-workspace-theme .admin-workspace-account > div > button:focus {
+.app-theme .app-account > div > button:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--brand-50);
 }
-.admin-workspace-theme .admin-workspace-account > div > button > span:first-child {
+.app-theme .app-account > div > button > span:first-child {
   display: inline-grid;
   flex: none;
   place-items: center;
@@ -125,36 +128,205 @@
   line-height: 0;
   color: #fff;
 }
-.admin-workspace-theme .admin-workspace-account > div > button > span:first-child::after {
+.app-theme .app-account > div > button > span:first-child::after {
   content: var(--account-initial);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
   color: #fff;
 }
-.admin-workspace-theme .admin-workspace-account > div > button > span:last-child {
+.app-theme .app-account > div > button > span:last-child {
   color: var(--text);
   font-size: 10px;
   opacity: 0.7;
 }
-.admin-workspace-theme .admin-workspace-account [role="menu"] {
+.app-theme .app-account [role="menu"] {
   border: 1px solid var(--border);
   background: var(--surface);
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-sm);
 }
-.admin-workspace-theme .admin-workspace-account [role="menu"] a,
-.admin-workspace-theme .admin-workspace-account [role="menu"] button {
+.app-theme .app-account [role="menu"] a,
+.app-theme .app-account [role="menu"] button {
   color: var(--text);
   font-size: 13px;
 }
-.admin-workspace-theme .admin-workspace-account [role="menu"] a:hover,
-.admin-workspace-theme .admin-workspace-account [role="menu"] button:hover {
+.app-theme .app-account [role="menu"] a:hover,
+.app-theme .app-account [role="menu"] button:hover {
   background: var(--surface-2);
   color: var(--ink);
 }
 
-/* BRSR dashboard dark theme – content area */
+/*
+  Dashboard questionnaire content — var(--...)-driven equivalent of
+  `.brsr-dark` below, scoped under `.app-theme` so it reads the same
+  light/dark tokens as the header/sidebar instead of being hardcoded to
+  always-dark hex. The 13 panel files (PanelGeneralData.tsx, PanelPrinciple*.tsx,
+  etc.) still use plain Tailwind utility classes like `text-gray-900` /
+  `border-gray-300` for structure — these overrides retarget those exact
+  class names to `var(--...)` (with `!important` to beat Tailwind's own
+  utility rule) so panel JSX did not need to be rewritten to get theming,
+  while still going through one variable-driven system. Applied via the
+  `.app-panels` class on QuestionnaireShell's content wrapper.
+*/
+.app-panels {
+  color: var(--ink);
+}
+.app-panels input,
+.app-panels select,
+.app-panels textarea {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--ink) !important;
+  outline: none;
+}
+.app-panels input:focus,
+.app-panels select:focus,
+.app-panels textarea:focus {
+  box-shadow: 0 0 0 2px var(--brand-50);
+}
+.app-panels input::placeholder,
+.app-panels textarea::placeholder {
+  color: var(--text-muted);
+}
+.app-panels select option {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+.app-panels table {
+  border-color: var(--border);
+}
+.app-panels thead tr {
+  background-color: var(--surface-2) !important;
+}
+.app-panels th {
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+.app-panels td {
+  border-color: var(--border) !important;
+  color: var(--ink) !important;
+}
+.app-panels tbody tr:nth-child(odd) {
+  background-color: var(--surface) !important;
+}
+.app-panels tbody tr:nth-child(even) {
+  background-color: var(--surface-2) !important;
+}
+.app-panels h1,
+.app-panels h2,
+.app-panels h3 {
+  color: var(--ink) !important;
+}
+.app-panels label,
+.app-panels p,
+.app-panels span {
+  color: var(--text) !important;
+}
+.app-panels a {
+  color: var(--brand);
+}
+.app-panels .text-gray-500,
+.app-panels .text-gray-600 {
+  color: var(--text-muted) !important;
+}
+.app-panels .text-indigo-600 {
+  color: var(--brand) !important;
+}
+.app-panels .text-teal-400 {
+  color: var(--teal) !important;
+}
+.app-panels .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+.app-panels .text-gray-700 {
+  color: var(--text) !important;
+}
+.app-panels .text-gray-900 {
+  color: var(--ink) !important;
+}
+.app-panels button.border-transparent {
+  color: var(--text-muted) !important;
+}
+.app-panels .text-red-500 {
+  color: var(--red) !important;
+}
+.app-panels .text-red-700 {
+  color: var(--red) !important;
+}
+.app-panels input.p4-required-invalid {
+  border-color: var(--red) !important;
+}
+.app-panels input.p4-required-invalid:focus {
+  box-shadow: 0 0 0 2px var(--red) !important;
+}
+.app-panels button.border-indigo-600 {
+  background-color: var(--brand) !important;
+  color: #fff !important;
+  border-color: var(--brand) !important;
+}
+.app-panels .calc-cell {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+  font-style: italic;
+}
+.app-panels .add-row-btn {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+.app-panels .add-row-btn:hover:not(:disabled) {
+  background-color: var(--surface-2) !important;
+  border-color: var(--text-muted) !important;
+  color: var(--ink) !important;
+}
+.app-panels .add-row-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.app-panels .principle-template .brsr-table thead tr,
+.app-panels .principle-template .brsr-table th {
+  background-color: var(--surface-2) !important;
+  color: var(--ink) !important;
+  border-color: var(--border) !important;
+}
+.app-panels .principle-template .brsr-section {
+  color: var(--teal) !important;
+}
+.app-panels .principle-template .brsr-note {
+  color: var(--text-muted) !important;
+}
+.app-panels .principle-template .calc-display {
+  background-color: var(--surface-2) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+/*
+  Principle question blocks (`data-testid="qblock-*"`) — card chrome without
+  rewriting panel table JSX. Actions slot lives on QuestionChrome for later
+  notes/attachments/authorship; CSS alone turns existing qblock wrappers into cards.
+*/
+.app-panels .app-qblocks > [data-testid^="qblock-"] {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+}
+.app-panels .app-qblocks > [data-testid^="qblock-"] + [data-testid^="qblock-"] {
+  margin-top: 0;
+}
+.app-panels .app-qblocks > [data-testid^="qblock-"] > h3:first-child {
+  margin-top: 0;
+}
+.app-panels .question-chrome__actions:empty {
+  display: none;
+}
+
+/* BRSR dashboard dark theme – content area (Master only; Dashboard uses
+   `.app-panels` above). */
 .brsr-dark {
   color: #e2e8f0;
 }

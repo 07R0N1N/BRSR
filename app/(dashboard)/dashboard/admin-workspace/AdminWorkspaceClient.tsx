@@ -11,7 +11,7 @@ import { AvatarChip, cardClass, captionClass, ghostBtnClass, userLabel, type Use
 import { ManageUsersPanel } from "./ManageUsersPanel";
 
 /**
- * Admin Workspace color system — CSS variables from `.admin-workspace-theme`
+ * Admin Workspace color system — CSS variables from `.app-theme`
  * (globals.css), ported 1:1 from Archive 1/workflow-mockup/admin-assign-tier1.html.
  * Every color below is `var(--...)`, never a hardcoded hex, so the whole page
  * re-themes when ThemeToggleButton flips `data-theme` on the wrapper:

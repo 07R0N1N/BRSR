@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AccountDropdown } from "../AccountDropdown";
 import { AdminWorkspaceClient } from "./AdminWorkspaceClient";
-import { AdminWorkspaceThemeWrapper } from "./ThemeWrapper";
-import { ThemeToggleButton } from "./ThemeToggleButton";
+import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 
 function accountInitial(email: string | undefined): string {
   const ch = (email ?? "A").trim().charAt(0);
@@ -64,11 +64,11 @@ export default async function AdminWorkspacePage() {
   const reportingYear = orgData?.reporting_year ?? "2024-25";
 
   return (
-    <AdminWorkspaceThemeWrapper>
+    <AppThemeWrapper>
       {/*
         Header styling ported from Archive 1/workflow-mockup/admin-assign-tier1.html's
         .header / .header__inner / .iconbtn / .header__title / .orgchip rules, using
-        var(--...) so it themes with the .admin-workspace-theme scope instead of the
+        var(--...) so it themes with the .app-theme scope instead of the
         old hardcoded dark-only hex values.
 
         Detached from the mock: rendered as a floating pill (rounded-full, margin on
@@ -101,7 +101,7 @@ export default async function AdminWorkspacePage() {
           <div className="flex items-center gap-3">
             <ThemeToggleButton />
             <div
-              className="admin-workspace-account"
+              className="app-account"
               style={{ "--account-initial": `"${accountInitial(user.email)}"` } as CSSProperties}
             >
               <AccountDropdown email={user.email} roleSlug={roleSlug} />
@@ -119,6 +119,6 @@ export default async function AdminWorkspacePage() {
       <main className="mx-auto max-w-[1180px] px-7 py-7 max-[900px]:px-4">
         <AdminWorkspaceClient users={users} reportingYear={reportingYear} />
       </main>
-    </AdminWorkspaceThemeWrapper>
+    </AppThemeWrapper>
   );
 }
