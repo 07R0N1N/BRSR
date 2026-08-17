@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation";
 export function OrganizationDeleteButton({
   orgId,
   name,
+  redirectTo,
 }: {
   orgId: string;
   name: string;
+  /** If set, navigate here on success instead of just refreshing (e.g. org detail page → back to the list). */
+  redirectTo?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +28,8 @@ export function OrganizationDeleteButton({
       setError(data.error ?? "Failed to delete");
       return;
     }
-    router.refresh();
+    if (redirectTo) router.push(redirectTo);
+    else router.refresh();
   }
 
   return (
@@ -34,11 +38,11 @@ export function OrganizationDeleteButton({
         type="button"
         onClick={handleDelete}
         disabled={loading}
-        className="text-sm font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+        className="rounded-full border border-[var(--red)] px-3.5 py-1.5 text-[13px] font-semibold text-[var(--red)] hover:bg-[var(--red-50)] disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Deleting…" : "Delete"}
+        {loading ? "Deleting…" : "Delete organization"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-[var(--red)]">{error}</span>}
     </span>
   );
 }

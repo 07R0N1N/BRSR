@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function OrganizationsForm() {
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [planTier, setPlanTier] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,13 +28,26 @@ export function OrganizationsForm() {
     }
     setName("");
     setPlanTier("");
+    setOpen(false);
     router.refresh();
   }
 
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-full bg-[var(--brand)] px-4 py-2 text-[13px] font-bold text-white hover:bg-[var(--brand-600)]"
+      >
+        + New organization
+      </button>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-wrap items-end gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label htmlFor="org-name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="org-name" className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
           Name
         </label>
         <input
@@ -42,32 +56,40 @@ export function OrganizationsForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="mt-1 block w-64 rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          autoFocus
+          className="w-52 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--ink)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-50)]"
           placeholder="Acme Corp"
         />
       </div>
       <div>
-        <label htmlFor="org-plan" className="block text-sm font-medium text-gray-700">
-          Plan tier (optional)
+        <label htmlFor="org-plan" className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
+          Plan tier
         </label>
         <input
           id="org-plan"
           type="text"
           value={planTier}
           onChange={(e) => setPlanTier(e.target.value)}
-          className="mt-1 block w-40 rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="basic"
+          className="w-32 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--ink)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-50)]"
+          placeholder="Growth"
         />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50"
+        className="rounded-full bg-[var(--brand)] px-4 py-2 text-[13px] font-bold text-white hover:bg-[var(--brand-600)] disabled:opacity-50"
       >
-        {loading ? "Adding…" : "Add organization"}
+        {loading ? "Adding…" : "Add"}
+      </button>
+      <button
+        type="button"
+        onClick={() => setOpen(false)}
+        className="rounded-full border border-[var(--border)] px-3.5 py-2 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-2)]"
+      >
+        Cancel
       </button>
       {error && (
-        <p className="w-full text-sm text-red-600" role="alert">
+        <p className="w-full text-sm text-[var(--red)]" role="alert">
           {error}
         </p>
       )}

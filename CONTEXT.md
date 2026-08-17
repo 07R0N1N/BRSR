@@ -6,7 +6,7 @@ Inventory of the system as built: structure, stack, database, auth, routes, APIs
 
 ## 1. Project overview
 
-- **Master** (`/master`): Organizations, users, roles, BRSR question visibility. System role slug: `master`.
+- **Master** (`/master`): Overview → Organizations (spine, filterable, click-through to per-org detail) → Users (global). System role slug: `master`. Roles and Question visibility management still exist at their URLs but are no longer in the nav (see §6.1).
 - **Onboarding** (`/onboarding`): Admin-led org setup wizard; non-admins see pending until `organizations.onboarding_complete`.
 - **Dashboard** (`/dashboard`): Questionnaire (General Data, Section A/B/C, Principles 1–9), per-user assignments, BRSR export. Org roles include `admin`, `user`, and custom slugs.
 - **Auth**: Supabase email/password; middleware and `accessPolicy` gate routes by role and onboarding (see §5–§6).
@@ -43,7 +43,10 @@ BRSR/
 │   │   ├── admin-workspace/      # AdminWorkspaceClient, ManageUsersPanel,
 │   │   │                         #   shared.tsx (style tokens + AvatarChip)
 │   │   └── QuestionnaireShell.tsx
-│   ├── (master)/master/           # Master layout, nav, orgs/users/roles/visibility
+│   ├── (master)/master/           # Master layout (app-theme), MasterNav (top pill tabs: Overview/
+│   │                              #   Organizations/Users), organizations/ (list, [id] detail with
+│   │                              #   Users/Settings/Benchmarking tabs), users/ (global). roles/ and
+│   │                              #   visibility/ still exist, unlinked from nav (see §6.1).
 │   ├── onboarding/                # Onboarding wizard (layout, page, OnboardingClient)
 │   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility,
 │   │                              #   assignments, assignment-coverage, assignment-stats, export, onboarding)
@@ -64,6 +67,9 @@ BRSR/
 │                                   #   Admin Workspace, Dashboard, and Login
 ├── lib/
 │   ├── hooks/                     # useBulkUserInvite (shared: onboarding invite step + admin-workspace Manage Users)
+│   ├── master/
+│   │   └── orgStats.ts            # getOrganizationsWithStats, getOrgUsersWithStats — cross-org completion
+│   │                              #   reads for the Master dashboard (see §6.1)
 │   ├── supabase/                  # createClient (server), client, admin
 │   ├── auth/
 │   │   ├── accessPolicy.ts       # Pure policy: isMaster, canUseApp, redirectForIncompleteApp, etc.
@@ -241,13 +247,25 @@ Pure-function policy layer used by middleware, API routes (`requireAppAccess`), 
 | `/onboarding` | Admin / Non-master | Multi-step onboarding wizard (admin: create org, invite team, configure assignments, launch). Non-admin with incomplete onboarding sees "pending" screen. Redirects to `/dashboard` once complete. |
 | `/dashboard` | Non-master | Dashboard layout + questionnaire (org from profile). Requires `onboarding_complete`. Header includes `ExportButton`. |
 | `/dashboard/admin-workspace` | Admin | Admin workspace, three tabs: Analytics (completion stats per user), Assign (per-user question assignment), Manage Users (add/remove team members). |
-| `/master` | Master | Master layout; overview with stat cards. |
-| `/master/organizations` | Master | List/create/delete organizations. |
-| `/master/users` | Master | List/create/delete users; assign org and role. |
-| `/master/roles` | Master | List/create/delete (custom) roles. |
-| `/master/visibility` | Master | BRSR question visibility by role/section/principle/code. |
+| `/master` | Master | Overview: org/user stat cards, needs-attention (stalled onboarding, low completion), recent activity. |
+| `/master/organizations` | Master | Filterable (status/year/industry, search) organization list with per-org user count + completion; create new org. Click a row → org detail. |
+| `/master/organizations/[id]` | Master | Org detail: Users tab (roster + per-user completion), Settings tab (reporting year/profile fields, PATCH `/api/organizations`, delete org), Benchmarking tab (placeholder). |
+| `/master/users` | Master | Global user list (search by email, filter by org/role); create/delete users. |
+| `/master/roles` | Master | List/create/delete (custom) roles. **Not in the Master nav** (see §6.1) — still reachable directly. |
+| `/master/visibility` | Master | BRSR question visibility by role/section/principle/code. **Not in the Master nav** (see §6.1) — still reachable directly. |
 
-Dashboard uses a single shell (`QuestionnaireShell`) with sidebar panels: General Data, Section A, Section B, Section C – Principles (P1–P9). Master uses `MasterNav` (client) for sidebar with active state.
+Dashboard uses a single shell (`QuestionnaireShell`) with top-bar nav (see §8.5). Master uses `MasterNav` (client) for a matching top pill-tab nav (see §6.1).
+
+### 6.1 Master dashboard UI
+
+- **Theme**: Master moved off its own always-dark `.brsr-dark` palette onto the shared `.app-theme` token system (`AppThemeWrapper` + `ThemeToggleButton`), same as Login/Dashboard/Admin Workspace — one light/dark preference across all four surfaces. `.brsr-dark` CSS remains in `globals.css` but is no longer applied by `master/layout.tsx`.
+- **Layout** (`master/layout.tsx`): Floating pill header (same pattern as Dashboard/Admin Workspace) + `MasterNav` top pill tabs (Overview / Organizations / Users) instead of the old left sidebar.
+- **Nav scope-down**: Roles and Question visibility were dropped from `MasterNav` — Roles is rarely touched after initial setup, and Question visibility is superseded by per-user assignments in Admin Workspace (`user_question_assignments`). Their pages/routes/API are untouched and still reachable by direct URL; each page now wraps its (still dark-hardcoded) markup in a dark card so it renders correctly inside the now-light-by-default Master shell.
+- **Cross-org stats** (`lib/master/orgStats.ts`): `getOrganizationsWithStats(supabase)` — all orgs annotated with `user_count` and assignment/answer-based `completion_pct` for each org's own `reporting_year` (used by Overview and the Organizations list). `getOrgUsersWithStats(supabase, orgId, reportingYear)` — per-user completion for one org's Users tab; admin/master rows use total active `brsr_questions` as the denominator instead of `user_question_assignments` (they aren't assignment-restricted). Both do full-table reads across `organizations`/`profiles`/`user_question_assignments`/`answers` rather than pagination — fine at current scale, revisit with a DB view/RPC if org count grows.
+- **Organizations** (`organizations/OrganizationsTable.tsx`): client-side search + status/year/industry filters over the already-fetched, stats-annotated org list (no new API routes). Row click → `/master/organizations/[id]`.
+- **Org detail** (`organizations/[id]/OrgDetailClient.tsx`): pill tabs Users / Settings / Benchmarking. Settings (`OrgSettingsForm.tsx`) PATCHes `/api/organizations?id=` (already master-capable for any org, not just the caller's own) and hosts the "delete organization" danger-zone action. Benchmarking is a static "Coming soon" placeholder (industry/company-type/HQ-based peer comparison is a planned feature, not implemented).
+- **Users** (`users/UsersTable.tsx`): client-side search + org/role filters over the global user list.
+- **Mock** (design reference, not shipped): `Archive 1/workflow-mockup/master-dashboard-mock.html`.
 
 ---
 
@@ -325,7 +343,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
   - `CalcCell.tsx` — `CalcCell` (read-only display of `calcDisplay[code]`) and `InlinePct` (inline percentage from two values).
   - `ExportButton.tsx` — Opens `ExportModal`; used in dashboard header.
   - `ExportModal.tsx` — Format picker (DOCX/XLSX/JSON; PDF disabled), section selector, triggers `/api/export/generate` download.
-- **Theme**: One scoped CSS-variable system, `.app-theme` (`globals.css`, never `:root`), shared by Admin Workspace, Dashboard, and Login via `components/theme/AppThemeWrapper.tsx` + `ThemeToggleButton.tsx` (self-hosted Inter, `app/fonts/inter/`; light/dark persisted to one shared `localStorage` key). The Dashboard's 13 panel files (`PanelGeneralData.tsx`, `PanelPrinciple1–9.tsx`, etc.) still use plain Tailwind utility classes for structure (not rewritten to `var(--...)` directly); `.app-panels` in `globals.css` retargets those exact class names to the same `var(--...)` tokens so panel content themes without per-file JSX changes. `.brsr-dark` (hardcoded hex, always-dark) remains only for the Master layout, which is not wrapped in `.app-theme`.
+- **Theme**: One scoped CSS-variable system, `.app-theme` (`globals.css`, never `:root`), shared by Admin Workspace, Dashboard, Login, and Master (see §6.1) via `components/theme/AppThemeWrapper.tsx` + `ThemeToggleButton.tsx` (self-hosted Inter, `app/fonts/inter/`; light/dark persisted to one shared `localStorage` key). The Dashboard's 13 panel files (`PanelGeneralData.tsx`, `PanelPrinciple1–9.tsx`, etc.) still use plain Tailwind utility classes for structure (not rewritten to `var(--...)` directly); `.app-panels` in `globals.css` retargets those exact class names to the same `var(--...)` tokens so panel content themes without per-file JSX changes. `.brsr-dark` (hardcoded hex, always-dark) CSS remains in `globals.css` but is no longer applied anywhere (Master moved to `.app-theme` — see §6.1); its unlinked `roles`/`visibility` pages keep their own dark-hardcoded markup wrapped in a plain dark card instead.
 - **Mock** (design reference, not shipped): `Archive 1/workflow-mockup/dashboard-topbar-mock.html` — admin vs contributor top-bar layout.
 
 ---
