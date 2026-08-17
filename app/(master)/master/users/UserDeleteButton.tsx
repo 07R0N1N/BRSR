@@ -45,11 +45,11 @@ export function UserDeleteButton({
         type="button"
         onClick={handleDelete}
         disabled={loading}
-        className="text-sm font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+        className="text-[13px] font-semibold text-[var(--red)] hover:underline disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Deleting…" : "Delete"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-[var(--red)]">{error}</span>}
     </span>
   );
 }
