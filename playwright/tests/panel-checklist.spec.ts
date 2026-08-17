@@ -506,9 +506,11 @@ test.describe("[ Multi-panel ] cross-panel visibility", () => {
       await expect(banner).not.toBeVisible();
       const empty = adminPage.getByTestId("empty-assignments");
       await expect(empty).not.toBeVisible();
-      // All 13 panel buttons should be present
+      // Section groups always expose generaldata / general / sectionb.
+      // Principle panels (p1–p9) appear after opening the Principles group.
+      await adminPage.getByTestId("nav-group-principles").click();
       const panelButtons = sidebar.locator("button[data-testid^='panel-']");
-      await expect(panelButtons).toHaveCount(13);
+      await expect(panelButtons).toHaveCount(12);
     });
     testInfo.annotations.push({ type: "result", description: "PASS – admin sees all panels" });
   });

@@ -52,8 +52,7 @@ async function setAssignments(codes: readonly string[]) {
 }
 
 async function readReportingYearFromShell(page: Page): Promise<string> {
-  const box = page.locator('[data-testid="sidebar"] .rounded.border').filter({ hasText: "Reporting year" });
-  const text = await box.locator("p.text-sm.font-semibold.text-white").first().textContent();
+  const text = await page.getByTestId("reporting-year-value").textContent();
   return (text ?? "").trim() || "2024-25";
 }
 

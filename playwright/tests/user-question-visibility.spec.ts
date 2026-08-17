@@ -118,7 +118,7 @@ test.describe("User dashboard visibility (smoke)", () => {
 
     await firstBtn.click();
 
-    // After click the button should have the active (blue) class
-    await expect(firstBtn).toHaveClass(/bg-blue-600/);
+    // After click the button should have the active (brand) class
+    await expect(firstBtn).toHaveClass(/bg-\[var\(--brand\)\]/);
   });
 });
