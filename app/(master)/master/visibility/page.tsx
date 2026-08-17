@@ -14,7 +14,10 @@ export default async function VisibilityPage() {
   ]);
 
   return (
-    <div>
+    // Unlinked from the Master nav (see MasterNav.tsx) but left reachable at this
+    // URL; wrapped in its own dark card since its inner markup still assumes the
+    // old always-dark `.brsr-dark` background that Master no longer sets by default.
+    <div className="rounded-[var(--radius-lg)] bg-[#0f172a] p-6">
       <h2 className="text-2xl font-semibold text-white">Question visibility</h2>
       <p className="mt-1 text-gray-400">
         Define which roles can see which BRSR sections, principles, and questions. Real questions load in Phase 2.

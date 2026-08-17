@@ -1,7 +1,15 @@
+import type { CSSProperties } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AccountDropdown } from "@/app/(dashboard)/dashboard/AccountDropdown";
+import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 import { MasterNav } from "./MasterNav";
+
+function accountInitial(email: string | undefined): string {
+  const ch = (email ?? "A").trim().charAt(0);
+  return /[a-z]/i.test(ch) ? ch.toUpperCase() : "A";
+}
 
 export default async function MasterLayout({
   children,
@@ -23,24 +31,36 @@ export default async function MasterLayout({
   if (roleSlug !== "master") redirect("/dashboard");
 
   return (
-    <div className="min-h-screen bg-[#0a0f12]">
-      <header className="border-b border-[#334155] bg-[#1a202c]">
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
+    <AppThemeWrapper>
+      {/*
+        Same floating-pill header + top pill-tab nav as Dashboard/Admin
+        Workspace — see admin-workspace/page.tsx's header comment. Master
+        used to be a sidebar layout on its own always-dark `.brsr-dark`
+        palette; moved onto `.app-theme` so all four surfaces (Login,
+        Dashboard, Admin Workspace, Master) share one token set and get
+        light/dark for free. See Archive 1/workflow-mockup/master-dashboard-mock.html.
+      */}
+      <header className="mx-auto max-w-[1180px] px-7 pt-7 max-[900px]:px-4 max-[900px]:pt-4">
+        <div className="flex h-[68px] items-center justify-between rounded-full border border-[var(--border)] bg-[var(--surface)] px-7 max-[900px]:px-4">
+          <div className="flex items-center gap-2.5">
             <span className="text-xl leading-none" aria-hidden>⚙️</span>
-            <h1 className="text-lg font-semibold text-white">BRSR Master</h1>
+            <h1 className="text-[17px] font-bold text-[var(--ink)]">BRSR Master</h1>
           </div>
-          <AccountDropdown email={user.email} roleSlug={roleSlug} />
+          <div className="flex items-center gap-3">
+            <ThemeToggleButton />
+            <div
+              className="app-account"
+              style={{ "--account-initial": `"${accountInitial(user.email)}"` } as CSSProperties}
+            >
+              <AccountDropdown email={user.email} roleSlug={roleSlug} />
+            </div>
+          </div>
         </div>
       </header>
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        <aside className="w-56 shrink-0 border-r border-[#334155] bg-[#1a202c] p-4">
-          <MasterNav />
-        </aside>
-        <main className="brsr-dark min-w-0 flex-1 overflow-auto bg-[#0a0f12] p-6">
-          {children}
-        </main>
-      </div>
-    </div>
+      <main className="mx-auto max-w-[1180px] px-7 py-7 max-[900px]:px-4">
+        <MasterNav />
+        <div className="mt-5">{children}</div>
+      </main>
+    </AppThemeWrapper>
   );
 }
