@@ -5,12 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normalizeEmail, normalizePassword } from "@/lib/auth/normalize";
-import { AppThemeWrapper, useAppTheme } from "@/components/theme/AppThemeWrapper";
+import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
-import { BrandMark } from "@/app/(marketing)/components/shared";
+import { ThemedBrandMark } from "@/components/theme/ThemedBrandMark";
 
 function LoginForm() {
-  const { theme } = useAppTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -91,7 +90,7 @@ function LoginForm() {
           Back to homepage
         </Link>
         <div className="flex flex-col items-center gap-3">
-          <BrandMark size={48} onDark={theme === "dark"} />
+          <ThemedBrandMark size={48} />
           <h1 className="text-center text-[22px] font-bold text-[var(--ink)]">
             BRSR Data Collection
           </h1>

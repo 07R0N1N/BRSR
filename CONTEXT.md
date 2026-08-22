@@ -63,8 +63,8 @@ BRSR/
 │   ├── ExportButton.tsx           # Opens export modal
 │   ├── ExportModal.tsx            # Format/section picker, triggers /api/export/generate
 │   └── theme/                     # AppThemeWrapper (theme state + scoped `.app-theme` wrapper,
-│                                   #   self-hosted Inter), ThemeToggleButton — shared by
-│                                   #   Admin Workspace, Dashboard, and Login
+│                                   #   self-hosted Inter), ThemeToggleButton, ThemedBrandMark
+│                                   #   — shared by Admin Workspace, Dashboard, and Login
 ├── lib/
 │   ├── hooks/                     # useBulkUserInvite (shared: onboarding invite step + admin-workspace Manage Users)
 │   ├── master/

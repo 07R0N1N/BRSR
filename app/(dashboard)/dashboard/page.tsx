@@ -7,6 +7,7 @@ import { ExportButton } from "@/components/ExportButton";
 import { QuestionnaireShell } from "./QuestionnaireShell";
 import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
+import { ThemedBrandMark } from "@/components/theme/ThemedBrandMark";
 
 function accountInitial(email: string | undefined): string {
   const ch = (email ?? "A").trim().charAt(0);
@@ -85,7 +86,7 @@ export default async function DashboardPage() {
       <header className="mx-auto max-w-[1400px] px-7 pt-7 max-[900px]:px-4 max-[900px]:pt-4">
         <div className="flex h-[68px] items-center justify-between rounded-full border border-[var(--border)] bg-[var(--surface)] px-7 max-[900px]:px-4">
           <div className="flex items-center gap-2.5">
-            <span className="text-xl leading-none" aria-hidden>📊</span>
+            <ThemedBrandMark size={32} />
             <div className="flex flex-col">
               <h1 className="text-[17px] font-bold leading-tight text-[var(--ink)]">BRSR Data Collection</h1>
               <span className="text-[11px] leading-tight text-[var(--text-muted)]">{orgName ?? "—"}</span>
