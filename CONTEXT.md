@@ -278,7 +278,7 @@ Dashboard uses a single shell (`QuestionnaireShell`) with top-bar nav (see §8.5
 | `/api/assignments` | GET, PUT | `requireAppAccess("assignments")` + admin/master | GET: list org users + assignments (`?user_id=`, `?org_id=`). PUT: replace a user's assigned question codes. |
 | `/api/assignments/me` | GET | `requireAppAccess("data")` | Current user's assigned codes → `{ mode: "all"\|"restricted", question_codes }`. |
 | `/api/assignment-stats` | GET | `requireAppAccess("data")` + admin/master | Per-user completion stats for a reporting year (`?reporting_year=`, `?org_id=`). |
-| `/api/assignment-coverage` | GET | `requireAppAccess("assignments")` + admin/master | Distinct question codes assigned to anyone in the org (`?reporting_year=`, `?org_id=`). Assignments are org-scoped (no year column); year is echoed for workspace context. |
+| `/api/assignment-coverage` | GET | `requireAppAccess("assignments")` + admin/master | Org-wide coverage (`?reporting_year=`, `?org_id=`): `assigned_question_codes` (distinct codes assigned to any non-admin org member) plus `assigned_user_ids_by_code` (code → user ID array) for Assign-tab "also assigned to" indicators. Rows attributed to admins are excluded (admins already see/save everything, so they don't count as a real assignee). Assignments are org-scoped (no year column); year is echoed for workspace context. |
 | `/api/export/brsr` | GET | `requireAppAccess("data")` + admin/master | Mapped BRSR JSON export (`?orgId=`, `?year=`). |
 | `/api/export/generate` | POST | Same as export/brsr | Generate DOCX/XLSX/JSON download (body: `orgId`, `year`, `format`, `sections`). PDF → 501. |
 | `/api/onboarding/organization` | POST | Auth + admin (no org yet) | Create organization and link to admin's profile. |
@@ -331,7 +331,7 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
   - `useAnswers` — loads and debounce-saves answers; respects `allowedSet` (from `user_question_assignments`); exposes `answers`, `loading`, `saving`, `onChange`.
   - `useAssignmentStats` — fetches completion statistics for the Admin Workspace.
   - `useAssignments` — loads, toggles, and saves per-user question assignments.
-  - `useAssignmentCoverage` — org-wide assigned question codes for the Admin Workspace unassigned-blocks filter.
+  - `useAssignmentCoverage` — org-wide assigned question codes and code→user-ID map for the Admin Workspace unassigned-blocks filter and per-block "also assigned to" indicators.
   - `useOrgUsers` — org roster for the Manage Users tab; reuses GET `/api/assignments` (no `user_id`), so it is the same assignable-user list as the Assign tab, not a second source.
 - **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`. Panels use `isAllowed` from `visibilityUtils.ts` to filter inputs for restricted users.
 - **Principle panel** (`PanelPrinciple.tsx`): Orchestrator with Essential/Leadership **pill tabs** (Admin Workspace style) and a per-principle notes field (`p{n}_notes`). Question blocks sit in `.app-qblocks` so `qblock-*` wrappers get card chrome from CSS. Imports `PanelPrinciple1.tsx` through `PanelPrinciple9.tsx`:

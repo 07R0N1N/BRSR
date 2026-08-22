@@ -66,6 +66,36 @@ function isOrgUnassignedBlock(block: AssignmentBlock, orgAssignedCodes: Set<stri
   return !block.questionCodes.some((code) => orgAssignedCodes.has(code));
 }
 
+/** Other org users who have any code in this block assigned (excludes the selected user). */
+function otherAssignedUsers(
+  block: AssignmentBlock,
+  usersByCode: Map<string, Set<string>>,
+  excludeUserId: string,
+  users: UserOption[]
+): UserOption[] {
+  const ids = new Set<string>();
+  for (const code of block.questionCodes) {
+    for (const id of usersByCode.get(code) ?? []) {
+      if (id !== excludeUserId) ids.add(id);
+    }
+  }
+  return users.filter((u) => ids.has(u.id));
+}
+
+/** True when at least one other user has any code in this block. */
+function isAssignedToOthersBlock(
+  block: AssignmentBlock,
+  usersByCode: Map<string, Set<string>>,
+  excludeUserId: string
+): boolean {
+  for (const code of block.questionCodes) {
+    for (const id of usersByCode.get(code) ?? []) {
+      if (id !== excludeUserId) return true;
+    }
+  }
+  return false;
+}
+
 const WORKSPACE_TABS: { id: WorkspaceTab; label: string }[] = [
   { id: "analytics", label: "Analytics" },
   { id: "assign", label: "Assign" },
@@ -109,6 +139,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
   const [assignmentTab, setAssignmentTab] = useState<AssignmentTab>("essential");
   const [activeDepts, setActiveDepts] = useState<Set<string>>(() => new Set());
   const [unassignedOnly, setUnassignedOnly] = useState(false);
+  const [assignedToOthersOnly, setAssignedToOthersOnly] = useState(false);
 
   const { stats, loading: loadingStats, error: statsError, reload: reloadStats } =
     useAssignmentStats(reportingYear);
@@ -126,6 +157,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
 
   const {
     assignedCodes: orgAssignedCodes,
+    assignedUserIdsByCode,
     loading: loadingCoverage,
     error: coverageError,
     reload: reloadCoverage,
@@ -171,9 +203,16 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
     const deptMatched = assignmentBlocksForActivePanel.filter((block) =>
       matchesDeptFilter(block, activeDepts)
     );
-    const coverageMatched = unassignedOnly
-      ? deptMatched.filter((block) => isOrgUnassignedBlock(block, orgAssignedCodes))
-      : deptMatched;
+    let coverageMatched = deptMatched;
+    if (unassignedOnly) {
+      coverageMatched = coverageMatched.filter((block) =>
+        isOrgUnassignedBlock(block, orgAssignedCodes)
+      );
+    } else if (assignedToOthersOnly) {
+      coverageMatched = coverageMatched.filter((block) =>
+        isAssignedToOthersBlock(block, assignedUserIdsByCode, selectedUserId)
+      );
+    }
     if (!isPrinciplePanel) return coverageMatched;
     return coverageMatched.filter((block) =>
       assignmentTab === "essential" ? isEssentialBlock(block) : isLeadershipBlock(block)
@@ -182,7 +221,10 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
     assignmentBlocksForActivePanel,
     activeDepts,
     unassignedOnly,
+    assignedToOthersOnly,
     orgAssignedCodes,
+    assignedUserIdsByCode,
+    selectedUserId,
     assignmentTab,
     isPrinciplePanel,
   ]);
@@ -195,13 +237,26 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
         if (unassignedOnly && !isOrgUnassignedBlock(block, orgAssignedCodes)) {
           return false;
         }
+        if (
+          assignedToOthersOnly &&
+          !isAssignedToOthersBlock(block, assignedUserIdsByCode, selectedUserId)
+        ) {
+          return false;
+        }
         return true;
       }).length;
       byPanel[panel.id] = n;
       byPanel.__all__ += n;
     }
     return byPanel;
-  }, [activeDepts, unassignedOnly, orgAssignedCodes]);
+  }, [
+    activeDepts,
+    unassignedOnly,
+    assignedToOthersOnly,
+    orgAssignedCodes,
+    assignedUserIdsByCode,
+    selectedUserId,
+  ]);
 
   const selectedBlockCount = useMemo(
     () =>
@@ -216,6 +271,16 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
       allBlocks.filter((block) => block.questionCodes.some((code) => selectedCodes.has(code)))
         .length,
     [allBlocks, selectedCodes]
+  );
+
+  const overlappingSelectedBlockCount = useMemo(
+    () =>
+      allBlocks.filter(
+        (block) =>
+          block.questionCodes.some((code) => selectedCodes.has(code)) &&
+          isAssignedToOthersBlock(block, assignedUserIdsByCode, selectedUserId)
+      ).length,
+    [allBlocks, selectedCodes, assignedUserIdsByCode, selectedUserId]
   );
 
   const allVisibleSelected =
@@ -429,7 +494,7 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
           </div>
         </div>
 
-        <div className="mt-[18px]">
+        <div className="mt-[18px] flex flex-wrap items-center gap-x-6 gap-y-3">
           <label className="inline-flex cursor-pointer select-none items-center gap-2.5 text-[13.5px] text-[var(--text)]">
             <input
               type="checkbox"
@@ -437,10 +502,30 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
               className="peer sr-only"
               checked={unassignedOnly}
               disabled={loadingCoverage}
-              onChange={(e) => setUnassignedOnly(e.target.checked)}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setUnassignedOnly(on);
+                if (on) setAssignedToOthersOnly(false);
+              }}
             />
             <span className="relative h-[21px] w-9 flex-none rounded-full bg-[var(--border)] transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-[17px] after:w-[17px] after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(15,23,42,0.25)] after:transition-transform peer-checked:bg-[var(--brand)] peer-checked:after:translate-x-[15px] peer-disabled:opacity-45" />
             Show only unassigned blocks
+          </label>
+          <label className="inline-flex cursor-pointer select-none items-center gap-2.5 text-[13.5px] text-[var(--text)]">
+            <input
+              type="checkbox"
+              data-testid="assigned-to-others-only"
+              className="peer sr-only"
+              checked={assignedToOthersOnly}
+              disabled={loadingCoverage || !selectedUserId}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setAssignedToOthersOnly(on);
+                if (on) setUnassignedOnly(false);
+              }}
+            />
+            <span className="relative h-[21px] w-9 flex-none rounded-full bg-[var(--border)] transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-[17px] after:w-[17px] after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(15,23,42,0.25)] after:transition-transform peer-checked:bg-[var(--brand)] peer-checked:after:translate-x-[15px] peer-disabled:opacity-45" />
+            Show only blocks assigned to others
           </label>
         </div>
 
@@ -520,6 +605,13 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                   );
                   const checked = selectedCount === block.questionCodes.length;
                   const partial = selectedCount > 0 && !checked;
+                  const otherUsers = otherAssignedUsers(
+                    block,
+                    assignedUserIdsByCode,
+                    selectedUserId,
+                    users
+                  );
+                  const otherLabel = otherUsers.map(userLabel).join(", ");
                   return (
                     <button
                       key={block.id}
@@ -535,7 +627,26 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                             : "border-[var(--border-soft)] text-[var(--text)] hover:bg-[var(--surface-2)]"
                       }`}
                     >
-                      <span className="truncate font-semibold text-[var(--ink)]">{block.label}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold text-[var(--ink)]">{block.label}</span>
+                        {otherUsers.length > 0 && (
+                          <span
+                            className="mt-1 flex items-center gap-1.5 truncate text-[11px] text-[var(--text-muted)]"
+                            title={`Also assigned to: ${otherLabel}`}
+                            data-testid={`block-also-${block.id}`}
+                          >
+                            <span className="inline-flex -space-x-1">
+                              {otherUsers.slice(0, 2).map((u) => (
+                                <AvatarChip key={u.id} seed={u.id} label={userLabel(u)} />
+                              ))}
+                            </span>
+                            <span className="truncate">
+                              Also: {otherUsers.slice(0, 2).map(userLabel).join(", ")}
+                              {otherUsers.length > 2 ? ` +${otherUsers.length - 2}` : ""}
+                            </span>
+                          </span>
+                        )}
+                      </span>
                       {checked && (
                         <span className="absolute -right-2 -top-2 grid h-[22px] w-[22px] flex-none place-items-center rounded-full border-2 border-[var(--surface)] bg-[var(--brand)] text-[11px] font-bold text-white shadow-[var(--shadow-sm)]">
                           ✓
@@ -587,6 +698,16 @@ export function AdminWorkspaceClient({ users, reportingYear }: { users: UserOpti
                 {selectedBlockTotalForUser} block{selectedBlockTotalForUser === 1 ? "" : "s"} selected
                 {selectedUser ? ` for ${userLabel(selectedUser)}` : ""}
               </span>
+              {overlappingSelectedBlockCount > 0 && (
+                <p
+                  data-testid="assignment-overlap-warning"
+                  className="text-[13px] font-semibold text-[var(--amber)]"
+                >
+                  {overlappingSelectedBlockCount} of your selection
+                  {overlappingSelectedBlockCount === 1 ? " is" : "s are"} already assigned to other
+                  users
+                </p>
+              )}
               {success && (
                 <p data-testid="assignment-success" className="text-[13px] font-semibold text-[var(--teal-300)]">
                   {success}

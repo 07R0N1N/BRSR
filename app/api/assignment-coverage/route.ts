@@ -4,10 +4,19 @@ import { NextResponse } from "next/server";
 const PAGE_SIZE = 1000;
 
 /**
- * Org-wide assignment coverage for the Admin Workspace "unassigned blocks" toggle.
+ * Org-wide assignment coverage for the Admin Workspace "unassigned blocks" toggle
+ * and per-block "also assigned to" indicators.
  *
  * Returns distinct `question_code` values that have at least one row in
- * `user_question_assignments` for the admin's org (any user). Read-only.
+ * `user_question_assignments` for the admin's org, plus a map of each code to
+ * the user IDs assigned it — restricted to non-admin org members (same
+ * `neq("roles.slug", "admin")` pattern as page.tsx / assignment-stats /
+ * assignments route). Admins already see/save every code regardless of
+ * `user_question_assignments`, so a row attributed to an admin (e.g. a stale
+ * row left over from before that account was promoted) is not a real
+ * "assignment" for this UI's purposes and must not count as one — otherwise
+ * the "assigned to others" filter/badge and this table disagree, since the
+ * admin-workspace `users` list (assignable users) excludes admins too.
  *
  * `user_question_assignments` is not partitioned by reporting year (CONTEXT.md §4);
  * `reporting_year` is required so the workspace can request this in the same
@@ -35,12 +44,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Organization not available" }, { status: 400 });
   }
 
+  const { data: nonAdminProfiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, roles!inner(slug)")
+    .eq("org_id", targetOrgId)
+    .neq("roles.slug", "admin");
+  if (profilesError) {
+    return NextResponse.json({ error: profilesError.message }, { status: 400 });
+  }
+  const assignableUserIds = new Set((nonAdminProfiles ?? []).map((p) => p.id));
+
   const assignedCodes = new Set<string>();
+  const usersByCode = new Map<string, Set<string>>();
   let from = 0;
   while (true) {
     const { data, error } = await supabase
       .from("user_question_assignments")
-      .select("question_code")
+      .select("user_id, question_code")
       .eq("org_id", targetOrgId)
       .range(from, from + PAGE_SIZE - 1);
     if (error) {
@@ -48,7 +68,11 @@ export async function GET(request: Request) {
     }
     const rows = data ?? [];
     for (const row of rows) {
-      if (row.question_code) assignedCodes.add(row.question_code);
+      if (!row.question_code || !row.user_id || !assignableUserIds.has(row.user_id)) continue;
+      assignedCodes.add(row.question_code);
+      const set = usersByCode.get(row.question_code) ?? new Set<string>();
+      set.add(row.user_id);
+      usersByCode.set(row.question_code, set);
     }
     if (rows.length < PAGE_SIZE) break;
     from += PAGE_SIZE;
@@ -58,5 +82,8 @@ export async function GET(request: Request) {
     reporting_year: reportingYear,
     org_id: targetOrgId,
     assigned_question_codes: Array.from(assignedCodes),
+    assigned_user_ids_by_code: Object.fromEntries(
+      Array.from(usersByCode.entries()).map(([code, ids]) => [code, Array.from(ids)])
+    ),
   });
 }
