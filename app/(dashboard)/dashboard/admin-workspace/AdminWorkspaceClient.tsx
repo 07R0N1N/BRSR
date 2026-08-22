@@ -75,9 +75,10 @@ function otherAssignedUsers(
 ): UserOption[] {
   const ids = new Set<string>();
   for (const code of block.questionCodes) {
-    for (const id of usersByCode.get(code) ?? []) {
+    // forEach avoids for...of on Set (needs downlevelIteration / es2015+ target).
+    usersByCode.get(code)?.forEach((id) => {
       if (id !== excludeUserId) ids.add(id);
-    }
+    });
   }
   return users.filter((u) => ids.has(u.id));
 }
@@ -89,7 +90,9 @@ function isAssignedToOthersBlock(
   excludeUserId: string
 ): boolean {
   for (const code of block.questionCodes) {
-    for (const id of usersByCode.get(code) ?? []) {
+    const assigned = usersByCode.get(code);
+    if (!assigned) continue;
+    for (const id of Array.from(assigned)) {
       if (id !== excludeUserId) return true;
     }
   }
