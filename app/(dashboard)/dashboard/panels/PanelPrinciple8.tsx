@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { CalcCell } from "@/components/CalcCell";
@@ -153,7 +155,7 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
 
   return (
     <>
-      {sb("p8_e1_") && <div data-testid="qblock-p8_e1">
+      {sb("p8_e1_") && <QuestionBlock blockId="p8_1" data-testid="qblock-p8_e1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Details of Social Impact Assessments (SIA) of projects undertaken by the Company based on applicable laws, in the current financial year.
         </h3>
@@ -270,8 +272,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
         >
           +ADD
         </button>
-      </div>}
-      {sb("p8_e2_") && <div data-testid="qblock-p8_e2">
+      </QuestionBlock>}
+      {sb("p8_e2_") && <QuestionBlock blockId="p8_2" data-testid="qblock-p8_e2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Provide information on project(s) for which ongoing Rehabilitation and Resettlement (R&amp;R) is being undertaken by your entity.
         </h3>
@@ -330,8 +332,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
         >
           +ADD
         </button>
-      </div>}
-      {sb("p8_e3_") && <div data-testid="qblock-p8_e3">
+      </QuestionBlock>}
+      {sb("p8_e3_") && <QuestionBlock blockId="p8_3" data-testid="qblock-p8_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Describe the mechanisms to receive and redress grievances of the community.</h3>
         <textarea
           value={values["p8_e3_griev"] ?? ""}
@@ -339,8 +341,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p8_e4_") && <div data-testid="qblock-p8_e4">
+      </QuestionBlock>}
+      {sb("p8_e4_") && <QuestionBlock blockId="p8_4" data-testid="qblock-p8_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Percentage of input material (inputs to total inputs by value) sourced from suppliers.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -351,8 +353,8 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p8_e5_") && <div data-testid="qblock-p8_e5">
+      </QuestionBlock>}
+      {sb("p8_e5_") && <QuestionBlock blockId="p8_5" data-testid="qblock-p8_e5">
         <h3 className="text-sm font-semibold text-teal-400">
           5. Job creation in smaller towns - Disclose wages paid to persons employed (including employees or workers employed on a permanent or non-permanent / on contract basis) in the following locations, as % of total wage cost
         </h3>
@@ -394,7 +396,7 @@ export function P8EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -527,7 +529,7 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
 
   return (
     <>
-      {sb("p8_l1_") && <div data-testid="qblock-p8_l1">
+      {sb("p8_l1_") && <QuestionBlock blockId="p8_l1" data-testid="qblock-p8_l1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Provide details of actions taken to mitigate any negative social impacts identified in the Social Impact Assessments. (Reference: Question 1 of Essential Indicators above)
         </h3>
@@ -563,9 +565,9 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL1} disabled={nL1 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p8_l2_") && <div data-testid="qblock-p8_l2">
+      {sb("p8_l2_") && <QuestionBlock blockId="p8_l2" data-testid="qblock-p8_l2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Provide the following information on CSR projects undertaken by your entity in designated aspirational districts as identified by government bodies.
         </h3>
@@ -587,9 +589,9 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
           ))}
         </div>
         <button type="button" onClick={addRowL2} disabled={nL2 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p8_l3_") && <div data-testid="qblock-p8_l3">
+      {sb("p8_l3_") && <QuestionBlock blockId="p8_l3" data-testid="qblock-p8_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Preferential procurement from marginalized/vulnerable groups</h3>
         <div className="mt-2 space-y-4">
           <div>
@@ -613,9 +615,9 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
             {pctInp("p8_l3_pct", values, onChange)}
           </div>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p8_l4_") && <div data-testid="qblock-p8_l4">
+      {sb("p8_l4_") && <QuestionBlock blockId="p8_l4" data-testid="qblock-p8_l4">
         <h3 className="text-sm font-semibold text-teal-400">
           4. Details of the benefits derived and shared from the intellectual properties owned or acquired by your entity (in the current financial year), based on traditional knowledge.
         </h3>
@@ -655,9 +657,9 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL4} disabled={nL4 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p8_l5_") && <div data-testid="qblock-p8_l5">
+      {sb("p8_l5_") && <QuestionBlock blockId="p8_l5" data-testid="qblock-p8_l5">
         <h3 className="text-sm font-semibold text-teal-400">
           5. Details of corrective actions taken or underway, based on any adverse order in intellectual property related disputes wherein usage of traditional knowledge is involved.
         </h3>
@@ -684,9 +686,9 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
           })}
         </div>
         <button type="button" onClick={addRowL5} disabled={nL5 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p8_l6_") && <div data-testid="qblock-p8_l6">
+      {sb("p8_l6_") && <QuestionBlock blockId="p8_l6" data-testid="qblock-p8_l6">
         <h3 className="text-sm font-semibold text-teal-400">6. Details of beneficiaries of CSR Projects.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: nL6 }, (_, i) => (
@@ -706,7 +708,7 @@ export function P8LeadershipContent({ values, onChange, allowedSet }: Props) {
           ))}
         </div>
         <button type="button" onClick={addRowL6} disabled={nL6 >= MAX_L_ROWS} className="add-row-btn mt-2 rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:pointer-events-none disabled:opacity-50">+ADD</button>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

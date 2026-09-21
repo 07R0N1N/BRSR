@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import type { AnswersState } from "@/lib/brsr/types";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
 import { blockAllowed } from "@/lib/brsr/visibilityUtils";
@@ -67,7 +69,7 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
   const [fyCurr, fyPrev] = reportingYear ? getFYLabelsFromReportingYear(reportingYear) : ["Current FY", "Previous FY"];
   return (
     <>
-      {sb("p9_e1_") && <div data-testid="qblock-p9_e1">
+      {sb("p9_e1_") && <QuestionBlock blockId="p9_1" data-testid="qblock-p9_e1">
         <h3 className="text-sm font-semibold text-teal-400">1. Describe the mechanisms in place to receive and respond to consumer complaints and feedback.</h3>
         <textarea
           value={values["p9_e1_mech"] ?? ""}
@@ -75,8 +77,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p9_e2_") && <div data-testid="qblock-p9_e2">
+      </QuestionBlock>}
+      {sb("p9_e2_") && <QuestionBlock blockId="p9_2" data-testid="qblock-p9_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Turnover of products and / services as a percentage of turnover from all products/service that carry information about</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -88,8 +90,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p9_e3_") && <div data-testid="qblock-p9_e3">
+      </QuestionBlock>}
+      {sb("p9_e3_") && <QuestionBlock blockId="p9_3" data-testid="qblock-p9_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Number of consumer complaints in respect of the following:</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -132,8 +134,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p9_e4_") && <div data-testid="qblock-p9_e4">
+      </QuestionBlock>}
+      {sb("p9_e4_") && <QuestionBlock blockId="p9_4" data-testid="qblock-p9_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Details of instances of product recalls on account of safety issues.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -144,8 +146,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p9_e5_") && <div data-testid="qblock-p9_e5">
+      </QuestionBlock>}
+      {sb("p9_e5_") && <QuestionBlock blockId="p9_5" data-testid="qblock-p9_e5">
         <h3 className="text-sm font-semibold text-teal-400">5. Does the entity have a framework/ policy on cyber security and risks related to data privacy?</h3>
         <div className="mt-2 flex flex-wrap gap-4">
           <div className="flex flex-col gap-1">
@@ -162,8 +164,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
           </div>
           <div className="flex flex-col gap-1"><label className="text-xs text-gray-500">Web link</label>{inp("p9_e5_link", values, onChange, "Web link")}</div>
         </div>
-      </div>}
-      {sb("p9_e6_") && <div data-testid="qblock-p9_e6">
+      </QuestionBlock>}
+      {sb("p9_e6_") && <QuestionBlock blockId="p9_6" data-testid="qblock-p9_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Provide details of any corrective actions taken or underway on issues relating to advertising, and delivery of essential services; cyber security and data privacy of customers; re-occurrence of instances of product recalls; penalty / action taken by regulatory authorities on safety of products / services.</h3>
         <textarea
           value={values["p9_e6_corrective"] ?? ""}
@@ -171,8 +173,8 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p9_e7_") && <div data-testid="qblock-p9_e7">
+      </QuestionBlock>}
+      {sb("p9_e7_") && <QuestionBlock blockId="p9_7" data-testid="qblock-p9_e7">
         <h3 className="text-sm font-semibold text-teal-400">7. Provide the following information relating to data breaches</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -184,7 +186,7 @@ export function P9EssentialContent({ values, onChange, allowedSet, reportingYear
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -193,7 +195,7 @@ export function P9LeadershipContent({ values, onChange, allowedSet }: Props) {
   const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   return (
     <>
-      {sb("p9_l1_") && <div data-testid="qblock-p9_l1">
+      {sb("p9_l1_") && <QuestionBlock blockId="p9_l1" data-testid="qblock-p9_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Channels / platforms where information on products and services of the entity can be accessed (provide web link, if available).</h3>
         <textarea
           value={values["p9_l1_channels"] ?? ""}
@@ -201,8 +203,8 @@ export function P9LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p9_l2_") && <div data-testid="qblock-p9_l2">
+      </QuestionBlock>}
+      {sb("p9_l2_") && <QuestionBlock blockId="p9_l2" data-testid="qblock-p9_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Steps taken to inform and educate consumers about safe and responsible usage of products and/or services.</h3>
         <textarea
           value={values["p9_l2_steps"] ?? ""}
@@ -210,8 +212,8 @@ export function P9LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p9_l3_") && <div data-testid="qblock-p9_l3">
+      </QuestionBlock>}
+      {sb("p9_l3_") && <QuestionBlock blockId="p9_l3" data-testid="qblock-p9_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Mechanisms in place to inform consumers of any risk of disruption/discontinuation of essential services.</h3>
         <textarea
           value={values["p9_l3_mech"] ?? ""}
@@ -219,8 +221,8 @@ export function P9LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p9_l4_") && <div data-testid="qblock-p9_l4">
+      </QuestionBlock>}
+      {sb("p9_l4_") && <QuestionBlock blockId="p9_l4" data-testid="qblock-p9_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. Entity display product information</h3>
         <div className="mt-2 space-y-4">
           <div className="flex flex-col gap-1">
@@ -248,7 +250,7 @@ export function P9LeadershipContent({ values, onChange, allowedSet }: Props) {
             </select>
           </div>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

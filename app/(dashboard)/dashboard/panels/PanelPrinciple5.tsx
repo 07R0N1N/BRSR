@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import type { AnswersState } from "@/lib/brsr/types";
 import { CalcCell } from "@/components/CalcCell";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
@@ -143,7 +145,7 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
   const e9Val = e9 === "Y" || e9 === "y" ? "Yes" : e9 === "N" || e9 === "n" ? "No" : e9 === "NA" || e9 === "na" ? "NA" : e9;
   return (
     <>
-      {sb("p5_e1_") && <div data-testid="qblock-p5_e1">
+      {sb("p5_e1_") && <QuestionBlock blockId="p5_1" data-testid="qblock-p5_e1">
         <h3 className="text-sm font-semibold text-teal-400">1. Employees and workers who have been provided training on human rights issues and policy(ies) of the entity</h3>
         <div className="mt-2 space-y-4 overflow-x-auto">
           <div>
@@ -199,8 +201,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </table>
           </div>
         </div>
-      </div>}
-      {sb("p5_e2_") && <div data-testid="qblock-p5_e2">
+      </QuestionBlock>}
+      {sb("p5_e2_") && <QuestionBlock blockId="p5_2" data-testid="qblock-p5_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Details of minimum wages paid to employees and workers</h3>
         <div className="mt-2 space-y-4 overflow-x-auto">
           <div>
@@ -328,13 +330,11 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </table>
           </div>
         </div>
-      </div>}
-      {(sb("p5_e3a_") || sb("p5_e3b_")) && <div data-testid="qblock-p5_e3">
-        <h3 className="text-sm font-semibold text-teal-400">3. Details of remuneration/salary/wages</h3>
-        <div className="mt-2 space-y-4 overflow-x-auto">
-          <div>
-            <p className="mb-1 text-xs font-medium text-gray-500">i. Median remuneration / wages</p>
-            <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
+      </QuestionBlock>}
+      {sb("p5_e3a_") && <QuestionBlock blockId="p5_3a" data-testid="qblock-p5_e3a">
+        <h3 className="text-sm font-semibold text-teal-400">3. Details of remuneration/salary/wages — i. Median remuneration / wages</h3>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-200 px-2 py-1.5 text-left">Category</th>
@@ -371,10 +371,12 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                 ))}
               </tbody>
             </table>
-          </div>
-          <div>
-            <p className="mb-1 text-xs font-medium text-gray-500">ii. Gross wages paid to females</p>
-            <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
+        </div>
+      </QuestionBlock>}
+      {sb("p5_e3b_") && <QuestionBlock blockId="p5_3b" data-testid="qblock-p5_e3b">
+        <h3 className="text-sm font-semibold text-teal-400">3. Details of remuneration/salary/wages — ii. Gross wages paid to females</h3>
+        <div className="mt-2 overflow-x-auto">
+          <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-200 px-2 py-1.5 text-left"></th>
@@ -400,10 +402,9 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
                 </tr>
               </tbody>
             </table>
-          </div>
         </div>
-      </div>}
-      {sb("p5_e4_") && <div data-testid="qblock-p5_e4">
+      </QuestionBlock>}
+      {sb("p5_e4_") && <QuestionBlock blockId="p5_4" data-testid="qblock-p5_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Do you have a focal point (Individual/ Committee) responsible for addressing human rights impacts or issues caused or contributed to by the business?</h3>
         <div className="mt-2 flex gap-4">
           <label className="inline-flex items-center gap-1.5">
@@ -415,8 +416,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             <span className="text-sm">No</span>
           </label>
         </div>
-      </div>}
-      {sb("p5_e5_") && <div data-testid="qblock-p5_e5">
+      </QuestionBlock>}
+      {sb("p5_e5_") && <QuestionBlock blockId="p5_5" data-testid="qblock-p5_e5">
         <h3 className="text-sm font-semibold text-teal-400">5. Describe the internal mechanisms in place to redress grievances related to human rights issues.</h3>
         <textarea
           value={values["p5_e5_mech"] ?? ""}
@@ -424,8 +425,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p5_e6_") && <div data-testid="qblock-p5_e6">
+      </QuestionBlock>}
+      {sb("p5_e6_") && <QuestionBlock blockId="p5_6" data-testid="qblock-p5_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Number of Complaints on the following made by employees and workers</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
@@ -467,8 +468,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p5_e7_") && <div data-testid="qblock-p5_e7">
+      </QuestionBlock>}
+      {sb("p5_e7_") && <QuestionBlock blockId="p5_7" data-testid="qblock-p5_e7">
         <h3 className="text-sm font-semibold text-teal-400">7. Complaints filed under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013, in the following format:</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -487,8 +488,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p5_e8_") && <div data-testid="qblock-p5_e8">
+      </QuestionBlock>}
+      {sb("p5_e8_") && <QuestionBlock blockId="p5_8" data-testid="qblock-p5_e8">
         <h3 className="text-sm font-semibold text-teal-400">8. Mechanisms to prevent adverse consequences to the complainant in discrimination and harassment cases.</h3>
         <textarea
           value={values["p5_e8_mech"] ?? ""}
@@ -496,8 +497,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p5_e9_") && <div data-testid="qblock-p5_e9">
+      </QuestionBlock>}
+      {sb("p5_e9_") && <QuestionBlock blockId="p5_9" data-testid="qblock-p5_e9">
         <h3 className="text-sm font-semibold text-teal-400">9. Do human rights requirements form part of your business agreements and contracts?</h3>
         <div className="mt-2">
           <select
@@ -511,8 +512,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             <option value="NA">NA</option>
           </select>
         </div>
-      </div>}
-      {sb("p5_e10_") && <div data-testid="qblock-p5_e10">
+      </QuestionBlock>}
+      {sb("p5_e10_") && <QuestionBlock blockId="p5_10" data-testid="qblock-p5_e10">
         <h3 className="text-sm font-semibold text-teal-400">10. Assessment for the year</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -539,8 +540,8 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p5_e11_") && <div data-testid="qblock-p5_e11">
+      </QuestionBlock>}
+      {sb("p5_e11_") && <QuestionBlock blockId="p5_11" data-testid="qblock-p5_e11">
         <h3 className="text-sm font-semibold text-teal-400">11. Provide details of any corrective actions taken or underway to address significant risks / concerns arising from the assessments at Question 10 above.</h3>
         <textarea
           value={values["p5_e11_corrective"] ?? ""}
@@ -548,7 +549,7 @@ export function P5EssentialContent({ values, calcDisplay, onChange, allowedSet, 
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -560,7 +561,7 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
   const l3No = l3 === "No" || l3 === "N" || l3 === "n";
   return (
     <>
-      {sb("p5_l1_") && <div data-testid="qblock-p5_l1">
+      {sb("p5_l1_") && <QuestionBlock blockId="p5_l1" data-testid="qblock-p5_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Details of a business process being modified / introduced as a result of addressing human rights grievances/complaints.</h3>
         <textarea
           value={values["p5_l1_process"] ?? ""}
@@ -568,8 +569,8 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p5_l2_") && <div data-testid="qblock-p5_l2">
+      </QuestionBlock>}
+      {sb("p5_l2_") && <QuestionBlock blockId="p5_l2" data-testid="qblock-p5_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Details of the scope and coverage of any Human rights due-diligence conducted.</h3>
         <textarea
           value={values["p5_l2_scope"] ?? ""}
@@ -577,8 +578,8 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p5_l3_") && <div data-testid="qblock-p5_l3">
+      </QuestionBlock>}
+      {sb("p5_l3_") && <QuestionBlock blockId="p5_l3" data-testid="qblock-p5_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Is the premise/office of the entity accessible to differently abled visitors, as per the requirements of the Rights of Persons with Disabilities Act, 2016?</h3>
         <div className="mt-2 flex gap-4">
           <label className="inline-flex items-center gap-1.5">
@@ -590,8 +591,8 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
             <span className="text-sm">No</span>
           </label>
         </div>
-      </div>}
-      {sb("p5_l4_") && <div data-testid="qblock-p5_l4">
+      </QuestionBlock>}
+      {sb("p5_l4_") && <QuestionBlock blockId="p5_l4" data-testid="qblock-p5_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. Details on assessment of value chain partners</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -626,8 +627,8 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p5_l5_") && <div data-testid="qblock-p5_l5">
+      </QuestionBlock>}
+      {sb("p5_l5_") && <QuestionBlock blockId="p5_l5" data-testid="qblock-p5_l5">
         <h3 className="text-sm font-semibold text-teal-400">5. Provide details of any corrective actions taken or underway to address significant risks / concerns arising from the assessments at Question 4 above.</h3>
         <textarea
           value={values["p5_l5_corrective"] ?? ""}
@@ -635,7 +636,7 @@ export function P5LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

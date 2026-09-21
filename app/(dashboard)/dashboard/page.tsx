@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { canUseApp, isMaster, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
 import { AccountDropdown } from "./AccountDropdown";
 import { ExportButton } from "@/components/ExportButton";
-import { QuestionnaireShell } from "./QuestionnaireShell";
+import { DashboardClient } from "./DashboardClient";
 import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 import { ThemedBrandMark } from "@/components/theme/ThemedBrandMark";
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
         see that file's comment for why it's a rounded, inset pill instead
         of an edge-to-edge bar.
       */}
-      <header className="mx-auto max-w-[1400px] px-7 pt-7 max-[900px]:px-4 max-[900px]:pt-4">
+      <header className="sticky top-0 z-30 mx-auto w-full max-w-[1400px] bg-[var(--bg)]/95 px-7 pt-7 backdrop-blur-md max-[900px]:px-4 max-[900px]:pt-4">
         <div className="flex h-[68px] items-center justify-between rounded-full border border-[var(--border)] bg-[var(--surface)] px-7 max-[900px]:px-4">
           <div className="flex items-center gap-2.5">
             <ThemedBrandMark size={32} />
@@ -93,6 +93,15 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* Saving indicator slot — wire a client child here in a later phase */}
+            <div className="rounded-[var(--radius-sm)] border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)]">
+                Reporting year
+              </p>
+              <p data-testid="reporting-year-value" className="text-[13px] font-bold text-[var(--ink)]">
+                {orgReportingYear}
+              </p>
+            </div>
             {orgId && (
               <ExportButton
                 orgId={orgId}
@@ -110,13 +119,16 @@ export default async function DashboardPage() {
           </div>
         </div>
       </header>
-      <main className="mx-auto flex min-h-[calc(100vh-100px)] max-w-[1400px] flex-col px-7 py-7 max-[900px]:px-4">
+      <main
+        className="mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-[1400px] gap-4 px-7 py-7 max-[900px]:px-4 data-[drawer-open]:max-w-[calc(1400px+340px+1rem)]"
+      >
         {orgId ? (
-          <QuestionnaireShell
+          <DashboardClient
             orgId={orgId}
             reportingYear={orgReportingYear}
             canViewAll={roleSlug === "admin" || roleSlug === "master"}
             allowedQuestionCodes={allowedQuestionCodes}
+            roleSlug={roleSlug}
           />
         ) : (
           <p className="text-[var(--text-muted)]">No organization assigned. Contact your administrator.</p>

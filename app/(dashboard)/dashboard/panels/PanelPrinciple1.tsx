@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import type { AnswersState } from "@/lib/brsr/types";
 import { CalcCell } from "@/components/CalcCell";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
@@ -112,7 +114,7 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
   ];
   return (
     <>
-      {sb("p1_e1_") && <div data-testid="qblock-p1_e1">
+      {sb("p1_e1_") && <QuestionBlock blockId="p1_1" data-testid="qblock-p1_e1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Percentage coverage by training and awareness programmes on any of the Principles during the financial year:
         </h3>
@@ -138,8 +140,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p1_e2_") && <div data-testid="qblock-p1_e2">
+      </QuestionBlock>}
+      {sb("p1_e2_") && <QuestionBlock blockId="p1_2" data-testid="qblock-p1_e2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Details of fines / penalties / punishment / award / compounding fees / settlement amount paid in proceedings (by the entity or by directors / KMPs) with regulators / law enforcement agencies / judicial institutions, in the financial year
         </h3>
@@ -220,8 +222,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </div>
           );
         })}
-      </div>}
-      {sb("p1_e3_") && <div data-testid="qblock-p1_e3">
+      </QuestionBlock>}
+      {sb("p1_e3_") && <QuestionBlock blockId="p1_3" data-testid="qblock-p1_e3">
         <h3 className="text-sm font-semibold text-teal-400">
           3. Of the instances disclosed in Question 2 above, details of the Appeal/ Revision preferred in cases where monetary or non-monetary action has been appealed.
         </h3>
@@ -269,8 +271,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </button>
           )}
         </div>
-      </div>}
-      {sb("p1_e4_") && <div data-testid="qblock-p1_e4">
+      </QuestionBlock>}
+      {sb("p1_e4_") && <QuestionBlock blockId="p1_4" data-testid="qblock-p1_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Does the entity have an anti-corruption policy or anti-bribery policy?</h3>
         <div className="mt-2">
           <select
@@ -285,8 +287,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             ))}
           </select>
         </div>
-      </div>}
-      {sb("p1_e5_") && <div data-testid="qblock-p1_e5">
+      </QuestionBlock>}
+      {sb("p1_e5_") && <QuestionBlock blockId="p1_5" data-testid="qblock-p1_e5">
         <h3 className="text-sm font-semibold text-teal-400">
           5. Number of Directors/KMPs/employees/workers against whom disciplinary action was taken by any law enforcement agency for the charges of bribery/ corruption
         </h3>
@@ -301,8 +303,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p1_e6_") && <div data-testid="qblock-p1_e6">
+      </QuestionBlock>}
+      {sb("p1_e6_") && <QuestionBlock blockId="p1_6" data-testid="qblock-p1_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Details of complaints with regard to conflict of interest:</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -338,8 +340,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p1_e7_") && <div data-testid="qblock-p1_e7">
+      </QuestionBlock>}
+      {sb("p1_e7_") && <QuestionBlock blockId="p1_7" data-testid="qblock-p1_e7">
         <h3 className="text-sm font-semibold text-teal-400">
           7. Provide details of any corrective action taken or under way on issues related to fines / penalties / action taken by regulators/ law enforcement agencies/ judicial institutions, on cases of corruption and conflicts of interest.
         </h3>
@@ -349,8 +351,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p1_e8_") && <div data-testid="qblock-p1_e8">
+      </QuestionBlock>}
+      {sb("p1_e8_") && <QuestionBlock blockId="p1_8" data-testid="qblock-p1_e8">
         <h3 className="text-sm font-semibold text-teal-400">8. Number of days of accounts payables</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse border border-gray-200 text-sm">
@@ -362,8 +364,8 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p1_e9_") && <div data-testid="qblock-p1_e9">
+      </QuestionBlock>}
+      {sb("p1_e9_") && <QuestionBlock blockId="p1_9" data-testid="qblock-p1_e9">
         <h3 className="text-sm font-semibold text-teal-400">9. Open-ness of business - Provide details of concentration of purchases and sales with trading houses, dealers, and related parties along-with loans and advances & investments, with related parties, in the following format</h3>
         <div className="mt-2 space-y-4">
           <div>
@@ -423,7 +425,7 @@ export function P1EssentialContent({ values, calcDisplay, onChange, allowedSet, 
             </div>
           </div>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -433,7 +435,7 @@ export function P1LeadershipContent({ values, calcDisplay, onChange, allowedSet 
   const rc = rowCount(values, "p1_l1_rowcount");
   return (
     <>
-      {sb("p1_l1_") && <div data-testid="qblock-p1_l1">
+      {sb("p1_l1_") && <QuestionBlock blockId="p1_l1" data-testid="qblock-p1_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Awareness programmes conducted for value chain partners on any of the Principles during the financial year.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -474,8 +476,8 @@ export function P1LeadershipContent({ values, calcDisplay, onChange, allowedSet 
             </button>
           )}
         </div>
-      </div>}
-      {sb("p1_l2_") && <div data-testid="qblock-p1_l2">
+      </QuestionBlock>}
+      {sb("p1_l2_") && <QuestionBlock blockId="p1_l2" data-testid="qblock-p1_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Does the entity have processes in place to avoid / manage conflict of interests involving members of the Board?</h3>
         <div className="mt-2">
           <select
@@ -490,7 +492,7 @@ export function P1LeadershipContent({ values, calcDisplay, onChange, allowedSet 
             ))}
           </select>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

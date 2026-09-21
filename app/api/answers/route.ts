@@ -11,6 +11,11 @@ function isAnswersRlsForbidden(error: { code?: string; message?: string }): bool
   );
 }
 
+export type AnswerMeta = {
+  updated_by: string | null;
+  updated_at: string | null;
+};
+
 export async function GET(request: Request) {
   const access = await requireAppAccess("data");
   if (!access.ok) return access.response;
@@ -26,17 +31,22 @@ export async function GET(request: Request) {
   }
   const { data, error } = await supabase
     .from("answers")
-    .select("question_code, value")
+    .select("question_code, value, updated_by, updated_at")
     .eq("org_id", org_id)
     .eq("reporting_year", reporting_year.trim());
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
   const answers: Record<string, string> = {};
+  const meta: Record<string, AnswerMeta> = {};
   for (const row of data ?? []) {
     answers[row.question_code] = row.value ?? "";
+    meta[row.question_code] = {
+      updated_by: row.updated_by ?? null,
+      updated_at: row.updated_at ?? null,
+    };
   }
-  return NextResponse.json({ answers });
+  return NextResponse.json({ answers, meta });
 }
 
 export async function POST(request: Request) {
@@ -66,6 +76,9 @@ export async function POST(request: Request) {
     value: value ?? null,
     updated_by: user.id,
   }));
+  if (rows.length === 0) {
+    return NextResponse.json({ ok: true });
+  }
   const { error } = await supabase.from("answers").upsert(rows, {
     onConflict: "org_id,reporting_year,question_code",
     ignoreDuplicates: false,

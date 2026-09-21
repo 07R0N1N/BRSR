@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { blockAllowed } from "@/lib/brsr/visibilityUtils";
@@ -61,11 +63,12 @@ export function P7EssentialContent({ values, onChange, allowedSet }: Props) {
   const sb = (prefix: string) => blockAllowed(prefix, allowedSet);
   return (
     <>
-      {(sb("p7_e1a_") || sb("p7_e1b_")) && <div data-testid="qblock-p7_e1">
-        <h3 className="text-sm font-semibold text-teal-400">1. Trade and industry chambers / associations</h3>
-        <p className="mt-2 text-sm font-medium text-gray-700">i. Number of affiliations with trade and industry chambers / associations</p>
-        <div className="mt-1">{inp("p7_e1a_count", values, onChange, "Number")}</div>
-        <p className="mt-4 text-sm font-medium text-gray-700">ii. List the top 10 trade and industry chambers/ associations (determined based on the total members of such body) the entity is a member of/ affiliated to.</p>
+      {sb("p7_e1a_") && <QuestionBlock blockId="p7_1a" data-testid="qblock-p7_e1a">
+        <h3 className="text-sm font-semibold text-teal-400">1. Trade and industry chambers / associations — i. Number of affiliations</h3>
+        <div className="mt-2">{inp("p7_e1a_count", values, onChange, "Number")}</div>
+      </QuestionBlock>}
+      {sb("p7_e1b_") && <QuestionBlock blockId="p7_1b" data-testid="qblock-p7_e1b">
+        <h3 className="text-sm font-semibold text-teal-400">1. Trade and industry chambers / associations — ii. Top 10 chambers / associations</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
             <thead>
@@ -101,8 +104,8 @@ export function P7EssentialContent({ values, onChange, allowedSet }: Props) {
             </tbody>
           </table>
         </div>
-      </div>}
-      {sb("p7_e2_") && <div data-testid="qblock-p7_e2">
+      </QuestionBlock>}
+      {sb("p7_e2_") && <QuestionBlock blockId="p7_2" data-testid="qblock-p7_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Provide details of corrective action taken or underway on any issues related to Anti-competitive conduct by the entity, based on adverse orders from regulatory authorities.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[400px] border-collapse border border-gray-200 text-sm">
@@ -156,7 +159,7 @@ export function P7EssentialContent({ values, onChange, allowedSet }: Props) {
             +ADD
           </button>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -205,7 +208,7 @@ export function P7LeadershipContent({ values, onChange, allowedSet }: Props) {
 
   return (
     <>
-      {sb("p7_l1_") && <div data-testid="qblock-p7_l1">
+      {sb("p7_l1_") && <QuestionBlock blockId="p7_l1" data-testid="qblock-p7_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Details of public policy positions advocated by the entity.</h3>
         <div className="mt-2 flex flex-col gap-3">
           {Array.from({ length: n }, (_, i) => {
@@ -294,7 +297,7 @@ export function P7LeadershipContent({ values, onChange, allowedSet }: Props) {
             +ADD
           </button>
         </div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
