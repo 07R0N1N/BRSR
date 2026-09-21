@@ -35,20 +35,24 @@ Inventory of the system as built: structure, stack, database, auth, routes, APIs
 BRSR/
 ├── app/
 │   ├── (dashboard)/dashboard/
-│   │   ├── hooks/                # Custom React hooks (useAnswers, useAssignments, useAssignmentStats,
-│   │   │                         #   useAssignmentCoverage, useOrgUsers)
+│   │   ├── hooks/                # useAnswers, useThreads, useThread, useOrgMembers,
+│   │   │                         #   useAssignments, useAssignmentStats, useAssignmentCoverage, useOrgUsers
+│   │   ├── chat/                 # ChatPanel (comments-only side panel)
+│   │   ├── inbox/                # Contributor inbox page (InboxClient, page.tsx)
+│   │   ├── activity/             # AttachmentList (legacy block-level upload helper)
+│   │   ├── DashboardClient.tsx   # Client shell: CollaborationProvider + drawer + URL ?thread=
 │   │   ├── panels/               # PanelGeneralData, PanelGeneral, PanelSectionB, PanelPrinciple,
 │   │   │                         #   PanelPrinciple1–9 (per-principle JSX),
 │   │   │                         #   LegacyPrincipleRenderer (unused — legacy)
 │   │   ├── admin-workspace/      # AdminWorkspaceClient, ManageUsersPanel,
-│   │   │                         #   shared.tsx (style tokens + AvatarChip)
+│   │   │                         #   shared.tsx (style tokens; re-exports Avatar from components/Avatar)
 │   │   └── QuestionnaireShell.tsx
 │   ├── (master)/master/           # Master layout (app-theme), MasterNav (top pill tabs: Overview/
 │   │                              #   Organizations/Users), organizations/ (list, [id] detail with
 │   │                              #   Users/Settings/Benchmarking tabs), users/ (global). roles/ and
 │   │                              #   visibility/ still exist, unlinked from nav (see §6.1).
 │   ├── onboarding/                # Onboarding wizard (layout, page, OnboardingClient)
-│   ├── api/                       # API routes (auth, answers, orgs, users, roles, visibility,
+│   ├── api/                       # API routes (auth, answers, threads, orgs, users, roles, visibility,
 │   │                              #   assignments, assignment-coverage, assignment-stats, export, onboarding)
 │   ├── fonts/inter/               # Self-hosted Inter (woff2) for the app-wide theme
 │   ├── login/                     # Login page (wrapped in AppThemeWrapper)
@@ -58,7 +62,12 @@ BRSR/
 │                                   #   `.brsr-dark` (Master layout only, always-dark hex)
 ├── components/
 │   ├── QuestionInput.tsx          # Shared text input bound to a question code
-│   ├── QuestionChrome.tsx         # Per-question card shell (title + actions slot; future notes/files)
+│   ├── QuestionChrome.tsx         # Per-question card shell (title + actions slot)
+│   ├── QuestionBlock.tsx          # Assignment-block wrapper: anchor id + chat affordance + inline note
+│   ├── InlineBlockNote.tsx        # Collapsible team-only note on question card
+│   ├── panel/                     # PanelHeader, PanelSection, FieldGrid, Field, DataTable, AnswersContext
+│   ├── CollaborationContext.tsx   # threadSummaries, answerMeta, members, activeBlockId
+│   ├── Avatar.tsx                 # AvatarChip, AvatarStack, userLabel (shared with Admin Workspace)
 │   ├── CalcCell.tsx               # CalcCell (read-only calc display) + InlinePct
 │   ├── ExportButton.tsx           # Opens export modal
 │   ├── ExportModal.tsx            # Format/section picker, triggers /api/export/generate
@@ -74,6 +83,10 @@ BRSR/
 │   ├── auth/
 │   │   ├── accessPolicy.ts       # Pure policy: isMaster, canUseApp, redirectForIncompleteApp, etc.
 │   │   └── requireAppAccess.ts   # API route guard (builds AccessContext, returns 401/403)
+│   ├── collaboration/
+│   │   ├── threads.ts            # ensureThreadRow, resolveBlockMeta for question threads API
+│   │   ├── attachments.ts        # MIME allowlist, storage path helpers for attachments API
+│   │   └── attachmentGc.ts       # Pure orphan-diff helpers for purge:attachments
 │   ├── exporters/
 │   │   ├── brsrDataMapper.ts     # mapAnswersToBRSR + StructuredTable / PrincipleBlock types
 │   │   ├── brsrDocx.ts           # buildBRSRDocx
@@ -91,6 +104,8 @@ BRSR/
 │       ├── principleTemplates.ts  # Raw HTML templates for P1–P9
 │       ├── flowGeneralDataToP6.ts # General Data → Principle 6 autofill
 │       ├── blockAccessPrefixes.ts # BLOCK_ACCESS_PREFIXES; RLS/UI block sync (see docs/prefix-sync.md)
+│       ├── blockIndex.ts          # code↔blockId maps, representativeCodeFor (collaboration RLS anchor)
+│       ├── dirtyAnswerSave.ts     # buildDirtyAnswersPayload for partial answer POST
 │       ├── visibilityUtils.ts     # isAllowed, filterByAllowed, sectionHasAnyAllowed
 │       ├── fyLabels.ts            # getFYLabelsFromReportingYear, getFYLabels
 │       └── principleBlocksConfig.ts # static assignment-block config by principle (P1–5, P7–9)
@@ -104,7 +119,7 @@ BRSR/
 │       ├── admin.json
 │       └── user.json
 ├── playwright.config.ts           # Playwright config (4 projects; workers=1 for serial)
-├── supabase/migrations/           # SQL migrations (001 → 011)
+├── supabase/migrations/           # SQL migrations (001 → 015)
 ├── scripts/
 │   ├── seed-master.ts             # Create first Master user
 │   ├── seed-brsr-questions.ts     # Seed brsr_questions table
@@ -132,6 +147,12 @@ BRSR/
 | `user_question_assignments` | Per-user question assignments. `id`, `org_id`, `user_id`, `question_code`, `created_at`. Unique on (org_id, user_id, question_code). Created in 005. |
 | `brsr_questions` | Question metadata. `question_code` (PK), `panel_id`, `section_label`, `question_order`, `brsr_version` (default `'SEBI-2023'`), `is_active` (default `true`), `created_at`. Created in 007. |
 | `brsr_assignment_block_prefixes` | Prefix strings for `question_codes_share_assignment_block` / RLS alignment with `lib/brsr/blockAccessPrefixes.ts`. Created and seeded in 011. See `docs/prefix-sync.md`. |
+| `brsr_assignment_blocks` | Canonical `(block_id, panel_id, question_code)` map for collaboration RLS (`can_access_block`). Seeded in 014 from `lib/brsr/blockIndex.ts` (`npm run generate:block-map`). See `docs/prefix-sync.md` and ADR 006. |
+| `question_threads` | Block-scoped collaboration thread per (org_id, reporting_year, block_id). FK `block_id` → `brsr_assignment_blocks`. Stores `panel_id`, representative `question_code` (must match map), optional `note_body` / note authorship, `resolved_at` / `resolved_by`. Identity columns immutable; resolve admin/master-only (trigger). Created in 014. |
+| `question_comments` | Comments on a thread. `thread_id`, `org_id`, nullable `author_id` (`ON DELETE SET NULL`), `author_label` snapshot, `body`, soft-delete via `deleted_at`. Created in 014. |
+| `question_comment_reads` | Per-user read receipts. PK `(thread_id, user_id)`, `last_read_at`. Created in 014. |
+| `question_attachments` | File metadata for thread attachments. `thread_id`, `org_id`, representative `question_code`, `storage_path`, `file_name`, `mime_type`, `size_bytes`, nullable `uploaded_by` (`ON DELETE SET NULL`), `uploader_label` snapshot. Optional `comment_id` (016). Bytes in private bucket `brsr-attachments`. Created in 015. |
+| `attachment_object_gc` | Service-role-only queue of `storage_path` rows enqueued when attachment metadata is deleted. Drained by `npm run purge:attachments`. Created in 015. |
 
 **Export TypeScript (not Postgres):** `types/brsr.ts` holds JSON export shapes (`BRSRExportData`, `BRSRPrinciple`, etc.). `StructuredTable` and `PrincipleBlock` are **not** defined there — they live in `lib/exporters/brsrDataMapper.ts` (moved from `types/brsr.ts` for the DOCX rebuild). `BRSRPrinciple.docxBlocks` is typed inline in `types/brsr.ts` to avoid a circular import with the mapper.
 
@@ -188,6 +209,23 @@ BRSR/
     - These codes were incorrectly registered as user-input codes in `questionCodes.ts`; they are calc-only outputs (sum of 10 P6 E4 discharge sub-components) rendered via `calcDisplay` in the panel and computed by `runCalculations` in the exporter. No user-entered data exists for them.
     - Companion change: removed from `P6_EXTENDED_CODES` in `lib/brsr/questionCodes.ts`. Calc rules in `calcRules.ts` are unchanged.
 
+13. **013_answers_updated_at_trigger.sql**
+    - Adds `answers_set_updated_at` trigger so `answers.updated_at` refreshes on every UPDATE/UPSERT (DEFAULT alone only applied on INSERT).
+
+14. **014_question_collaboration.sql**
+    - Creates `brsr_assignment_blocks` + `can_access_block()`, then `question_threads`, `question_comments`, `question_comment_reads` with RLS.
+    - Thread INSERT/UPDATE requires `(block_id, panel_id, question_code)` to match the map; trigger freezes identity columns and restricts resolve to admin/master. Notes remain editable by anyone with question access.
+    - Comments: `author_label` snapshot; `author_id` SET NULL on user delete; body edits author-only (trigger). Soft-delete: author or admin/master.
+    - See ADR 006.
+
+15. **015_question_attachments.sql**
+    - Creates `question_attachments` with RLS (SELECT/INSERT/DELETE join parent thread; delete also requires uploader or admin/master) and `uploader_label` snapshot.
+    - Creates `attachment_object_gc` (RLS on, no policies) + AFTER DELETE enqueue trigger.
+    - Creates private storage bucket `brsr-attachments` (10 MB, mime allowlist). Storage policies: org folder **and** `can_access_block` on path segment 3; DELETE also uploader-or-admin via metadata join (master bypass).
+
+16. **016_comment_attachments.sql**
+    - Adds nullable `comment_id` FK on `question_attachments` → `question_comments` (ON DELETE CASCADE). Block-level rows (`comment_id` NULL) remain valid.
+
 ### 4.3 RLS summary
 
 - **organizations**: Master = full CRUD; Admin = UPDATE own org (006); others = SELECT only own org (`current_user_org_id()`).
@@ -198,6 +236,13 @@ BRSR/
 - **user_question_assignments**: SELECT for master, admin (same org), or own rows. INSERT/UPDATE/DELETE for master or admin (same org).
 - **brsr_questions**: SELECT for all authenticated users.
 - **brsr_assignment_block_prefixes**: SELECT for authenticated users (reference data for prefix logic).
+- **brsr_assignment_blocks**: SELECT for authenticated users (block map for collaboration RLS).
+- **question_threads**: SELECT/INSERT/UPDATE via `can_access_question` plus map-match on insert/update; resolve fields admin/master-only (trigger); identity columns immutable.
+- **question_comments**: SELECT/INSERT when parent thread is accessible; UPDATE for author or admin/master when thread is accessible (body edits author-only via trigger).
+- **question_comment_reads**: SELECT/INSERT/UPDATE own rows (`user_id = auth.uid()`) when parent thread is accessible.
+- **question_attachments**: SELECT/INSERT when parent thread is accessible; DELETE for uploader or admin/master when thread is accessible.
+- **attachment_object_gc**: RLS enabled, no policies (service role only).
+- **storage.objects** (`brsr-attachments` bucket): SELECT/INSERT when org folder matches **and** `can_access_block` on path segment 3 (or master); DELETE also requires uploader metadata row or admin/master.
 
 ---
 
@@ -274,7 +319,17 @@ Dashboard uses a single shell (`QuestionnaireShell`) with top-bar nav (see §8.5
 | Route | Methods | Auth | Purpose |
 |-------|---------|------|--------|
 | `/api/auth/signout` | POST | — | Sign out (form post from AccountDropdown). 302 → `/login`. |
-| `/api/answers` | GET, POST | `requireAppAccess("data")` | GET: `org_id`, `reporting_year` → `{ answers }`. POST: upsert answers (org_id, reporting_year, answers). |
+| `/api/answers` | GET, POST | `requireAppAccess("data")` | GET: `org_id`, `reporting_year` → `{ answers, meta }` (meta per code: `updated_by`, `updated_at`). POST: upsert **dirty** answers only (org_id, reporting_year, answers). |
+| `/api/org-members` | GET | `requireAppAccess("data")` | Org roster including admins: `{ org_id, users: [{ id, email, display_name, role_slug }] }` for authorship UI. |
+| `/api/threads` | GET | `requireAppAccess("data")` | Summary map by `block_id` (`?org_id=`, `?reporting_year=`): commentCount, unreadCount, hasNote, attachmentCount, resolved. |
+| `/api/threads/[blockId]` | GET | `requireAppAccess("data")` | Thread + non-deleted comments + attachments + authors. Virtual empty thread if no row yet (no insert). |
+| `/api/attachments` | POST | `requireAppAccess("data")` | Multipart upload (`file`, `org_id`, `reporting_year`, `block_id`). Ensures thread, stores in `brsr-attachments`, inserts metadata. |
+| `/api/attachments/[id]` | GET, DELETE | `requireAppAccess("data")` | GET: signed URL (60s). DELETE: uploader or admin/master removes storage object + row. |
+| `/api/threads/[blockId]/comments` | POST | `requireAppAccess("data")` | Ensure thread, insert comment. Body: `org_id`, `reporting_year`, `body`. |
+| `/api/threads/[blockId]/comments/[commentId]` | PATCH | `requireAppAccess("data")` | Edit own body or soft-delete (`deleted: true`; author or admin/master). |
+| `/api/threads/[blockId]/note` | PUT | `requireAppAccess("data")` | Ensure thread, set `note_body` + note authorship timestamps. |
+| `/api/threads/[blockId]/read` | POST | `requireAppAccess("data")` | Upsert `question_comment_reads.last_read_at`. |
+| `/api/threads/[blockId]/resolve` | PATCH | `requireAppAccess("data")` + admin/master | Set/clear `resolved_at` / `resolved_by`. |
 | `/api/assignments` | GET, PUT | `requireAppAccess("assignments")` + admin/master | GET: list org users + assignments (`?user_id=`, `?org_id=`). PUT: replace a user's assigned question codes. |
 | `/api/assignments/me` | GET | `requireAppAccess("data")` | Current user's assigned codes → `{ mode: "all"\|"restricted", question_codes }`. |
 | `/api/assignment-stats` | GET | `requireAppAccess("data")` + admin/master | Per-user completion stats for a reporting year (`?reporting_year=`, `?org_id=`). |
@@ -326,25 +381,20 @@ All authenticated APIs use `createClient()` from `lib/supabase/server`; RLS appl
 
 ### 8.5 Dashboard UI
 
-- **QuestionnaireShell** (`QuestionnaireShell.tsx`): Top nav card (`data-testid="sidebar"`) instead of a left sidebar. **Admin** (`canViewAll`): group pills (General Data / Section A / Section B / Principles) then P1–P9 when Principles is active. **Contributor** (restricted `allowedSet`): title “My questions”, only assigned section chips, `restricted-banner` helper. Reporting year via `reporting-year-value`. Renders panel by `activePanel`. Data loading/saving is delegated to `hooks/useAnswers.ts`.
+- **DashboardClient** (`DashboardClient.tsx`): Client wrapper around `QuestionnaireShell` + `ChatPanel`. Loads thread summaries and org members; `CollaborationProvider` supplies `QuestionBlock` indicators. Thread selection syncs to `?thread=<blockId>`; `<main data-drawer-open>` widens max-width when the chat panel is open.
+- **QuestionnaireShell** (`QuestionnaireShell.tsx`): Sticky nav card (`data-testid="sidebar"`). Wraps panel content in `PanelRuntimeProvider` + `AnswersProvider` for section progress. **Admin** (`canViewAll`): group pills + P1–P9 sub-row; unread badges on nav when threads have unread comments. **Contributor**: “My questions” + assigned section chips + `restricted-banner`. Reporting year chip lives in the header pill (`page.tsx`, `reporting-year-value`). Single page scroll (no nested `.app-panels` overflow). Renders panel by `activePanel`; data via `hooks/useAnswers.ts` (`answerMeta` for authorship).
+- **QuestionBlock** (`components/QuestionBlock.tsx`): Wraps each assignment block (~166 sites). Hover-revealed chat affordance (badge when comments/attachments exist); `InlineBlockNote` on card for team-only notes. Preserves `data-testid="qblock-*"` for Playwright.
+- **ChatPanel** (`chat/ChatPanel.tsx`): Comments-only side panel with composer attach (files linked to comments via migration 016). Desktop: 340px column beside content; mobile: overlay. No Inbox tab (see `/dashboard/inbox`).
+- **Inbox** (`inbox/page.tsx`, `InboxClient.tsx`): Full-page contributor thread list (Admin-Workspace-style); opens `/dashboard?thread=<blockId>`.
+- **Panel primitives** (`components/panel/`): `PanelHeader`, `PanelSection` (collapsible + progress), `FieldGrid`/`Field`, `DataTable`. Used in `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple` wrapper.
 - **Custom hooks** (`hooks/`):
-  - `useAnswers` — loads and debounce-saves answers; respects `allowedSet` (from `user_question_assignments`); exposes `answers`, `loading`, `saving`, `onChange`.
-  - `useAssignmentStats` — fetches completion statistics for the Admin Workspace.
-  - `useAssignments` — loads, toggles, and saves per-user question assignments.
-  - `useAssignmentCoverage` — org-wide assigned question codes and code→user-ID map for the Admin Workspace unassigned-blocks filter and per-block "also assigned to" indicators.
-  - `useOrgUsers` — org roster for the Manage Users tab; reuses GET `/api/assignments` (no `user_id`), so it is the same assignable-user list as the Assign tab, not a second source.
-- **Panels**: `PanelGeneralData`, `PanelGeneral`, `PanelSectionB`, `PanelPrinciple`. Each receives `values`, `onChange`, and (where needed) `calcDisplay` from `runCalculations`. Panels use `isAllowed` from `visibilityUtils.ts` to filter inputs for restricted users.
-- **Principle panel** (`PanelPrinciple.tsx`): Orchestrator with Essential/Leadership **pill tabs** (Admin Workspace style) and a per-principle notes field (`p{n}_notes`). Question blocks sit in `.app-qblocks` so `qblock-*` wrappers get card chrome from CSS. Imports `PanelPrinciple1.tsx` through `PanelPrinciple9.tsx`:
-  - `PanelPrinciple1.tsx` … `PanelPrinciple9.tsx` — 9 individual JSX files, each exporting `PNEssentialContent` and `PNLeadershipContent`. All principles are now native JSX components.
-  - `LegacyPrincipleRenderer.tsx` — HTML-template renderer (dynamic rows, calc display, input binding). **Unused — legacy code; not imported by any file.**
-- **Shared components** (`components/`):
-  - `QuestionInput.tsx` — Reusable `<input>` bound to a question code.
-  - `QuestionChrome.tsx` — Per-question card shell (title + actions slot + children) for future notes/attachments/authorship; principle cards today are mostly CSS on `qblock-*`.
-  - `CalcCell.tsx` — `CalcCell` (read-only display of `calcDisplay[code]`) and `InlinePct` (inline percentage from two values).
-  - `ExportButton.tsx` — Opens `ExportModal`; used in dashboard header.
-  - `ExportModal.tsx` — Format picker (DOCX/XLSX/JSON; PDF disabled), section selector, triggers `/api/export/generate` download.
-- **Theme**: One scoped CSS-variable system, `.app-theme` (`globals.css`, never `:root`), shared by Admin Workspace, Dashboard, Login, and Master (see §6.1) via `components/theme/AppThemeWrapper.tsx` + `ThemeToggleButton.tsx` (self-hosted Inter, `app/fonts/inter/`; light/dark persisted to one shared `localStorage` key). The Dashboard's 13 panel files (`PanelGeneralData.tsx`, `PanelPrinciple1–9.tsx`, etc.) still use plain Tailwind utility classes for structure (not rewritten to `var(--...)` directly); `.app-panels` in `globals.css` retargets those exact class names to the same `var(--...)` tokens so panel content themes without per-file JSX changes. Dynamic-row `<details>` cards (P4/P6/P7/P8 add-record rows) use `.dynamic-row-card` under `.app-panels` instead of leftover `.brsr-dark` hex. `.brsr-dark` (hardcoded hex, always-dark) CSS remains in `globals.css` but is no longer applied anywhere (Master moved to `.app-theme` — see §6.1); its unlinked `roles`/`visibility` pages keep their own dark-hardcoded markup wrapped in a plain dark card instead.
-- **Mock** (design reference, not shipped): `Archive 1/workflow-mockup/dashboard-topbar-mock.html` — admin vs contributor top-bar layout.
+  - `useAnswers` — dirty-set debounced save; `{ answers, answerMeta, loading, saving, onChange }`.
+  - `useThreads` / `useThread` — thread summary map and per-block detail + mutations.
+  - `useOrgMembers` — GET `/api/org-members` (includes admins for authorship).
+  - `useAssignmentStats`, `useAssignments`, `useAssignmentCoverage`, `useOrgUsers` — Admin Workspace (unchanged).
+- **Panels**: Wrapped in `QuestionBlock` at assignment-block boundaries. `PanelPrinciple` collapses BRSR narrative `p{n}_notes` in `<details>` (distinct from drawer “Internal note”).
+- **Shared components**: `QuestionChrome`, `QuestionBlock`, `Avatar`, `CollaborationContext`, `CalcCell`, export components — see §3.
+- **Theme**: `.app-panels` retargets panel Tailwind to CSS vars; `QuestionBlock` uses `QuestionChrome` card styling.
 
 ---
 
@@ -373,8 +423,11 @@ Copy `.env.local.example` to `.env.local` and set values. See README for setup s
 - **`npm run build`** / **`npm run start`** — Production build and start.
 - **`npm run seed:master`** — Create first Master user: `npm run seed:master -- <email> <password>`. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 - **`npm run seed:questions`** — Seed `brsr_questions` table from code. Requires migrations and `SUPABASE_SERVICE_ROLE_KEY`.
-- **`npm run test`** / **`npm run test:watch`** — Run unit tests with Vitest (one-shot / watch mode). Includes `test/**/*.test.ts` and `lib/**/*.test.ts` (e.g. `lib/brsr/blockAccessPrefixes.test.ts`).
-- **`npm run test:rls`** — RLS integration tests against live Supabase (`SUPABASE_RLS_INTEGRATION=1` + same Supabase/E2E env as below). See `supabase/tests/rls-dynamic-rows.test.ts`.
+- **`npm run generate:block-map`** — Print SQL INSERT for `brsr_assignment_blocks` from `lib/brsr/blockIndex.ts` (paste into migration 014; see `docs/prefix-sync.md`).
+- **`npm run purge:attachments`** — Drain `attachment_object_gc` (optional `--reconcile`, `--dry-run`). Requires service role.
+- **`npm run apply:migrations`** — Apply numbered migration files via `psql` when `DATABASE_URL` is set (optional; README still documents SQL Editor).
+- **`npm run test`** / **`npm run test:watch`** — Run unit tests with Vitest (one-shot / watch mode). Includes `test/**/*.test.ts` and `lib/**/*.test.ts` (e.g. `lib/brsr/blockAccessPrefixes.test.ts`, `lib/brsr/blockMapSync.test.ts`).
+- **`npm run test:rls`** — RLS integration tests against live Supabase (`SUPABASE_RLS_INTEGRATION=1` + same Supabase/E2E env as below). See `supabase/tests/rls-dynamic-rows.test.ts` and `rls-collaboration.test.ts`.
 - **`npm run test:e2e`** — Run all Playwright E2E tests (headless Chromium). Requires `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_USER_EMAIL`, `E2E_USER_PASSWORD` in `.env.local`.
 - **`npm run test:e2e -- --project=panel-checklist`** — Run only the panel-by-panel visibility checklist (admin assigns via API → user verifies per panel, Essential/Leadership separately).
 - **`npm run test:e2e -- --project=user-visibility`** — Run only the user-context smoke tests.

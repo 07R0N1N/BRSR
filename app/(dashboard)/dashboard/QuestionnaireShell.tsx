@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import type { PanelId } from "@/lib/brsr/types";
 import { PANELS, getQuestionCodesForPanel } from "@/lib/brsr/questionConfig";
 import { runCalculations } from "@/lib/brsr/calcEngine";
+import {
+  useCollaboration,
+  type AnswerMeta,
+} from "@/components/CollaborationContext";
+import { AnswersProvider } from "@/components/panel/AnswersContext";
+import { PanelRuntimeProvider } from "@/components/panel/PanelRuntimeContext";
+import { getBlocksForPanel } from "@/lib/brsr/blockIndex";
 import { useAnswers } from "./hooks/useAnswers";
 import { PanelGeneralData } from "./panels/PanelGeneralData";
 import { PanelGeneral } from "./panels/PanelGeneral";
@@ -36,17 +43,39 @@ function pillClass(active: boolean, small?: boolean) {
   }`;
 }
 
+function panelUnreadCount(
+  panelId: PanelId,
+  summaries: ReturnType<typeof useCollaboration>["threadSummaries"]
+): number {
+  return getBlocksForPanel(panelId).reduce(
+    (sum, block) => sum + (summaries[block.id]?.unreadCount ?? 0),
+    0
+  );
+}
+
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-white/25 px-1 text-[10px] font-bold">
+      {count}
+    </span>
+  );
+}
+
 export function QuestionnaireShell({
   orgId,
   reportingYear,
   canViewAll,
   allowedQuestionCodes,
+  onAnswerMetaChange,
 }: {
   orgId: string;
   reportingYear: string;
   canViewAll?: boolean;
   allowedQuestionCodes?: string[] | null;
+  onAnswerMetaChange?: (meta: Record<string, AnswerMeta>) => void;
 }) {
+  const { threadSummaries } = useCollaboration();
   const [activePanel, setActivePanel] = useState<PanelId>("generaldata");
 
   const allowedSet = useMemo(
@@ -56,7 +85,11 @@ export function QuestionnaireShell({
 
   const isContributor = allowedSet !== null;
 
-  const { answers, loading, saving, onChange } = useAnswers({ orgId, reportingYear, allowedSet });
+  const { answers, answerMeta, loading, saving, onChange } = useAnswers({
+    orgId,
+    reportingYear,
+    allowedSet,
+  });
 
   const visiblePanels = PANELS.filter(
     (panel) => !allowedSet || getQuestionCodesForPanel(panel.id).some((code) => allowedSet.has(code))
@@ -71,6 +104,10 @@ export function QuestionnaireShell({
       setActivePanel(visiblePanels[0].id);
     }
   }, [activePanel, visiblePanels]);
+
+  useEffect(() => {
+    onAnswerMetaChange?.(answerMeta);
+  }, [answerMeta, onAnswerMetaChange]);
 
   const calcDisplay = runCalculations(answers);
 
@@ -99,7 +136,7 @@ export function QuestionnaireShell({
     <div className="flex min-h-full w-full flex-col gap-4">
       <nav
         data-testid="sidebar"
-        className="rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] px-[18px] py-4 shadow-[var(--shadow-sm)]"
+        className="sticky top-[calc(68px+1.75rem)] z-20 rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] px-[18px] py-4 shadow-[var(--shadow-sm)]"
       >
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
@@ -111,23 +148,15 @@ export function QuestionnaireShell({
                 You can view and update only assigned questions.
               </p>
             )}
-            {!isContributor && (
-              <p className="mt-1 text-[13px] text-[var(--text-muted)]">
-                Navigate by section. Principles open a second row.
+            {visiblePanels.length > 0 && isContributor && (
+              <p className="mt-2 text-[12px]">
+                <a href="/dashboard/inbox" className="font-semibold text-[var(--brand)] hover:underline">
+                  My inbox
+                </a>
               </p>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            {saving && <p className="text-xs font-semibold text-[var(--text-muted)]">Saving…</p>}
-            <div className="rounded-[var(--radius-sm)] border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)]">
-                Reporting year
-              </p>
-              <p data-testid="reporting-year-value" className="text-[13px] font-bold text-[var(--ink)]">
-                {reportingYear}
-              </p>
-            </div>
-          </div>
+          {saving && <p className="text-xs font-semibold text-[var(--text-muted)]">Saving…</p>}
         </div>
 
         {visiblePanels.length > 0 && isContributor && (
@@ -141,6 +170,7 @@ export function QuestionnaireShell({
                 className={pillClass(activePanel === p.id)}
               >
                 {p.label}
+                <UnreadBadge count={panelUnreadCount(p.id, threadSummaries)} />
               </button>
             ))}
           </div>
@@ -161,6 +191,16 @@ export function QuestionnaireShell({
                     className={pillClass(active)}
                   >
                     {group.label}
+                    {group.panelId ? (
+                      <UnreadBadge count={panelUnreadCount(group.panelId, threadSummaries)} />
+                    ) : (
+                      <UnreadBadge
+                        count={visiblePrinciples.reduce(
+                          (sum, p) => sum + panelUnreadCount(p.id, threadSummaries),
+                          0
+                        )}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -176,6 +216,7 @@ export function QuestionnaireShell({
                     className={pillClass(activePanel === p.id, true)}
                   >
                     {p.label.replace("Principle ", "P")}
+                    <UnreadBadge count={panelUnreadCount(p.id, threadSummaries)} />
                   </button>
                 ))}
               </div>
@@ -184,7 +225,9 @@ export function QuestionnaireShell({
         )}
       </nav>
 
-      <div className="app-panels min-w-0 flex-1 overflow-auto rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
+      <PanelRuntimeProvider orgId={orgId} reportingYear={reportingYear}>
+        <AnswersProvider answers={answers} onChange={onChange}>
+          <div className="app-panels min-w-0 flex-1 rounded-[var(--radius-lg)] border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)]">
         {visiblePanels.length === 0 && (
           <p data-testid="empty-assignments" className="text-sm text-[var(--text-muted)]">
             No questions assigned. Contact your administrator.
@@ -220,7 +263,9 @@ export function QuestionnaireShell({
             reportingYear={reportingYear}
           />
         )}
-      </div>
+          </div>
+        </AnswersProvider>
+      </PanelRuntimeProvider>
     </div>
   );
 }

@@ -322,26 +322,30 @@
   border-top-color: var(--border);
 }
 
-/*
-  Principle question blocks (`data-testid="qblock-*"`) — card chrome without
-  rewriting panel table JSX. Actions slot lives on QuestionChrome for later
-  notes/attachments/authorship; CSS alone turns existing qblock wrappers into cards.
-*/
-.app-panels .app-qblocks > [data-testid^="qblock-"] {
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-  padding: 16px 18px;
-}
-.app-panels .app-qblocks > [data-testid^="qblock-"] + [data-testid^="qblock-"] {
+/* Question block vertical rhythm (QuestionBlock → .question-block wrapper) */
+.app-panels .question-block + .question-block {
   margin-top: 0;
 }
-.app-panels .app-qblocks > [data-testid^="qblock-"] > h3:first-child {
+.app-panels .panel-section__body > .question-block + .question-block,
+.app-panels .app-qblocks > .question-block + .question-block {
+  margin-top: 0.875rem;
+}
+.app-panels .question-chrome__body > h3:first-child {
   margin-top: 0;
 }
-.app-panels .question-chrome__actions:empty {
-  display: none;
+.app-panels .text-gray-400 {
+  color: var(--text-muted) !important;
+}
+.app-panels .text-gray-300 {
+  color: var(--text-muted) !important;
+  opacity: 0.65;
+}
+.app-panels .border-slate-600,
+.app-panels .border-gray-200 {
+  border-color: var(--border-soft) !important;
+}
+.app-panels .data-table-wrap {
+  margin-top: 0.5rem;
 }
 
 /* BRSR dashboard dark theme – content area (Master only; Dashboard uses

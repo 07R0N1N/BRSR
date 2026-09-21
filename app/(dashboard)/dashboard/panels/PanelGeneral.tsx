@@ -1,6 +1,11 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+import { PanelHeader } from "@/components/panel/PanelHeader";
+import { PanelSection } from "@/components/panel/PanelSection";
+import { Field, FieldGrid } from "@/components/panel/FieldGrid";
 import React from "react";
+import { DataTable, DataTableBody, DataTableHead, DataTableRow, DataTableTd, DataTableTh } from "@/components/panel/DataTable";
 import type { AnswersState } from "@/lib/brsr/types";
 import { REPORTING_YEARS } from "@/lib/brsr/constants";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
@@ -36,71 +41,87 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
 
   return (
     <section>
-      <h1 className="text-2xl font-bold text-gray-900">Section A: General Disclosures</h1>
-      <p className="mt-1 text-xs text-slate-400">
-        As per SEBI{" "}
-        <a href={ANNEXURE_II_URL} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
-          Annexure II – BRSR Format
-        </a>
-      </p>
+      <PanelHeader
+        title="Section A: General Disclosures"
+        subtitle={
+          <>
+            As per SEBI{" "}
+            <a href={ANNEXURE_II_URL} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+              Annexure II – BRSR Format
+            </a>
+          </>
+        }
+      />
 
-      {/* I. Details of the listed entity */}
-      <div className="mt-6">
-        <h3 className="text-sm font-semibold text-teal-400">I. Details of the listed entity</h3>
-        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <PanelSection label="I" title="Details of the listed entity">
+        <FieldGrid columns={3}>
           {show("gen_1_cin") && (
-            <div>
-              <label className="block text-xs text-gray-500">1. Corporate Identity Number (CIN)</label>
-              <input type="text" value={val("gen_1_cin")} onChange={(e) => onChange("gen_1_cin", e.target.value)} placeholder="CIN" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
-            </div>
+            <QuestionBlock blockId="general_1" data-testid="qblock-general_1" title="1. Corporate Identity Number (CIN)">
+              <Field label="CIN">
+                <input type="text" value={val("gen_1_cin")} onChange={(e) => onChange("gen_1_cin", e.target.value)} placeholder="CIN" className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              </Field>
+            </QuestionBlock>
           )}
           {show("gen_2_name") && (
-            <div>
-              <label className="block text-xs text-gray-500">2. Name of the Listed Entity</label>
-              <input type="text" value={val("gen_2_name")} onChange={(e) => onChange("gen_2_name", e.target.value)} placeholder="Name" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
-            </div>
+            <QuestionBlock blockId="general_2" data-testid="qblock-general_2" title="2. Name of the Listed Entity">
+              <Field label="Entity name">
+                <input type="text" value={val("gen_2_name")} onChange={(e) => onChange("gen_2_name", e.target.value)} placeholder="Name" className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              </Field>
+            </QuestionBlock>
           )}
           {show("gen_3_year_inc") && (
-            <div>
-              <label className="block text-xs text-gray-500">3. Date of Incorporation</label>
-              <input type="date" value={val("gen_3_year_inc")} onChange={(e) => onChange("gen_3_year_inc", e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
-            </div>
+            <QuestionBlock blockId="general_3" data-testid="qblock-general_3" title="3. Date of Incorporation">
+              <Field label="Date">
+                <input type="date" value={val("gen_3_year_inc")} onChange={(e) => onChange("gen_3_year_inc", e.target.value)} className="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              </Field>
+            </QuestionBlock>
           )}
-        </div>
+        </FieldGrid>
         {show("gen_4_registered_addr") && (
+          <QuestionBlock blockId="general_4" data-testid="qblock-general_4">
           <div className="mt-3">
             <label className="block text-xs text-gray-500">4. Registered office address</label>
             <input type="text" value={val("gen_4_registered_addr")} onChange={(e) => onChange("gen_4_registered_addr", e.target.value)} placeholder="Address" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
           </div>
+          </QuestionBlock>
         )}
         {show("gen_5_corporate_addr") && (
+          <QuestionBlock blockId="general_5" data-testid="qblock-general_5">
           <div className="mt-3">
             <label className="block text-xs text-gray-500">5. Corporate address</label>
             <input type="text" value={val("gen_5_corporate_addr")} onChange={(e) => onChange("gen_5_corporate_addr", e.target.value)} placeholder="Address" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
           </div>
+          </QuestionBlock>
         )}
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {show("gen_6_email") && (
+            <QuestionBlock blockId="general_6" data-testid="qblock-general_6">
             <div>
               <label className="block text-xs text-gray-500">6. E-mail address</label>
               <input type="email" value={val("gen_6_email")} onChange={(e) => onChange("gen_6_email", e.target.value)} placeholder="Email" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
           {show("gen_7_telephone") && (
+            <QuestionBlock blockId="general_7" data-testid="qblock-general_7">
             <div>
               <label className="block text-xs text-gray-500">7. Telephone No.</label>
               <input type="tel" value={val("gen_7_telephone")} onChange={(e) => { const v = e.target.value; if (/^[0-9+ ]*$/.test(v)) onChange("gen_7_telephone", v); }} placeholder="e.g. +91 33 2288 9371" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
           {show("gen_8_website") && (
+            <QuestionBlock blockId="general_8" data-testid="qblock-general_8">
             <div>
               <label className="block text-xs text-gray-500">8. Website</label>
               <input type="text" value={val("gen_8_website")} onChange={(e) => onChange("gen_8_website", e.target.value)} placeholder="Website" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
         </div>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {show("gen_9_fy") && (
+            <QuestionBlock blockId="general_9" data-testid="qblock-general_9">
             <div>
               <label className="block text-xs text-gray-500">9. Financial year for which reporting is being done</label>
               <select value={val("gen_9_fy")} onChange={(e) => onChange("gen_9_fy", e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm">
@@ -110,8 +131,10 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 ))}
               </select>
             </div>
+            </QuestionBlock>
           )}
           {showBlock("gen_10_") && (
+            <QuestionBlock blockId="general_10" data-testid="qblock-general_10">
             <div className="col-span-full">
               <p className="text-xs font-semibold text-gray-700">10. Name of the Stock Exchange(s) where shares are listed</p>
               <div className="mt-2 overflow-x-auto">
@@ -146,16 +169,20 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 <button type="button" onClick={() => onChange("gen_10_row_count", String(rowCount(values, "gen_10_row_count") + 1))} disabled={rowCount(values, "gen_10_row_count") >= MAX_TABLE_ROWS} className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50">+ADD</button>
               </div>
             </div>
+            </QuestionBlock>
           )}
         </div>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {show("gen_11_paidup_capital") && (
+            <QuestionBlock blockId="general_11" data-testid="qblock-general_11">
             <div>
               <label className="block text-xs text-gray-500">11. Paid-up Capital (Rs.)</label>
               <input type="text" inputMode="decimal" value={val("gen_11_paidup_capital")} onChange={(e) => { const v = e.target.value; if (/^[0-9.]*$/.test(v)) onChange("gen_11_paidup_capital", v); }} placeholder="Amount" className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
           {show("gen_12_contact") && (
+            <QuestionBlock blockId="general_12" data-testid="qblock-general_12">
             <div className="col-span-full space-y-3">
               <p className="text-xs font-semibold text-gray-700">12. Name and contact details of the person who may be contacted in case of any queries on the BRSR report</p>
               {(() => {
@@ -181,10 +208,12 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 );
               })()}
             </div>
+            </QuestionBlock>
           )}
         </div>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {show("gen_13_boundary") && (
+            <QuestionBlock blockId="general_13" data-testid="qblock-general_13">
             <div>
               <label className="block text-xs text-gray-500">13. Reporting boundary - Are the disclosures under this report made on a standalone basis (i.e. only for the entity) or on a consolidated basis (i.e. for the entity and all the entities which form a part of its consolidated financial statements, taken together).</label>
               <select value={val("gen_13_boundary")} onChange={(e) => onChange("gen_13_boundary", e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm">
@@ -193,8 +222,10 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 <option value="Consolidated Basis">Consolidated Basis</option>
               </select>
             </div>
+            </QuestionBlock>
           )}
           {showBlock("gen_14_") && (
+            <QuestionBlock blockId="general_14" data-testid="qblock-general_14">
             <div className="col-span-full">
               <p className="text-xs font-semibold text-gray-700">14. Details of Assurer(s)</p>
               <div className="mt-2 overflow-x-auto">
@@ -225,8 +256,10 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 <button type="button" onClick={() => onChange("gen_14_row_count", String(rowCount(values, "gen_14_row_count") + 1))} disabled={rowCount(values, "gen_14_row_count") >= MAX_TABLE_ROWS} className="add-row-btn rounded border px-3 py-1.5 text-sm font-mono disabled:cursor-not-allowed disabled:opacity-50">+ADD</button>
               </div>
             </div>
+            </QuestionBlock>
           )}
           {show("gen_15_assurance_type") && (
+            <QuestionBlock blockId="general_15" data-testid="qblock-general_15">
             <div>
               <label className="block text-xs text-gray-500">15. Type of assurance obtained</label>
               <select value={val("gen_15_assurance_type")} onChange={(e) => onChange("gen_15_assurance_type", e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm">
@@ -236,15 +269,14 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 <option value="None">None</option>
               </select>
             </div>
+            </QuestionBlock>
           )}
         </div>
-      </div>
+      </PanelSection>
 
-      {/* II. Products / Services */}
-      {(showBlock("gen_16_") || showBlock("gen_17_")) && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">II. Products / Services</h3>
+      <PanelSection label="II" title="Products / Services">
           {showBlock("gen_16_") && (
+            <QuestionBlock blockId="general_16" data-testid="qblock-general_16">
             <>
               <p className="mt-2 text-xs font-semibold text-gray-700">16. Details of business activities (accounting for 90% of turnover)</p>
               <div className="mt-2 overflow-x-auto">
@@ -280,8 +312,10 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </button>
               </div>
             </>
+            </QuestionBlock>
           )}
           {showBlock("gen_17_") && (
+            <QuestionBlock blockId="general_17" data-testid="qblock-general_17">
             <>
               <p className="mt-3 text-xs font-semibold text-gray-700">17. Products/Services sold (accounting for 90% of turnover)</p>
               <div className="mt-2 overflow-x-auto">
@@ -317,15 +351,13 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </button>
               </div>
             </>
+            </QuestionBlock>
           )}
-        </div>
-      )}
+      </PanelSection>
 
-      {/* III. Operations */}
-      {(showBlock("gen_18_") || showBlock("gen_19_") || show("gen_19b_export_pct") || show("gen_19c_customers")) && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">III. Operations</h3>
+      <PanelSection label="III" title="Operations">
           {showBlock("gen_18_") && (
+            <QuestionBlock blockId="general_18" data-testid="qblock-general_18">
             <>
               <p className="mt-2 text-xs font-semibold text-gray-700">18. Number of locations where plants and/or operations/offices of the entity are situated</p>
               <div className="mt-2 overflow-x-auto">
@@ -355,8 +387,10 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </table>
               </div>
             </>
+            </QuestionBlock>
           )}
           {showBlock("gen_19_") && (
+            <QuestionBlock blockId="general_19" data-testid="qblock-general_19">
             <>
               <p className="mt-3 text-xs font-semibold text-gray-700">19. Markets served by the entity</p>
               <div className="mt-2 overflow-x-auto">
@@ -380,29 +414,31 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </table>
               </div>
             </>
+            </QuestionBlock>
           )}
           {show("gen_19b_export_pct") && (
+            <QuestionBlock blockId="general_19b" data-testid="qblock-general_19b">
             <div className="mt-3">
               <label className="block text-xs text-gray-500">19(b). Contribution of exports as % of total turnover</label>
               <input type="text" inputMode="decimal" value={val("gen_19b_export_pct")} onChange={(e) => { const v = e.target.value; if (v === "" || (/^\d*\.?\d*$/.test(v) && (() => { const n = parseFloat(v); return !isNaN(n) && n >= 0 && n <= 100; })())) onChange("gen_19b_export_pct", v); }} placeholder="0-100" className="mt-1 max-w-xs rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
           {show("gen_19c_customers") && (
+            <QuestionBlock blockId="general_19c" data-testid="qblock-general_19c">
             <div className="mt-3">
               <label className="block text-xs text-gray-500">19(c). Brief on types of customers</label>
               <textarea value={val("gen_19c_customers")} onChange={(e) => onChange("gen_19c_customers", e.target.value)} rows={3} placeholder="Types of customers" className="mt-1 w-full max-w-xl rounded border border-gray-300 px-3 py-2 text-sm" />
             </div>
+            </QuestionBlock>
           )}
-        </div>
-      )}
+      </PanelSection>
 
-      {/* IV. Employees – 20. Details as at the end of Financial Year */}
-      {(showBlock("gen_20a_") || showBlock("gen_20b_")) && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">IV. Employees</h3>
-          <p className="mt-2 text-xs font-semibold text-gray-700">20. Details as at the end of Financial Year</p>
+      <PanelSection label="IV" title="Employees">
+          <p className="text-xs font-semibold text-gray-700">20. Details as at the end of Financial Year</p>
 
           {showBlock("gen_20a_") && (
+            <QuestionBlock blockId="general_20a" data-testid="qblock-general_20a">
             <>
               <p className="mt-3 text-xs font-medium text-gray-600">i. Employees (including differently abled)</p>
               <div className="mt-2 overflow-x-auto">
@@ -476,9 +512,11 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </table>
               </div>
             </>
+            </QuestionBlock>
           )}
 
           {showBlock("gen_20b_") && (
+            <QuestionBlock blockId="general_20b" data-testid="qblock-general_20b">
             <>
               <p className="mt-4 text-xs font-medium text-gray-600">iii. Differently abled Employees</p>
               <div className="mt-2 overflow-x-auto">
@@ -552,11 +590,11 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                 </table>
               </div>
             </>
+            </QuestionBlock>
           )}
-        </div>
-      )}
 
       {showBlock("gen_21_") && (
+        <QuestionBlock blockId="general_21" data-testid="qblock-general_21">
         <div className="mt-8">
           <p className="text-sm font-semibold text-teal-400">21. Participation/Inclusion/Representation of women</p>
         <div className="mt-2 overflow-x-auto">
@@ -586,9 +624,11 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
           </table>
         </div>
         </div>
+        </QuestionBlock>
       )}
 
       {showBlock("gen_22_") && (
+        <QuestionBlock blockId="general_22" data-testid="qblock-general_22">
         <div className="mt-8">
           <p className="text-sm font-semibold text-teal-400">22. Turnover rate for permanent employees and workers</p>
           <div className="mt-2 overflow-x-auto">
@@ -642,12 +682,14 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
             </table>
           </div>
         </div>
+        </QuestionBlock>
       )}
 
+      </PanelSection>
+
+      <PanelSection label="V" title="Holding, Subsidiary & Assoc. Companies (including joint ventures)">
       {showBlock("gen_23_") && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">Holding, Subsidiary & Assoc. Companies (including joint ventures)</h3>
-          <p className="mt-2 text-xs font-semibold text-gray-700">23. Names of holding / subsidiary / associate companies / joint ventures</p>
+        <QuestionBlock blockId="general_23" data-testid="qblock-general_23" title="23. Names of holding / subsidiary / associate companies / joint ventures">
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
             <thead>
@@ -708,13 +750,13 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
             Add row
           </button>
         </div>
-        </div>
+        </QuestionBlock>
       )}
+      </PanelSection>
 
+      <PanelSection label="VI" title="CSR Details">
       {showBlock("gen_24_") && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">VI. CSR Details</h3>
-          <p className="mt-2 text-xs font-semibold text-gray-700">24.</p>
+        <QuestionBlock blockId="general_24" data-testid="qblock-general_24" title="24. CSR applicability and financials">
         <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className="block text-xs text-gray-500">(i) Whether CSR is applicable as per section 135 of Companies Act, 2013</label>
@@ -753,104 +795,106 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
             />
           </div>
         </div>
-        </div>
+        </QuestionBlock>
       )}
+      </PanelSection>
 
+      <PanelSection label="VII" title="Complaints on NGRBC principles">
       {showBlock("gen_25_") && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-teal-400">VII. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct.</h3>
-          <p className="mt-2 text-xs font-semibold text-gray-700">25. Complaints on any of the principles (Principles 1 to 9) under the National Guidelines on Responsible Business Conduct.</p>
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse border border-gray-200 text-sm">
-            <thead>
-              <tr className="bg-gray-50">
-                <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Stakeholder group</th>
-                <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Grievance Redressal Mechanism in place</th>
-                <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Web-link for grievance redress policy</th>
-                {(() => {
-                  const [fy1, fy2] = getFYLabelsFromReportingYear(reportingYear);
-                  return (
-                    <>
-                      <th colSpan={3} className="border border-gray-200 px-2 py-2 text-center">{fy1}</th>
-                      <th colSpan={3} className="border border-gray-200 px-2 py-2 text-center">{fy2}</th>
-                    </>
-                  );
-                })()}
-              </tr>
-              <tr className="bg-gray-50">
-                <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints filed during current year</th>
-                <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints pending resolution at close in current year</th>
-                <th className="border border-gray-200 px-2 py-2 text-left">Remark</th>
-                <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints filed during current year</th>
-                <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints pending resolution at close in current year</th>
-                <th className="border border-gray-200 px-2 py-2 text-left">Remark</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { label: "Communities", p: "comm" },
-                { label: "Shareholders", p: "sha" },
-                { label: "Investors", p: "inv" },
-                { label: "Employees And Workers", p: "emp" },
-                { label: "Customers", p: "cust" },
-                { label: "Value Chain Partners", p: "vc" },
-                { label: "Others", p: "oth" },
-              ].map(({ label, p }) => (
-                <tr key={p}>
-                  <td className="border border-gray-200 px-2 py-1.5">{label}</td>
-                  <td className="border border-gray-200 px-2 py-1">
-                    <select value={val(`gen_25_${p}_mech`)} onChange={(e) => onChange(`gen_25_${p}_mech`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm">
-                      <option value="">Choose option</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
-                  </td>
-                  <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_weblink`)} onChange={(e) => onChange(`gen_25_${p}_weblink`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                  <td className="border border-gray-200 px-2 py-1">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={val(`gen_25_${p}_cy_f`)}
-                      onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_cy_f`, v); }}
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                  </td>
-                  <td className="border border-gray-200 px-2 py-1">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={val(`gen_25_${p}_cy_p`)}
-                      onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_cy_p`, v); }}
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                  </td>
-                  <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_cy_rem`)} onChange={(e) => onChange(`gen_25_${p}_cy_rem`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                  <td className="border border-gray-200 px-2 py-1">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={val(`gen_25_${p}_py_f`)}
-                      onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_py_f`, v); }}
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                  </td>
-                  <td className="border border-gray-200 px-2 py-1">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={val(`gen_25_${p}_py_p`)}
-                      onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_py_p`, v); }}
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                  </td>
-                  <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_py_rem`)} onChange={(e) => onChange(`gen_25_${p}_py_rem`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          <QuestionBlock blockId="general_25" data-testid="qblock-general_25" title="25. Complaints on any of the principles (Principles 1 to 9)">
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full min-w-[900px] border-collapse border border-gray-200 text-sm">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Stakeholder group</th>
+                    <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Grievance Redressal Mechanism in place</th>
+                    <th rowSpan={2} className="border border-gray-200 px-2 py-2 text-left">Web-link for grievance redress policy</th>
+                    {(() => {
+                      const [fy1, fy2] = getFYLabelsFromReportingYear(reportingYear);
+                      return (
+                        <>
+                          <th colSpan={3} className="border border-gray-200 px-2 py-2 text-center">{fy1}</th>
+                          <th colSpan={3} className="border border-gray-200 px-2 py-2 text-center">{fy2}</th>
+                        </>
+                      );
+                    })()}
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints filed during current year</th>
+                    <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints pending resolution at close in current year</th>
+                    <th className="border border-gray-200 px-2 py-2 text-left">Remark</th>
+                    <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints filed during current year</th>
+                    <th className="border border-gray-200 px-2 py-2 text-left">No. of complaints pending resolution at close in current year</th>
+                    <th className="border border-gray-200 px-2 py-2 text-left">Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "Communities", p: "comm" },
+                    { label: "Shareholders", p: "sha" },
+                    { label: "Investors", p: "inv" },
+                    { label: "Employees And Workers", p: "emp" },
+                    { label: "Customers", p: "cust" },
+                    { label: "Value Chain Partners", p: "vc" },
+                    { label: "Others", p: "oth" },
+                  ].map(({ label, p }) => (
+                    <tr key={p}>
+                      <td className="border border-gray-200 px-2 py-1.5">{label}</td>
+                      <td className="border border-gray-200 px-2 py-1">
+                        <select value={val(`gen_25_${p}_mech`)} onChange={(e) => onChange(`gen_25_${p}_mech`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm">
+                          <option value="">Choose option</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_weblink`)} onChange={(e) => onChange(`gen_25_${p}_weblink`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
+                      <td className="border border-gray-200 px-2 py-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={val(`gen_25_${p}_cy_f`)}
+                          onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_cy_f`, v); }}
+                          className="w-full rounded border px-2 py-1 text-sm"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={val(`gen_25_${p}_cy_p`)}
+                          onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_cy_p`, v); }}
+                          className="w-full rounded border px-2 py-1 text-sm"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_cy_rem`)} onChange={(e) => onChange(`gen_25_${p}_cy_rem`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
+                      <td className="border border-gray-200 px-2 py-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={val(`gen_25_${p}_py_f`)}
+                          onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_py_f`, v); }}
+                          className="w-full rounded border px-2 py-1 text-sm"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={val(`gen_25_${p}_py_p`)}
+                          onChange={(e) => { const v = e.target.value; if (/^\d*\.?\d*$/.test(v)) onChange(`gen_25_${p}_py_p`, v); }}
+                          className="w-full rounded border px-2 py-1 text-sm"
+                        />
+                      </td>
+                      <td className="border border-gray-200 px-2 py-1"><input type="text" value={val(`gen_25_${p}_py_rem`)} onChange={(e) => onChange(`gen_25_${p}_py_rem`, e.target.value)} className="w-full rounded border px-2 py-1 text-sm" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </QuestionBlock>
+      )}
           {showBlock("gen_26_") && (
-            <>
+            <QuestionBlock blockId="general_26" data-testid="qblock-general_26">
               <p className="mt-3 text-xs font-semibold text-gray-700">26. Overview of the entity&apos;s material responsible business conduct issues</p>
               <p className="mt-1 text-xs text-gray-500">Please indicate material responsible business conduct and sustainability issues pertaining to environmental and social matters that present a risk or an opportunity to your business, rationale for identifying the same, approach to adapt or mitigate the risk along-with its financial implications</p>
               <div className="mt-2 overflow-x-auto">
@@ -901,10 +945,9 @@ export function PanelGeneral({ values, calcDisplay, onChange, allowedSet = null,
                   Add row
                 </button>
               </div>
-            </>
+            </QuestionBlock>
           )}
-        </div>
-      )}
+      </PanelSection>
 
       <p className="mt-6 text-xs text-slate-400">Data is saved automatically.</p>
     </section>

@@ -2,19 +2,18 @@ import type { CSSProperties } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { canUseApp, isMaster, redirectForIncompleteApp } from "@/lib/auth/accessPolicy";
-import { AccountDropdown } from "./AccountDropdown";
-import { ExportButton } from "@/components/ExportButton";
-import { DashboardClient } from "./DashboardClient";
+import { AccountDropdown } from "../AccountDropdown";
 import { AppThemeWrapper } from "@/components/theme/AppThemeWrapper";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 import { ThemedBrandMark } from "@/components/theme/ThemedBrandMark";
+import { InboxPageClient } from "./InboxPageClient";
 
 function accountInitial(email: string | undefined): string {
   const ch = (email ?? "A").trim().charAt(0);
   return /[a-z]/i.test(ch) ? ch.toUpperCase() : "A";
 }
 
-export default async function DashboardPage() {
+export default async function InboxPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -66,49 +65,18 @@ export default async function DashboardPage() {
     orgReportingYear = orgData?.reporting_year ?? "2024-25";
   }
 
-  let allowedQuestionCodes: string[] | null = null;
-  if (orgId && roleSlug !== "admin" && roleSlug !== "master") {
-    const { data: assignedRows } = await supabase
-      .from("user_question_assignments")
-      .select("question_code")
-      .eq("org_id", orgId)
-      .eq("user_id", user.id);
-    allowedQuestionCodes = (assignedRows ?? []).map((row) => row.question_code);
-  }
-
   return (
     <AppThemeWrapper>
-      {/*
-        Same floating-pill header pattern as Admin Workspace's page.tsx —
-        see that file's comment for why it's a rounded, inset pill instead
-        of an edge-to-edge bar.
-      */}
       <header className="sticky top-0 z-30 mx-auto w-full max-w-[1400px] bg-[var(--bg)]/95 px-7 pt-7 backdrop-blur-md max-[900px]:px-4 max-[900px]:pt-4">
         <div className="flex h-[68px] items-center justify-between rounded-full border border-[var(--border)] bg-[var(--surface)] px-7 max-[900px]:px-4">
           <div className="flex items-center gap-2.5">
             <ThemedBrandMark size={32} />
             <div className="flex flex-col">
               <h1 className="text-[17px] font-bold leading-tight text-[var(--ink)]">BRSR Data Collection</h1>
-              <span className="text-[11px] leading-tight text-[var(--text-muted)]">{orgName ?? "—"}</span>
+              <span className="text-[11px] leading-tight text-[var(--text-muted)]">{orgName ?? "—"} · Inbox</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {/* Saving indicator slot — wire a client child here in a later phase */}
-            <div className="rounded-[var(--radius-sm)] border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)]">
-                Reporting year
-              </p>
-              <p data-testid="reporting-year-value" className="text-[13px] font-bold text-[var(--ink)]">
-                {orgReportingYear}
-              </p>
-            </div>
-            {orgId && (
-              <ExportButton
-                orgId={orgId}
-                year={orgReportingYear}
-                orgName={orgName ?? "BRSR"}
-              />
-            )}
             <ThemeToggleButton />
             <div
               className="app-account"
@@ -119,19 +87,11 @@ export default async function DashboardPage() {
           </div>
         </div>
       </header>
-      <main
-        className="mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-[1400px] gap-4 px-7 py-7 max-[900px]:px-4 data-[drawer-open]:max-w-[calc(1400px+340px+1rem)]"
-      >
+      <main className="mx-auto w-full max-w-[1400px] px-7 py-7 max-[900px]:px-4">
         {orgId ? (
-          <DashboardClient
-            orgId={orgId}
-            reportingYear={orgReportingYear}
-            canViewAll={roleSlug === "admin" || roleSlug === "master"}
-            allowedQuestionCodes={allowedQuestionCodes}
-            roleSlug={roleSlug}
-          />
+          <InboxPageClient orgId={orgId} reportingYear={orgReportingYear} />
         ) : (
-          <p className="text-[var(--text-muted)]">No organization assigned. Contact your administrator.</p>
+          <p className="text-[var(--text-muted)]">No organization assigned.</p>
         )}
       </main>
     </AppThemeWrapper>

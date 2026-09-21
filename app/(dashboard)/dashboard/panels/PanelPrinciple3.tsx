@@ -1,5 +1,9 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+import { PanelSection } from "@/components/panel/PanelSection";
+import { DataTable } from "@/components/panel/DataTable";
+
 import React from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { getFYLabelsFromReportingYear } from "@/lib/brsr/fyLabels";
@@ -117,8 +121,7 @@ function WellbeingTable({
   return (
     <div>
       <h3 className="text-sm font-semibold text-teal-400">{title}</h3>
-      <div className="mt-2 overflow-x-auto">
-        <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
+      <DataTable className="mt-2">
           <thead>
             <tr className="bg-gray-50">
               <th className="border border-gray-200 px-2 py-1.5 text-left">Category</th>
@@ -159,8 +162,7 @@ function WellbeingTable({
               </React.Fragment>
             ))}
           </tbody>
-        </table>
-      </div>
+      </DataTable>
     </div>
   );
 }
@@ -172,18 +174,17 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
   return (
     <>
       {(sb("p3_e1a_") || sb("p3_e1b_") || sb("p3_e1c_")) && (
-        <h3 className="text-sm font-semibold text-teal-400">1. Details of measures for the well-being of employees and workers</h3>
-      )}
-      {sb("p3_e1a_") && <>
+        <PanelSection title="1. Details of measures for the well-being of employees and workers">
+      {sb("p3_e1a_") && <QuestionBlock blockId="p3_1a" data-testid="qblock-p3_e1a">
         <WellbeingTable title="a. i. % of employees covered - Permanent employees" prefix="p3_e1a_perm" values={values} calcDisplay={calcDisplay} onChange={onChange} />
         <WellbeingTable title="a. ii. % of employees covered - Other than Permanent employees" prefix="p3_e1a_oth" values={values} calcDisplay={calcDisplay} onChange={onChange} />
-      </>}
-      {sb("p3_e1b_") && <>
+      </QuestionBlock>}
+      {sb("p3_e1b_") && <QuestionBlock blockId="p3_1b" data-testid="qblock-p3_e1b">
         <WellbeingTable title="b. i. % of workers covered - Permanent workers" prefix="p3_e1b_perm" values={values} calcDisplay={calcDisplay} onChange={onChange} />
         <WellbeingTable title="b. ii. % of workers covered - Other than Permanent workers" prefix="p3_e1b_oth" values={values} calcDisplay={calcDisplay} onChange={onChange} />
-      </>}
+      </QuestionBlock>}
 
-      {sb("p3_e1c_") && <div data-testid="qblock-p3_e1c">
+      {sb("p3_e1c_") && <QuestionBlock blockId="p3_1c" data-testid="qblock-p3_e1c">
         <h3 className="text-sm font-semibold text-teal-400">c. Spending on measures towards well-being of employees and workers</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -213,9 +214,12 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e2_") && <div data-testid="qblock-p3_e2">
+        </PanelSection>
+      )}
+
+      {sb("p3_e2_") && <QuestionBlock blockId="p3_2" data-testid="qblock-p3_e2">
         <h3 className="text-sm font-semibold text-teal-400">2. Details of retirement benefits</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
@@ -267,9 +271,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e3_") && <div data-testid="qblock-p3_e3">
+      {sb("p3_e3_") && <QuestionBlock blockId="p3_3" data-testid="qblock-p3_e3">
         <h3 className="text-sm font-semibold text-teal-400">3. Accessibility of workplaces. Are the premises / offices of the entity accessible to differently abled employees and workers, as per the requirements of the Rights of Persons with Disabilities Act, 2016? If not, whether any steps are being taken by the entity in this regard.</h3>
         <div className="mt-2">
           <select value={values["p3_e3_access"] ?? ""} onChange={(e) => onChange("p3_e3_access", e.target.value)} className="rounded border border-gray-300 px-2 py-1.5 text-sm">
@@ -278,9 +282,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             ))}
           </select>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e4_") && <div data-testid="qblock-p3_e4">
+      {sb("p3_e4_") && <QuestionBlock blockId="p3_4" data-testid="qblock-p3_e4">
         <h3 className="text-sm font-semibold text-teal-400">4. Does the entity have an equal opportunity policy as per the Rights of Persons with Disabilities Act, 2016?</h3>
         <div className="mt-2">
           <select value={values["p3_e4_equal"] ?? ""} onChange={(e) => onChange("p3_e4_equal", e.target.value)} className="rounded border border-gray-300 px-2 py-1.5 text-sm">
@@ -289,9 +293,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             ))}
           </select>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e5_") && <div data-testid="qblock-p3_e5">
+      {sb("p3_e5_") && <QuestionBlock blockId="p3_5" data-testid="qblock-p3_e5">
         <h3 className="text-sm font-semibold text-teal-400">5. Return to work and Retention rates of permanent employees and workers that took parental leave.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -327,9 +331,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e6_") && <div data-testid="qblock-p3_e6">
+      {sb("p3_e6_") && <QuestionBlock blockId="p3_6" data-testid="qblock-p3_e6">
         <h3 className="text-sm font-semibold text-teal-400">6. Mechanism to receive and redress grievances</h3>
         <p className="mt-1 text-xs text-gray-600">i. Is there a mechanism available to receive and redress grievances for the following categories of employees and worker?</p>
         <div className="mt-2 flex gap-4">
@@ -375,9 +379,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e7_") && <div data-testid="qblock-p3_e7">
+      {sb("p3_e7_") && <QuestionBlock blockId="p3_7" data-testid="qblock-p3_e7">
         <h3 className="text-sm font-semibold text-teal-400">7. Membership of employees and worker in association(s) or Unions recognised by the listed entity.</h3>
         <div className="mt-2 space-y-4">
           {[
@@ -435,9 +439,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </div>
           ))}
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e8_") && <div data-testid="qblock-p3_e8">
+      {sb("p3_e8_") && <QuestionBlock blockId="p3_8" data-testid="qblock-p3_e8">
         <h3 className="text-sm font-semibold text-teal-400">8. Details of training given to employees and workers.</h3>
         <div className="mt-2 space-y-4">
           {[
@@ -502,9 +506,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </div>
           ))}
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e9_") && <div data-testid="qblock-p3_e9">
+      {sb("p3_e9_") && <QuestionBlock blockId="p3_9" data-testid="qblock-p3_e9">
         <h3 className="text-sm font-semibold text-teal-400">9. Details of performance and career development reviews of employees</h3>
         <div className="mt-2 space-y-4">
           {[
@@ -565,9 +569,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </div>
           ))}
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e10_") && <div data-testid="qblock-p3_e10">
+      {sb("p3_e10_") && <QuestionBlock blockId="p3_10" data-testid="qblock-p3_e10">
         <h3 className="text-sm font-semibold text-teal-400">10. Health and safety management system</h3>
         <div className="mt-2 space-y-4">
           <div>
@@ -599,9 +603,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </select>
           </div>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e11_") && <div data-testid="qblock-p3_e11">
+      {sb("p3_e11_") && <QuestionBlock blockId="p3_11" data-testid="qblock-p3_e11">
         <h3 className="text-sm font-semibold text-teal-400">11. Details of safety related incidents</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[600px] border-collapse border border-gray-200 text-sm">
@@ -637,15 +641,15 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e12_") && <div data-testid="qblock-p3_e12">
+      {sb("p3_e12_") && <QuestionBlock blockId="p3_12" data-testid="qblock-p3_e12">
         <h3 className="text-sm font-semibold text-teal-400">12. Measures for safe and healthy work place</h3>
         <p className="mt-1 text-xs text-gray-600">Describe the measures taken by the entity to ensure a safe and healthy work place.</p>
         <div className="mt-2">{ta("p3_e12_measures", values, onChange)}</div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e13_") && <div data-testid="qblock-p3_e13">
+      {sb("p3_e13_") && <QuestionBlock blockId="p3_13" data-testid="qblock-p3_e13">
         <h3 className="text-sm font-semibold text-teal-400">13. Number of Complaints</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[700px] border-collapse border border-gray-200 text-sm">
@@ -683,9 +687,9 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e14_") && <div data-testid="qblock-p3_e14">
+      {sb("p3_e14_") && <QuestionBlock blockId="p3_14" data-testid="qblock-p3_e14">
         <h3 className="text-sm font-semibold text-teal-400">14. Assessments for the year</h3>
         <p className="mt-1 text-xs text-gray-600">% of your plants and offices that were assessed (by entity or statutory authorities or third parties)</p>
         <div className="mt-2 overflow-x-auto">
@@ -708,13 +712,13 @@ export function P3EssentialContent({ values, calcDisplay = {}, onChange, allowed
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_e15_") && <div data-testid="qblock-p3_e15">
+      {sb("p3_e15_") && <QuestionBlock blockId="p3_15" data-testid="qblock-p3_e15">
         <h3 className="text-sm font-semibold text-teal-400">15. Corrective Action</h3>
         <p className="mt-1 text-xs text-gray-600">Provide details of any corrective action taken or underway to address safety-related incidents (if any) and on significant risks / concerns arising from assessments of health & safety practices and working conditions.</p>
         <div className="mt-2">{ta("p3_e15_corrective", values, onChange)}</div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -725,7 +729,7 @@ export function P3LeadershipContent({ values, onChange, allowedSet, reportingYea
 
   return (
     <>
-      {sb("p3_l1_") && <div data-testid="qblock-p3_l1">
+      {sb("p3_l1_") && <QuestionBlock blockId="p3_l1" data-testid="qblock-p3_l1">
         <h3 className="text-sm font-semibold text-teal-400">1. Does the entity extend any life insurance or any compensatory package in the event of death.</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[300px] border-collapse border border-gray-200 text-sm">
@@ -757,14 +761,14 @@ export function P3LeadershipContent({ values, onChange, allowedSet, reportingYea
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_l2_") && <div data-testid="qblock-p3_l2">
+      {sb("p3_l2_") && <QuestionBlock blockId="p3_l2" data-testid="qblock-p3_l2">
         <h3 className="text-sm font-semibold text-teal-400">2. Provide the measures undertaken by the entity to ensure that statutory dues have been deducted and deposited by the value chain partners.</h3>
         <div className="mt-2">{ta("p3_l2_statutory", values, onChange)}</div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_l3_") && <div data-testid="qblock-p3_l3">
+      {sb("p3_l3_") && <QuestionBlock blockId="p3_l3" data-testid="qblock-p3_l3">
         <h3 className="text-sm font-semibold text-teal-400">3. Provide the number of employees / workers having suffered high consequence work related injury / ill-health / fatalities (as reported in Q11 of Essential Indicators above), who have been rehabilitated and placed in suitable employment or whose family members have been placed in suitable employment</h3>
         <div className="mt-2 overflow-x-auto">
           <table className="w-full min-w-[500px] border-collapse border border-gray-200 text-sm">
@@ -800,9 +804,9 @@ export function P3LeadershipContent({ values, onChange, allowedSet, reportingYea
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_l4_") && <div data-testid="qblock-p3_l4">
+      {sb("p3_l4_") && <QuestionBlock blockId="p3_l4" data-testid="qblock-p3_l4">
         <h3 className="text-sm font-semibold text-teal-400">4. Does the entity provide transition assistance programs to facilitate continued employability and the management of career endings resulting from retirement or termination of employment?</h3>
         <div className="mt-2">
           <select value={values["p3_l4_transition"] ?? ""} onChange={(e) => onChange("p3_l4_transition", e.target.value)} className="rounded border border-gray-300 px-2 py-1.5 text-sm">
@@ -811,9 +815,9 @@ export function P3LeadershipContent({ values, onChange, allowedSet, reportingYea
             ))}
           </select>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_l5_") && <div data-testid="qblock-p3_l5">
+      {sb("p3_l5_") && <QuestionBlock blockId="p3_l5" data-testid="qblock-p3_l5">
         <h3 className="text-sm font-semibold text-teal-400">5. Details on assessment of value chain partners.</h3>
         <p className="mt-1 text-xs text-gray-600">% of value chain partners (by value of business done with such partners) that were assessed</p>
         <div className="mt-2 overflow-x-auto">
@@ -836,12 +840,12 @@ export function P3LeadershipContent({ values, onChange, allowedSet, reportingYea
             </tbody>
           </table>
         </div>
-      </div>}
+      </QuestionBlock>}
 
-      {sb("p3_l6_") && <div data-testid="qblock-p3_l6">
+      {sb("p3_l6_") && <QuestionBlock blockId="p3_l6" data-testid="qblock-p3_l6">
         <h3 className="text-sm font-semibold text-teal-400">6. Provide details of any corrective actions taken or underway to address significant risks / concerns arising from assessments of health and safety practices and working conditions of value chain partners.</h3>
         <div className="mt-2">{ta("p3_l6_corrective", values, onChange)}</div>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { QuestionBlock } from "@/components/QuestionBlock";
+
 import { useEffect } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { blockAllowed } from "@/lib/brsr/visibilityUtils";
@@ -166,7 +168,7 @@ export function P4EssentialContent({ values, onChange, allowedSet }: Props) {
 
   return (
     <>
-      {sb("p4_e1_") && <div data-testid="qblock-p4_e1">
+      {sb("p4_e1_") && <QuestionBlock blockId="p4_1" data-testid="qblock-p4_e1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Describe the processes for identifying key stakeholder groups of the entity.
         </h3>
@@ -176,8 +178,8 @@ export function P4EssentialContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p4_e2_") && <div data-testid="qblock-p4_e2">
+      </QuestionBlock>}
+      {sb("p4_e2_") && <QuestionBlock blockId="p4_2" data-testid="qblock-p4_e2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. List stakeholder groups identified as key for your entity and the frequency of engagement with each
           stakeholder group.
@@ -306,7 +308,7 @@ export function P4EssentialContent({ values, onChange, allowedSet }: Props) {
         >
           +ADD
         </button>
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }
@@ -325,7 +327,7 @@ export function P4LeadershipContent({ values, onChange, allowedSet }: Props) {
 
   return (
     <>
-      {sb("p4_l1_") && <div data-testid="qblock-p4_l1">
+      {sb("p4_l1_") && <QuestionBlock blockId="p4_l1" data-testid="qblock-p4_l1">
         <h3 className="text-sm font-semibold text-teal-400">
           1. Provide the processes for consultation between stakeholders and the Board on economic, environmental, and
           social topics or if consultation is delegated, how is feedback from such consultations provided to the Board.
@@ -336,8 +338,8 @@ export function P4LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
-      {sb("p4_l2_") && <div data-testid="qblock-p4_l2">
+      </QuestionBlock>}
+      {sb("p4_l2_") && <QuestionBlock blockId="p4_l2" data-testid="qblock-p4_l2">
         <h3 className="text-sm font-semibold text-teal-400">
           2. Whether stakeholder consultation is used to support the identification and management of environmental and
           social topics?
@@ -380,8 +382,8 @@ export function P4LeadershipContent({ values, onChange, allowedSet }: Props) {
             </>
           )}
         </div>
-      </div>}
-      {sb("p4_l3_") && <div data-testid="qblock-p4_l3">
+      </QuestionBlock>}
+      {sb("p4_l3_") && <QuestionBlock blockId="p4_l3" data-testid="qblock-p4_l3">
         <h3 className="text-sm font-semibold text-teal-400">
           3. Instances of engagement with and actions taken to address the concerns of vulnerable /marginalised
           stakeholder groups.
@@ -392,7 +394,7 @@ export function P4LeadershipContent({ values, onChange, allowedSet }: Props) {
           rows={3}
           className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-2 py-1.5 text-sm"
         />
-      </div>}
+      </QuestionBlock>}
     </>
   );
 }

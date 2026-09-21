@@ -1,5 +1,6 @@
 "use client";
 
+import { PanelHeader } from "@/components/panel/PanelHeader";
 import { useEffect, useState } from "react";
 import type { AnswersState } from "@/lib/brsr/types";
 import { NGRBC_PRINCIPLE_TITLES } from "@/lib/brsr/questionConfig";
@@ -135,29 +136,38 @@ export function PanelPrinciple({
   const show = (code: string) => allowedSet === null || allowedSet.has(code);
   const title = NGRBC_PRINCIPLE_TITLES[principleNum] ?? "";
 
+  const notesValue = v(notesCode);
+  const [notesOpen, setNotesOpen] = useState(() => notesValue.trim().length > 0);
   const notesField = show(notesCode) ? (
-    <div className="mt-8 border-t border-gray-200 pt-6">
-      <label className="block text-sm font-medium text-gray-700">Notes (narrative)</label>
+    <details
+      key={notesCode}
+      className="mt-8 border-t border-[var(--border-soft)] pt-6"
+      open={notesOpen}
+      onToggle={(e) => setNotesOpen((e.target as HTMLDetailsElement).open)}
+    >
+      <summary className="cursor-pointer text-sm font-medium text-[var(--text)]">
+        BRSR narrative notes (exports with the report)
+      </summary>
       <textarea
-        value={v(notesCode)}
+        value={notesValue}
         onChange={(e) => onChange(notesCode, e.target.value)}
         placeholder="Additional narrative for this principle"
         rows={4}
-        className="mt-1 w-full max-w-2xl rounded border border-gray-300 px-3 py-2 text-sm"
+        className="mt-2 w-full max-w-2xl rounded border border-gray-300 px-3 py-2 text-sm"
       />
-    </div>
+    </details>
   ) : null;
 
-  const p6Note = principleNum === 6 ? (
-    <p className="mt-1 text-xs text-slate-400">
-      Revenue and PPP-adjusted revenue fields below are auto-filled from General Data when you enter turnover and PPP factor there.
-    </p>
-  ) : null;
+  const p6Note =
+    principleNum === 6 ? (
+      <p className="mt-1 text-xs text-slate-400">
+        Revenue and PPP-adjusted revenue fields below are auto-filled from General Data when you enter turnover and PPP factor there.
+      </p>
+    ) : null;
 
   return (
     <section>
-      <h1 className="text-2xl font-bold text-gray-900">Principle {principleNum}</h1>
-      <p className="mt-1 text-sm font-semibold text-teal-400">{title}</p>
+      <PanelHeader title={`Principle ${principleNum}`} subtitle={title} />
       {p6Note}
       <TabBar
         activeTab={activeTab}
@@ -165,13 +175,10 @@ export function PanelPrinciple({
         hasEssential={hasEssential}
         hasLeadership={hasLeadership}
       />
-      <div className="app-qblocks mt-6 space-y-3.5">
+      <div className="app-qblocks mt-6">
         {((activeTab === "essential" && !hasEssential) ||
           (activeTab === "leadership" && !hasLeadership)) ? (
-          <p
-            data-testid="tab-no-questions"
-            className="text-sm text-gray-400"
-          >
+          <p data-testid="tab-no-questions" className="text-sm text-gray-400">
             No questions assigned for this section.
           </p>
         ) : (

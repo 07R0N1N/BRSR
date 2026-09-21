@@ -5,10 +5,15 @@
 | File | Type | Breaker | What it covers | Run command |
 |------|------|---------|----------------|-------------|
 | `lib/exporters/brsrDocx.test.ts` | Vitest unit | N/A | `tv()`, `pv()`, `isRowEmpty()`, `buildStructuredTable()` — empty sentinel handling and all-empty dynamic-row filtering in BRSR DOCX output. | `npx vitest run lib/exporters/brsrDocx.test.ts` |
-| `lib/brsr/blockAccessPrefixes.test.ts` | Vitest unit | VISIBILITY | Prefix-based access matches RLS/UI so dynamic row codes save when the block is assigned; migration 011 array stays in sync with TS. | `npx vitest run lib/brsr/blockAccessPrefixes.test.ts` |
+| `lib/brsr/blockIndex.test.ts` | Vitest unit | BOTH | Every question code maps to one assignment block id; representativeCodeFor matches first code in block (collaboration RLS anchor). | `npx vitest run lib/brsr/blockIndex.test.ts` |
+| `lib/brsr/dirtyAnswerSave.test.ts` | Vitest unit | DATA SAFETY | POST payload includes only dirty codes so `updated_by` is not stamped on the whole questionnaire. | `npx vitest run lib/brsr/dirtyAnswerSave.test.ts` |
+| `playwright/tests/thread-access.spec.ts` | Playwright E2E | VISIBILITY | Restricted user gets 403 posting on unassigned block thread; admin comment visible to assigned user on assigned block. | `npx playwright test thread-access` |
 | `test/accessPolicy.test.ts` | Vitest unit | VISIBILITY | Role + onboarding combinations gate app use and redirects (master / admin / user). | `npx vitest run test/accessPolicy.test.ts` |
 | `lib/auth/normalize.test.ts` | Vitest unit | N/A | Email is always trim+lowercase and password is trim-only (case preserved) across every user-creation and login path. | `npx vitest run lib/auth/normalize.test.ts` |
 | `supabase/tests/rls-dynamic-rows.test.ts` | Vitest RLS integration | BOTH | Postgres RLS on `answers` for dynamic row codes; restricted vs admin vs master. | `SUPABASE_RLS_INTEGRATION=1 npx vitest run --config vitest.rls.config.ts supabase/tests/rls-dynamic-rows.test.ts` |
+| `lib/brsr/blockMapSync.test.ts` | Vitest unit | VISIBILITY | Migration 014 `brsr_assignment_blocks` seed matches `blockIndex` (ids, panel_id, representative code). | `npx vitest run lib/brsr/blockMapSync.test.ts` |
+| `lib/collaboration/attachmentGc.test.ts` | Vitest unit | N/A | Orphan-diff helpers for `purge:attachments`. | `npx vitest run lib/collaboration/attachmentGc.test.ts` |
+| `supabase/tests/rls-collaboration.test.ts` | Vitest RLS integration | VISIBILITY | Hardened 014/015: poison insert denied, note ok / resolve denied, storage block-gated, identity freeze, admin body rewrite denied. | `SUPABASE_RLS_INTEGRATION=1 npx vitest run --config vitest.rls.config.ts supabase/tests/rls-collaboration.test.ts` |
 | `playwright/tests/dynamic-row-visibility.spec.ts` | Playwright E2E | BOTH | P8 restricted-user DOM, edit + reload persistence, +ADD path, forbidden POST for unassigned code. | `npx playwright test dynamic-row-visibility` |
 | `playwright/tests/panel-checklist.spec.ts` | Playwright E2E | VISIBILITY | Sidebar + question-block visibility for every panel; admin sees all panels; multi-panel assignment. | `npx playwright test panel-checklist` |
 | `playwright/tests/user-question-visibility.spec.ts` | Playwright E2E | VISIBILITY | User-only smoke: dashboard load, empty vs assigned shell, first-panel click (adaptive to DB state). | `npx playwright test user-question-visibility` |
@@ -30,8 +35,10 @@ Answers are stored one row per `(org_id, reporting_year, question_code)`; saves 
 Restricted users see only assigned question codes. Dynamic rows share the same **prefix** as static block codes for RLS and client filtering. Hiding UI is not enough; **can_access_question()** and matching TS helpers must align.
 
 - **`blockAccessPrefixes.test.ts`** (unit) — `questionCodesShareAssignmentBlock` / `isQuestionCodeAllowedForRestrictedUser` / prefix list parity with migration **011**.
+- **`blockMapSync.test.ts`** (unit) — `brsr_assignment_blocks` seed parity with `blockIndex` (migration **014**).
 - **`accessPolicy.test.ts`** (unit) — Who may reach the app vs onboarding vs login.
 - **`rls-dynamic-rows.test.ts`** (DB) — Row visibility and writeability vs assignments and role tier.
+- **`rls-collaboration.test.ts`** (DB) — Hardened thread/storage RLS: poison insert denied, resolve admin-only, Storage block-gated.
 - **`dynamic-row-visibility.spec.ts`** (E2E) — Assigned **p8_e1** visible/editable; **p8_e2** absent from DOM; API forbidden path.
 - **`panel-checklist.spec.ts`** (E2E) — Every **panel-*** sidebar entry and **qblock-*** in-panel filtering for admin vs restricted user.
 - **`user-question-visibility.spec.ts`** (E2E) — Smoke on real user session: empty state vs restricted banner and panel buttons.
